@@ -45,7 +45,25 @@ Vista que muestra briefing, versiones generadas, validaciones por bloque, veredi
 
 ## 4. Estado actual
 
-Versión inicial en construcción. El alcance del MVP está definido en `docs/SCOPE_MVP.md` (F1-F5 obligatorias, F6-F9 recomendables, F10+ excluidas).
+### Fase completada: `feature/project-setup`
+
+Esqueleto técnico funcional. `npm run dev` arranca sin errores y sirve la página de bienvenida en `localhost:3000`.
+
+Lo que está en marcha:
+
+- Next.js 16.2.4 (App Router, Turbopack) con TypeScript estricto (`strict`, `noUncheckedIndexedAccess`).
+- Tailwind CSS v4, shadcn/ui v4.6 con tema neutro. Componente `Button` disponible en `src/components/ui/`.
+- ESLint (flat config) + Prettier configurados. Scripts `lint` y `format` en `package.json`.
+- Estructura de carpetas creada según `docs/ARCHITECTURE.md`: `src/services/`, `src/services/llm/`, `src/dao/`, `src/lib/`, `src/types/`, `src/components/briefing|messaging|validation/`, `src/app/api/`, `src/app/actions/`, `tests/unit/`, `tests/integration/`.
+- `README.md` con instrucciones reales de instalación y ejecución.
+
+Lo que falta (próximas fases):
+
+- Fase 2 (`feature/database-prisma`): schema Prisma, migraciones, seed, capa DAO.
+- Fase 3: módulo de briefing (formulario, Server Action, servicio, DAO).
+- Fases siguientes: generación con LLM, validación automática, histórico, detalle de caso.
+
+El alcance del MVP está definido en `docs/SCOPE_MVP.md` (F1-F5 obligatorias, F6-F9 recomendables, F10+ excluidas).
 
 ## 5. Restricciones funcionales
 
