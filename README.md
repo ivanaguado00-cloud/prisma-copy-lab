@@ -1,4 +1,4 @@
-﻿# PRISMA Copy Lab
+# PRISMA Copy Lab
 
 Aplicación web interna para crear, generar, validar y trazar mensajes
 comerciales de Universidad Prisma (caso académico ficticio).
@@ -6,28 +6,91 @@ comerciales de Universidad Prisma (caso académico ficticio).
 Práctica final del módulo "Desarrollo Vibe Coding" del Máster en IA
 Generativa, conectada con el TFM del autor.
 
-## Estado actual
+---
 
-Versión inicial en construcción. Documentación operativa cargada.
-Implementación pendiente.
+## Requisitos
+
+- Node.js 20 o superior
+- npm 10 o superior
+
+---
+
+## Instalación
+
+```bash
+git clone <url-del-repositorio>
+cd prisma-copy-lab
+npm install
+```
+
+---
+
+## Variables de entorno
+
+Copia el archivo de plantilla y rellena los valores:
+
+```bash
+cp .env.example .env
+```
+
+Variables necesarias (ver `.env.example` para la plantilla completa):
+
+| Variable         | Descripción                                      |
+|------------------|--------------------------------------------------|
+| `DATABASE_URL`   | Ruta SQLite, p.ej. `file:./prisma/dev.db`        |
+| `OPENAI_API_KEY` | Clave de API de OpenAI                           |
+| `OPENAI_MODEL`   | Modelo a usar (por defecto `gpt-4o-mini`)        |
+| `LLM_MOCK`       | `true` activa el cliente mock sin llamadas reales |
+
+---
+
+## Ejecución
+
+### Modo desarrollo
+
+```bash
+npm run dev
+```
+
+Abre [http://localhost:3000](http://localhost:3000) en el navegador.
+
+### Modo desarrollo con LLM mock (sin llamadas a OpenAI)
+
+```bash
+LLM_MOCK=true npm run dev
+```
+
+En Windows (PowerShell):
+
+```powershell
+$env:LLM_MOCK="true"; npm run dev
+```
+
+### Build de producción
+
+```bash
+npm run build
+npm run start
+```
+
+---
+
+## Otros comandos útiles
+
+```bash
+npm run lint      # Ejecuta ESLint
+npm run format    # Formatea el código con Prettier
+```
+
+---
 
 ## Documentación
 
-- Reglas globales de código y patrones: `AGENTS.md`.
-- Estado funcional del sistema: `contexto_proyecto.md`.
-- Documentación técnica y de producto: `docs/`.
-- Corpus de Universidad Prisma: `data/corpus/`.
-- Skills reutilizables: `.claude/skills/`.
-
-## Stack
-
-Next.js (App Router) + TypeScript + Tailwind + shadcn/ui + Prisma + SQLite +
-OpenAI gpt-4o-mini.
-
-## Instrucciones de ejecución
-
-(Pendientes. Se documentarán cuando la aplicación tenga funcionalidad
-ejecutable, en la fase `feature/project-setup`.)
+- Reglas globales de código y patrones: `AGENTS.md`
+- Estado funcional del sistema: `contexto_proyecto.md`
+- Arquitectura aplicada: `docs/ARCHITECTURE.md`
+- Documentación técnica y de producto: `docs/`
+- Corpus de Universidad Prisma: `data/corpus/`
 
 ## Autor
 
