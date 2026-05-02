@@ -84,6 +84,7 @@ desktop.ini
 .antigravity/
 .claude/cache/
 .claude/tmp/
+.claude/settings.local.json
 # Conservamos las skills (sí van al repo)
 !.claude/skills/
 
