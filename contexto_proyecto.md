@@ -92,9 +92,25 @@ Lo que está en marcha:
 
 Nota técnica: el componente `Button` de este proyecto usa `@base-ui/react`, que no soporta la prop `asChild`. Para renderizar un `Link` con estilos de botón se usa `buttonVariants` directamente sobre el `<Link>` (`import { buttonVariants } from '…/button'`).
 
+### Fase completada: `feature/llm-generation`
+
+Generación de mensajes con LLM. F2 del MVP operativa.
+
+Lo que está en marcha:
+
+- `src/types/llm.ts`: interfaz `GenerationClient { generate(system, user): Promise<string> }` + constante `GENERATION_PROMPT_VERSION = "v1.0"`. Contrato del patrón Adapter compartido por cliente real y mock.
+- `src/services/llm/client.ts`: `OpenAIGenerationClient`. Usa SDK `openai` v4. Lee `OPENAI_API_KEY` y `OPENAI_MODEL` del entorno. Temperatura: 0.4 (producción) / 0.7 (exploración).
+- `src/services/llm/mockClient.ts`: `MockGenerationClient`. Devuelve respuestas pregrabadas por canal (whatsapp / email). Activo cuando `LLM_MOCK=true`.
+- `src/services/llm/factory.ts`: `getGenerationClient()`. Selecciona el cliente real o el mock según `process.env.LLM_MOCK`.
+- `src/services/generationService.ts`: `generateMessage(brief)`. Construye system prompt y user prompt (plantilla v1.0 de `docs/PROMPTS.md`), llama al cliente LLM, asigna `versionNumber` incremental y persiste `MessageVersion` con metadatos (`llmProvider`, `llmModel`, `generationPromptVersion`).
+- `src/app/actions/messageActions.ts`: Server Action `generateMessageAction(briefId)`. Recupera el briefing, delega en `generateMessage` y redirige a `/briefs/[id]` tras éxito.
+- `src/components/messaging/MessageVersionView.tsx`: Server Component que renderiza una `MessageVersion` (número de versión, fecha, contenido, modelo, versión de prompt).
+- `src/app/briefs/[id]/page.tsx` ampliada: carga versiones en paralelo con el briefing; botón "Generar mensaje" prominente si no hay versiones, secundario ("+ Nueva versión") si ya existen; lista cada versión con `MessageVersionView`.
+- Dependencia `openai` (SDK v4) añadida como runtime.
+- 11 tests unitarios en `tests/unit/generationService.test.ts`: construcción del prompt, `versionNumber` incremental, metadatos persistidos, `llmModel = "mock"` cuando `LLM_MOCK=true`.
+
 Lo que falta (próximas fases):
 
-- Fase 4: generación con LLM (servicio de generación, cliente real y mock, primera versión de mensaje).
 - Fase 5: validación automática (validationService, parseo JSON del LLM, matriz de veredicto, persistencia de 7 scores).
 - Fases siguientes: iteración de versiones (F7), búsqueda y filtros (F6).
 
