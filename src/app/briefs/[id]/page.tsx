@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { getBriefById } from '../../../dao/briefDao'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card'
 import { Separator } from '../../../components/ui/separator'
-import { Button } from '../../../components/ui/button'
+import { buttonVariants } from '../../../components/ui/button'
 
 const CHANNEL_LABELS: Record<string, string> = {
   whatsapp: 'WhatsApp',
@@ -56,9 +56,9 @@ export default async function BriefDetailPage({ params }: Props) {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
       <div className="flex items-center gap-4 mb-6">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/briefs">← Volver al listado</Link>
-        </Button>
+        <Link href="/briefs" className={buttonVariants({ variant: 'outline', size: 'sm' })}>
+          ← Volver al listado
+        </Link>
       </div>
 
       <Card>

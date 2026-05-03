@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { Button } from '../components/ui/button'
+import { buttonVariants } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
+import { cn } from '../lib/utils'
 
 export const metadata = {
   title: 'PRISMA Copy Lab',
@@ -27,9 +28,9 @@ export default function HomePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button asChild className="w-full">
-                <Link href="/briefs/new">Empezar</Link>
-              </Button>
+              <Link href="/briefs/new" className={cn(buttonVariants(), 'w-full')}>
+                Empezar
+              </Link>
             </CardContent>
           </Card>
 
@@ -41,9 +42,9 @@ export default function HomePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button asChild variant="outline" className="w-full">
-                <Link href="/briefs">Ver briefings</Link>
-              </Button>
+              <Link href="/briefs" className={cn(buttonVariants({ variant: 'outline' }), 'w-full')}>
+                Ver briefings
+              </Link>
             </CardContent>
           </Card>
         </div>

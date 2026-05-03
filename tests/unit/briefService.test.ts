@@ -101,7 +101,7 @@ describe('createBriefService — normalización de espacios', () => {
     expect(result.success).toBe(true)
     expect(mockCreateBrief).toHaveBeenCalledOnce()
 
-    const calledWith = mockCreateBrief.mock.calls[0][0]
+    const calledWith = mockCreateBrief.mock.calls[0]![0]!
     expect(calledWith.title).toBe('Campaña con espacios')
     expect(calledWith.objective).toBe('Objetivo con tabulador')
     expect(calledWith.audience).toBe('Audiencia con espacio inicial')
@@ -118,7 +118,7 @@ describe('createBriefService — normalización de espacios', () => {
 
     await createBriefService(inputWithEmpty)
 
-    const calledWith = mockCreateBrief.mock.calls[0][0]
+    const calledWith = mockCreateBrief.mock.calls[0]![0]!
     expect(calledWith.programOrTitulation).toBeUndefined()
     expect(calledWith.constraints).toBeUndefined()
   })
@@ -147,7 +147,7 @@ describe('createBriefService — caso feliz', () => {
 
     await createBriefService(inputWithoutOptionals)
 
-    const calledWith = mockCreateBrief.mock.calls[0][0]
+    const calledWith = mockCreateBrief.mock.calls[0]![0]!
     expect(calledWith.programOrTitulation).toBeUndefined()
     expect(calledWith.constraints).toBeUndefined()
   })
