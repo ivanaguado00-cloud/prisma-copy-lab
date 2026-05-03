@@ -35,8 +35,11 @@ prisma-copy-lab/
 │   ├── schema.prisma
 │   ├── seed.ts
 │   └── migrations/
+├── prisma.config.ts               # configuración del seed (Prisma 7)
 ├── public/
 ├── src/
+│   ├── generated/
+│   │   └── prisma/                # cliente generado (.gitignore; regenerar con npx prisma generate)
 │   ├── app/                       # rutas Next.js (Vista + Controlador)
 │   │   ├── layout.tsx
 │   │   ├── page.tsx               # inicio
