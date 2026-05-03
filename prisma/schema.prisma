@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Brief {
+  id                  String           @id @default(cuid())
+  title               String
+  programOrTitulation String?
+  objective           String
+  audience            String
+  channel             String
+  mode                String
+  valueProposition    String
+  cta                 String
+  constraints         String?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  versions            MessageVersion[]
+}
+
+model MessageVersion {
+  id                      String           @id @default(cuid())
+  briefId                 String
+  versionNumber           Int
+  content                 String
+  llmProvider             String
+  llmModel                String
+  generationPromptVersion String
+  userInstruction         String?
+  parentVersionId         String?
+  createdAt               DateTime         @default(now())
+
+  brief                   Brief            @relation(fields: [briefId], references: [id], onDelete: Cascade)
+  validationRuns          ValidationRun[]
+  parentVersion           MessageVersion?  @relation("Iteration", fields: [parentVersionId], references: [id])
+  iterations              MessageVersion[] @relation("Iteration")
+
+  @@unique([briefId, versionNumber])
+}
+
+model ValidationRun {
+  id                     String            @id @default(cuid())
+  messageVersionId       String
+  overallVerdict         String
+  summary                String
+  suggestedRewrite       String?
+  validatorModel         String
+  validatorPromptVersion String
+  criteriaVersion        String
+  createdAt              DateTime          @default(now())
+
+  messageVersion         MessageVersion    @relation(fields: [messageVersionId], references: [id], onDelete: Cascade)
+  scores                 ValidationScore[]
+}
+
+model ValidationScore {
+  id              String        @id @default(cuid())
+  validationRunId String
+  criterionKey    String
+  criterionName   String
+  status          String
+  comment         String
+  suggestedFix    String?
+
+  validationRun   ValidationRun @relation(fields: [validationRunId], references: [id], onDelete: Cascade)
+
+  @@index([validationRunId])
+}

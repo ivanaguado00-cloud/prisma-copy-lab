@@ -57,9 +57,25 @@ Lo que está en marcha:
 - Estructura de carpetas creada según `docs/ARCHITECTURE.md`: `src/services/`, `src/services/llm/`, `src/dao/`, `src/lib/`, `src/types/`, `src/components/briefing|messaging|validation/`, `src/app/api/`, `src/app/actions/`, `tests/unit/`, `tests/integration/`.
 - `README.md` con instrucciones reales de instalación y ejecución.
 
+### Fase completada: `feature/database-prisma`
+
+Capa de persistencia completa y verificada.
+
+Lo que está en marcha:
+
+- Prisma 7 instalado con `@prisma/adapter-better-sqlite3` (v7 exige driver adapter; no existe cliente por defecto sin él).
+- `prisma/schema.prisma` con 4 modelos: `Briefing`, `MessageVersion`, `ValidationRun`, `ValidationScore`. Primera migración (`init`) aplicada.
+- Singleton del cliente Prisma con adapter en `src/lib/prisma.ts`.
+- `prisma.config.ts` en raíz: configura la ruta del seed (reemplaza el bloque `"prisma": { "seed": ... }` de versiones anteriores de Prisma).
+- Tipos de dominio en `src/types/domain.ts`: enums literales TypeScript para `Channel`, `Mode`, `OverallVerdict`, `ScoreStatus` y `CriterionKey` (SQLite no admite enums nativos; los valores se validan en servicios antes de persistir).
+- 4 DAOs base en `src/dao/` con operaciones mínimas: `create`, `getById`, `list` (y variantes por relación cuando procede).
+- `prisma/seed.ts` con 3 briefings, 3 versiones de mensaje, 3 validaciones y 21 scores. Cubre los tres veredictos posibles: aprobada, aprobada_con_ajustes y no_aprobada. Verificado con `npx prisma studio`.
+- Script `db:seed` en `package.json` operativo. El cliente generado vive en `src/generated/prisma/` (en `.gitignore`).
+
+Aviso operativo: en `migrate reset`, Prisma 7 no siempre lanza el seed automáticamente. Ejecutar `npm run db:seed` manualmente tras el reset.
+
 Lo que falta (próximas fases):
 
-- Fase 2 (`feature/database-prisma`): schema Prisma, migraciones, seed, capa DAO.
 - Fase 3: módulo de briefing (formulario, Server Action, servicio, DAO).
 - Fases siguientes: generación con LLM, validación automática, histórico, detalle de caso.
 

@@ -299,6 +299,9 @@ Reglas:
 - los DAOs reciben tipos de dominio explícitos, no `any`
 - SQLite no admite enums nativos: los valores enumerables se modelan como `String` con validación en la capa de servicios antes de persistir
 - las migraciones se generan con Prisma Migrate y se versionan en el repositorio
+- Prisma 7 requiere driver adapter obligatorio: el cliente Prisma se instancia siempre con `@prisma/adapter-better-sqlite3`; no existe cliente por defecto sin él
+- la configuración del seed vive en `prisma.config.ts` (raíz), no en el bloque `"prisma"` de `package.json`
+- el cliente generado reside en `src/generated/prisma/` y está en `.gitignore`; regenerar con `npx prisma generate` tras clonar o migrar
 
 ### Cliente LLM
 
