@@ -1,9 +1,12 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getBriefById } from '../../../dao/briefDao'
+import { listVersionsByBrief } from '../../../dao/messageVersionDao'
+import { generateMessageAction } from '../../actions/messageActions'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card'
 import { Separator } from '../../../components/ui/separator'
 import { buttonVariants } from '../../../components/ui/button'
+import { MessageVersionView } from '../../../components/messaging/MessageVersionView'
 
 const CHANNEL_LABELS: Record<string, string> = {
   whatsapp: 'WhatsApp',
@@ -47,15 +50,20 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function BriefDetailPage({ params }: Props) {
   const { id } = await params
-  const brief = await getBriefById(id)
+  const [brief, versions] = await Promise.all([
+    getBriefById(id),
+    listVersionsByBrief(id),
+  ])
 
   if (!brief) {
     notFound()
   }
 
+  const generateWithId = generateMessageAction.bind(null, id)
+
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12">
-      <div className="flex items-center gap-4 mb-6">
+    <div className="mx-auto max-w-2xl px-4 py-12 space-y-8">
+      <div className="flex items-center gap-4">
         <Link href="/briefs" className={buttonVariants({ variant: 'outline', size: 'sm' })}>
           ← Volver al listado
         </Link>
@@ -88,6 +96,43 @@ export default async function BriefDetailPage({ params }: Props) {
           </dl>
         </CardContent>
       </Card>
+
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-semibold text-zinc-800">
+            Mensajes generados
+            {versions.length > 0 && (
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                ({versions.length})
+              </span>
+            )}
+          </h2>
+
+          <form action={generateWithId}>
+            <button
+              type="submit"
+              className={buttonVariants({
+                variant: versions.length === 0 ? 'default' : 'outline',
+                size: 'sm',
+              })}
+            >
+              {versions.length === 0 ? 'Generar mensaje' : '+ Nueva versión'}
+            </button>
+          </form>
+        </div>
+
+        {versions.length === 0 ? (
+          <p className="text-sm text-zinc-400 py-6 text-center border border-dashed border-zinc-200 rounded-lg">
+            Aún no hay mensajes generados para este briefing.
+          </p>
+        ) : (
+          <div className="space-y-4">
+            {versions.map((version) => (
+              <MessageVersionView key={version.id} version={version} />
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   )
 }
