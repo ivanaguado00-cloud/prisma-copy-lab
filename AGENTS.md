@@ -291,6 +291,7 @@ Reglas:
 - no dupliques componentes existentes con pequeñas variaciones evitables
 - personaliza con criterio, manteniendo consistencia en variantes, tamaños y estados
 - si un patrón visual se repite, consolídalo en un componente compartido
+- el componente `Button` de este proyecto usa `@base-ui/react`, que **no soporta la prop `asChild`**; para renderizar un `Link` con estilos de botón, usa `buttonVariants` directamente: `<Link href="…" className={buttonVariants()}>texto</Link>`
 
 ### Prisma y SQLite
 
@@ -370,6 +371,10 @@ Cada cambio debe considerar, según aplique:
 - errores esperables
 - casos límite
 - regresiones sobre comportamiento existente
+
+### Framework de tests
+
+El proyecto usa **vitest** (`vitest`, `@vitest/coverage-v8`) como framework de tests. Configuración en `vitest.config.ts` en la raíz. Scripts disponibles: `npm test` (run) y `npm run test:watch` (watch mode). Los mocks de módulos se hacen con `vi.mock`.
 
 ### Tipos de pruebas
 

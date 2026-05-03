@@ -74,10 +74,29 @@ Lo que está en marcha:
 
 Aviso operativo: en `migrate reset`, Prisma 7 no siempre lanza el seed automáticamente. Ejecutar `npm run db:seed` manualmente tras el reset.
 
+### Fase completada: `feature/briefing-crud`
+
+Primera funcionalidad visible al usuario: crear, listar y ver el detalle de briefings.
+
+Lo que está en marcha:
+
+- `src/services/briefService.ts`: valida los 7 campos obligatorios (`title`, `objective`, `audience`, `channel`, `mode`, `valueProposition`, `cta`) con mensajes de error por campo, verifica que `channel` y `mode` sean valores del enum, normaliza espacios en todos los campos de texto y convierte opcionales vacíos a `undefined`. Delega la persistencia en `briefDao.createBrief`.
+- `src/app/actions/briefActions.ts`: Server Action `createBriefAction`. Extrae FormData, llama a `briefService` y, en caso de éxito, ejecuta `redirect('/briefs/[id]')` desde el servidor (patrón idiomático React 19 + Next.js App Router). En caso de error devuelve el estado de errores al formulario vía `useActionState`.
+- `src/components/briefing/BriefingForm.tsx`: Client Component con `useActionState`. Muestra errores por campo. No contiene lógica de negocio.
+- `src/app/briefs/new/page.tsx`: Server Component que renderiza `BriefingForm`.
+- `src/app/briefs/page.tsx`: Server Component con listado cronológico inverso de briefings (título, canal, fecha, enlace al detalle). Muestra los datos del seed de la fase anterior.
+- `src/app/briefs/[id]/page.tsx`: Server Component con detalle completo del briefing. Llama a `notFound()` si el ID no existe.
+- `src/app/page.tsx`: landing del proyecto (reemplaza la plantilla stock de Next.js). Accesos directos a `/briefs/new` y `/briefs`.
+- shadcn/ui adicionales instalados: `input`, `textarea`, `select`, `label`, `card`, `separator`.
+- Vitest (`vitest`, `@vitest/coverage-v8`) instalado como devDependency. Scripts `test` y `test:watch` en `package.json`. 13 tests unitarios en `tests/unit/briefService.test.ts` cubriendo todos los campos obligatorios, enums inválidos, normalización de espacios y caso feliz.
+
+Nota técnica: el componente `Button` de este proyecto usa `@base-ui/react`, que no soporta la prop `asChild`. Para renderizar un `Link` con estilos de botón se usa `buttonVariants` directamente sobre el `<Link>` (`import { buttonVariants } from '…/button'`).
+
 Lo que falta (próximas fases):
 
-- Fase 3: módulo de briefing (formulario, Server Action, servicio, DAO).
-- Fases siguientes: generación con LLM, validación automática, histórico, detalle de caso.
+- Fase 4: generación con LLM (servicio de generación, cliente real y mock, primera versión de mensaje).
+- Fase 5: validación automática (validationService, parseo JSON del LLM, matriz de veredicto, persistencia de 7 scores).
+- Fases siguientes: iteración de versiones (F7), búsqueda y filtros (F6).
 
 El alcance del MVP está definido en `docs/SCOPE_MVP.md` (F1-F5 obligatorias, F6-F9 recomendables, F10+ excluidas).
 
