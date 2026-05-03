@@ -1,4 +1,6 @@
-import { PrismaClient } from '../src/generated/prisma'
+import 'dotenv/config'
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
+import { PrismaClient } from '../src/generated/prisma/client'
 import {
   CHANNEL,
   MODE,
@@ -7,7 +9,10 @@ import {
   CRITERION_KEY,
 } from '../src/types/domain'
 
-const prisma = new PrismaClient()
+const adapter = new PrismaBetterSqlite3({
+  url: process.env.DATABASE_URL ?? 'file:./prisma/dev.db',
+})
+const prisma = new PrismaClient({ adapter })
 
 async function main() {
   // ── Brief 1: WhatsApp captación máster ─────────────────────────────────────
