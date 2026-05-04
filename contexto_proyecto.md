@@ -109,10 +109,31 @@ Lo que está en marcha:
 - Dependencia `openai` (SDK v4) añadida como runtime.
 - 11 tests unitarios en `tests/unit/generationService.test.ts`: construcción del prompt, `versionNumber` incremental, metadatos persistidos, `llmModel = "mock"` cuando `LLM_MOCK=true`.
 
+Lo que está completado en fases siguientes:
+
+- Fase 5: validación automática. Ver sección siguiente.
+
 Lo que falta (próximas fases):
 
-- Fase 5: validación automática (validationService, parseo JSON del LLM, matriz de veredicto, persistencia de 7 scores).
-- Fases siguientes: iteración de versiones (F7), búsqueda y filtros (F6).
+- Iteración de versiones (F7): nueva versión a partir de instrucción del usuario.
+- Búsqueda y filtros (F6): filtrar briefings por canal, modo o veredicto.
+
+### Fase completada: `feature/validation-engine`
+
+Validación automática de mensajes. F3 del MVP operativa.
+
+Lo que está en marcha:
+
+- `src/types/llm.ts` ampliado: interfaz `ValidationClient { validate(system, user): Promise<string> }` + constante `VALIDATOR_PROMPT_VERSION = "v1.0"`. Separada de `GenerationClient` porque usa parámetros LLM distintos (temperatura fija 0.0, response_format json_object).
+- `src/services/llm/client.ts`: `OpenAIValidationClient`. Llama con `temperature: 0.0` y `response_format: { type: "json_object" }` para garantizar determinismo.
+- `src/services/llm/mockClient.ts`: `MockValidationClient`. Devuelve JSON pregrabado con 7 scores (5 `bien`, 2 `mejorable`), veredicto calculado `aprobada_con_ajustes`. Activo cuando `LLM_MOCK=true`.
+- `src/services/llm/factory.ts`: `getValidationClient()` análogo a `getGenerationClient()`.
+- `src/services/validationService.ts`: `calculateOverallVerdict(scores)` — función pura que aplica la matriz determinista de `docs/VALIDATION_CRITERIA.md` sección 6 (cualquier `critico` → `no_aprobada`; 2+ `mejorable` → `aprobada_con_ajustes`; resto → `aprobada`). `parseValidatorResponse(raw)` — parser estricto que rechaza JSON con menos de 7 scores, claves renombradas, duplicados, status fuera de los tres permitidos o comment vacío. `validateMessage(messageVersionId)` — orquestador: carga `MessageVersion` + `Brief`, llama al `ValidationClient`, reintenta hasta 3 veces si el parser rechaza, calcula el veredicto en código, persiste `ValidationRun` + 7 `ValidationScore`. `criteriaVersion = "v1.0"` se persiste en cada run.
+- `src/app/actions/validationActions.ts`: Server Action `validateMessageAction(messageVersionId)`. Delega en `validationService` y redirige a `/briefs/[id]`.
+- `src/components/validation/ValidationView.tsx`: Server Component. Muestra badge de veredicto coloreado (verde/amarillo/rojo), resumen, 7 bloques con nombre legible + badge de status + comentario + `suggestedFix` opcional, y bloque de `suggestedRewrite` si existe.
+- `src/app/briefs/[id]/page.tsx` ampliada: carga `validation_runs` en paralelo para todas las versiones; muestra `ValidationView` si existe run, botón "Validar mensaje" si no.
+- System prompt del validador: replica la plantilla de `docs/PROMPTS.md` sección 4 `v1.0`. Incluye instrucción explícita de no devolver el `overallVerdict`.
+- 21 tests unitarios nuevos en `tests/unit/validationService.test.ts`. Total suite: 48 tests. Cubren las 3 ramas de `calculateOverallVerdict` con casos límite y el parser con casos válidos e inválidos.
 
 El alcance del MVP está definido en `docs/SCOPE_MVP.md` (F1-F5 obligatorias, F6-F9 recomendables, F10+ excluidas).
 
