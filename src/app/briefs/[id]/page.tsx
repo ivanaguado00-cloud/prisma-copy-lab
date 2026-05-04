@@ -2,11 +2,14 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getBriefById } from '../../../dao/briefDao'
 import { listVersionsByBrief } from '../../../dao/messageVersionDao'
+import { listValidationRunsByMessage } from '../../../dao/validationRunDao'
 import { generateMessageAction } from '../../actions/messageActions'
+import { validateMessageAction } from '../../actions/validationActions'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card'
 import { Separator } from '../../../components/ui/separator'
 import { buttonVariants } from '../../../components/ui/button'
 import { MessageVersionView } from '../../../components/messaging/MessageVersionView'
+import { ValidationView } from '../../../components/validation/ValidationView'
 
 const CHANNEL_LABELS: Record<string, string> = {
   whatsapp: 'WhatsApp',
@@ -58,6 +61,15 @@ export default async function BriefDetailPage({ params }: Props) {
   if (!brief) {
     notFound()
   }
+
+  const validationRunsByVersion = Object.fromEntries(
+    await Promise.all(
+      versions.map(async (v) => {
+        const runs = await listValidationRunsByMessage(v.id)
+        return [v.id, runs[0] ?? null] as const
+      }),
+    ),
+  )
 
   const generateWithId = generateMessageAction.bind(null, id)
 
@@ -126,10 +138,28 @@ export default async function BriefDetailPage({ params }: Props) {
             Aún no hay mensajes generados para este briefing.
           </p>
         ) : (
-          <div className="space-y-4">
-            {versions.map((version) => (
-              <MessageVersionView key={version.id} version={version} />
-            ))}
+          <div className="space-y-6">
+            {versions.map((version) => {
+              const latestRun = validationRunsByVersion[version.id] ?? null
+              const validateWithId = validateMessageAction.bind(null, version.id)
+              return (
+                <div key={version.id} className="space-y-3">
+                  <MessageVersionView version={version} />
+                  {latestRun ? (
+                    <ValidationView run={latestRun} />
+                  ) : (
+                    <form action={validateWithId}>
+                      <button
+                        type="submit"
+                        className={buttonVariants({ variant: 'outline', size: 'sm' })}
+                      >
+                        Validar mensaje
+                      </button>
+                    </form>
+                  )}
+                </div>
+              )
+            })}
           </div>
         )}
       </section>
