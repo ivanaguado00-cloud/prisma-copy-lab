@@ -1,4 +1,4 @@
-import type { GenerationClient } from '../../types/llm'
+import type { GenerationClient, ValidationClient } from '../../types/llm'
 
 const MOCK_RESPONSES: Record<string, string> = {
   whatsapp:
@@ -29,5 +29,62 @@ export class MockGenerationClient implements GenerationClient {
       return MOCK_RESPONSES.email!
     }
     return DEFAULT_MOCK
+  }
+}
+
+const MOCK_VALIDATION_RESPONSE = JSON.stringify({
+  scores: [
+    {
+      criterionKey: 'alineacion_estrategica',
+      status: 'bien',
+      comment: 'El mensaje responde con claridad al objetivo declarado y está correctamente enfocado al segmento.',
+      suggestedFix: null,
+    },
+    {
+      criterionKey: 'claridad_estructura',
+      status: 'mejorable',
+      comment: 'La idea principal se comprende, pero hay una frase larga en el cuerpo que podría simplificarse.',
+      suggestedFix: 'Dividir la frase larga en dos oraciones más cortas para facilitar la lectura.',
+    },
+    {
+      criterionKey: 'tono_coherencia_marca',
+      status: 'bien',
+      comment: 'El tono es cercano, profesional e institucional. Reconocible como Universidad Prisma.',
+      suggestedFix: null,
+    },
+    {
+      criterionKey: 'calidad_argumental',
+      status: 'bien',
+      comment: 'La propuesta de valor es visible y el beneficio principal está priorizado.',
+      suggestedFix: null,
+    },
+    {
+      criterionKey: 'adaptacion_canal',
+      status: 'mejorable',
+      comment: 'La longitud es adecuada pero la CTA podría ser más directa para el canal.',
+      suggestedFix: 'Reformular la CTA para que sea más concisa y accionable en este canal.',
+    },
+    {
+      criterionKey: 'precision_fiabilidad',
+      status: 'bien',
+      comment: 'No se detectan datos dudosos, promesas no verificables ni información inventada.',
+      suggestedFix: null,
+    },
+    {
+      criterionKey: 'calidad_ejecucion',
+      status: 'bien',
+      comment: 'El texto fluye con naturalidad. Sin errores ortográficos ni gramaticales detectables.',
+      suggestedFix: null,
+    },
+  ],
+  summary:
+    'La pieza es sólida en estrategia, tono y ejecución. Hay mejoras menores en claridad de estructura y formulación de la CTA que conviene atender antes de activar.',
+  suggestedRewrite:
+    'Versión ajustada sugerida: [El mock no genera reescritura real. Activa LLM_MOCK=false para obtener una reescritura del modelo.]',
+})
+
+export class MockValidationClient implements ValidationClient {
+  async validate(_systemPrompt: string, _userPrompt: string): Promise<string> {
+    return MOCK_VALIDATION_RESPONSE
   }
 }

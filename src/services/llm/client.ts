@@ -1,5 +1,5 @@
 import OpenAI from 'openai'
-import type { GenerationClient } from '../../types/llm'
+import type { GenerationClient, ValidationClient } from '../../types/llm'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -20,6 +20,26 @@ export class OpenAIGenerationClient implements GenerationClient {
     const content = response.choices[0]?.message?.content
     if (!content) {
       throw new Error('El modelo no devolvió contenido')
+    }
+    return content
+  }
+}
+
+export class OpenAIValidationClient implements ValidationClient {
+  async validate(systemPrompt: string, userPrompt: string): Promise<string> {
+    const response = await openai.chat.completions.create({
+      model,
+      temperature: 0.0,
+      response_format: { type: 'json_object' },
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+    })
+
+    const content = response.choices[0]?.message?.content
+    if (!content) {
+      throw new Error('El modelo no devolvió contenido en la validación')
     }
     return content
   }
