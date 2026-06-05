@@ -63,12 +63,22 @@ ${modeNote}`
 
 // ── Service ───────────────────────────────────────────────────────────────────
 
-export async function generateMessage(brief: Brief) {
+interface GenerateOptions {
+  userInstruction?: string
+  parentVersionId?: string
+}
+
+export async function generateMessage(brief: Brief, options: GenerateOptions = {}) {
+  const { userInstruction, parentVersionId } = options
   const client = getGenerationClient()
   const temperature = TEMPERATURE[brief.mode] ?? 0.4
 
   const systemPrompt = GENERATION_SYSTEM_PROMPT
-  const userPrompt = buildUserPrompt(brief)
+  let userPrompt = buildUserPrompt(brief)
+
+  if (userInstruction) {
+    userPrompt += `\n\nINSTRUCCIÓN DE AJUSTE DEL USUARIO:\n"${userInstruction}"\nAplica esta instrucción manteniendo el resto de criterios institucionales.`
+  }
 
   const content = await client.generate(systemPrompt, userPrompt)
 
@@ -85,6 +95,8 @@ export async function generateMessage(brief: Brief) {
     llmProvider: 'openai',
     llmModel,
     generationPromptVersion: GENERATION_PROMPT_VERSION,
+    userInstruction,
+    parentVersionId,
   })
 }
 
