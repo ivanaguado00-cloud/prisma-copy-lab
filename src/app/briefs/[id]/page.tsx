@@ -5,6 +5,7 @@ import { listVersionsByBrief } from '../../../dao/messageVersionDao'
 import { listValidationRunsByMessage } from '../../../dao/validationRunDao'
 import { generateMessageAction, refineMessageAction } from '../../actions/messageActions'
 import { validateMessageAction } from '../../actions/validationActions'
+import { autoRefineAction } from '../../actions/agentActions'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card'
 import { Separator } from '../../../components/ui/separator'
 import { buttonVariants } from '../../../components/ui/button'
@@ -158,7 +159,19 @@ export default async function BriefDetailPage({ params }: Props) {
                 <div key={version.id} className="space-y-3">
                   <MessageVersionView version={version} />
                   {latestRun ? (
-                    <ValidationView run={latestRun} />
+                    <>
+                      <ValidationView run={latestRun} />
+                      {latestRun.overallVerdict !== 'aprobada' && (
+                        <form action={autoRefineAction.bind(null, brief.id, version.id)}>
+                          <button
+                            type="submit"
+                            className={buttonVariants({ variant: 'outline', size: 'sm' })}
+                          >
+                            ✨ Refinar automáticamente
+                          </button>
+                        </form>
+                      )}
+                    </>
                   ) : (
                     <form action={validateWithId}>
                       <button
