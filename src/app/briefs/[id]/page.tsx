@@ -11,6 +11,7 @@ import { Separator } from '../../../components/ui/separator'
 import { buttonVariants } from '../../../components/ui/button'
 import { MessageVersionView } from '../../../components/messaging/MessageVersionView'
 import { ValidationView } from '../../../components/validation/ValidationView'
+import { VersionTree } from '../../../components/messaging/VersionTree'
 
 const CHANNEL_LABELS: Record<string, string> = {
   whatsapp: 'WhatsApp',
@@ -109,6 +110,10 @@ export default async function BriefDetailPage({ params }: Props) {
           </dl>
         </CardContent>
       </Card>
+
+      {versions.length > 0 && (
+        <VersionTree versions={versions} validationByVersion={validationRunsByVersion} />
+      )}
 
       <section className="space-y-4">
         <div className="flex items-center justify-between">
