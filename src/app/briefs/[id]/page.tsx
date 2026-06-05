@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { getBriefById } from '../../../dao/briefDao'
 import { listVersionsByBrief } from '../../../dao/messageVersionDao'
 import { listValidationRunsByMessage } from '../../../dao/validationRunDao'
-import { generateMessageAction } from '../../actions/messageActions'
+import { generateMessageAction, refineMessageAction } from '../../actions/messageActions'
 import { validateMessageAction } from '../../actions/validationActions'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card'
 import { Separator } from '../../../components/ui/separator'
@@ -111,14 +111,25 @@ export default async function BriefDetailPage({ params }: Props) {
 
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-zinc-800">
-            Mensajes generados
-            {versions.length > 0 && (
-              <span className="ml-2 text-sm font-normal text-zinc-500">
-                ({versions.length})
-              </span>
-            )}
-          </h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-base font-semibold text-zinc-800">
+              Mensajes generados
+              {versions.length > 0 && (
+                <span className="ml-2 text-sm font-normal text-zinc-500">
+                  ({versions.length})
+                </span>
+              )}
+            </h2>
+            <span
+              className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                brief.mode === 'exploracion'
+                  ? 'bg-purple-100 text-purple-700'
+                  : 'bg-blue-50 text-blue-700'
+              }`}
+            >
+              {MODE_LABELS[brief.mode]}
+            </span>
+          </div>
 
           <form action={generateWithId}>
             <button
@@ -142,6 +153,7 @@ export default async function BriefDetailPage({ params }: Props) {
             {versions.map((version) => {
               const latestRun = validationRunsByVersion[version.id] ?? null
               const validateWithId = validateMessageAction.bind(null, version.id)
+              const refineWithIds = refineMessageAction.bind(null, brief.id, version.id)
               return (
                 <div key={version.id} className="space-y-3">
                   <MessageVersionView version={version} />
@@ -157,6 +169,20 @@ export default async function BriefDetailPage({ params }: Props) {
                       </button>
                     </form>
                   )}
+                  <form action={refineWithIds} className="flex gap-2 items-end pt-1">
+                    <textarea
+                      name="userInstruction"
+                      placeholder="Instrucción de ajuste: ej. 'hazlo más directo', 'reduce el tono promocional'…"
+                      rows={2}
+                      className="flex-1 text-sm rounded-md border border-zinc-200 px-3 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-zinc-400 placeholder:text-zinc-400"
+                    />
+                    <button
+                      type="submit"
+                      className={buttonVariants({ variant: 'outline', size: 'sm' })}
+                    >
+                      Refinar
+                    </button>
+                  </form>
                 </div>
               )
             })}
