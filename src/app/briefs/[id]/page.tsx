@@ -81,6 +81,13 @@ export default async function BriefDetailPage({ params }: Props) {
         <Link href="/briefs" className={buttonVariants({ variant: 'outline', size: 'sm' })}>
           ← Volver al listado
         </Link>
+        <a
+          href={`/api/export/${brief.id}`}
+          download
+          className={buttonVariants({ variant: 'outline', size: 'sm' })}
+        >
+          ⬇ Exportar caso
+        </a>
       </div>
 
       <Card>
