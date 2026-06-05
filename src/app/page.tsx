@@ -19,7 +19,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-3">
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle className="text-lg">Nuevo briefing</CardTitle>
@@ -44,6 +44,20 @@ export default function HomePage() {
             <CardContent>
               <Link href="/briefs" className={cn(buttonVariants({ variant: 'outline' }), 'w-full')}>
                 Ver briefings
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-md transition-shadow">
+            <CardHeader>
+              <CardTitle className="text-lg">Dashboard</CardTitle>
+              <CardDescription>
+                Métricas de uso: briefings, mensajes, validaciones y veredictos.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link href="/dashboard" className={cn(buttonVariants({ variant: 'outline' }), 'w-full')}>
+                Ver métricas
               </Link>
             </CardContent>
           </Card>
