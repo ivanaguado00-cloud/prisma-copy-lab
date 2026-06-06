@@ -1,9 +1,7 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { auth } from '../../auth'
 import { listBriefs } from '../../dao/briefDao'
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
-import { buttonVariants } from '../../components/ui/button'
-import { Separator } from '../../components/ui/separator'
 
 export const metadata = {
   title: 'Briefings — PRISMA Copy Lab',
@@ -14,70 +12,102 @@ const CHANNEL_LABELS: Record<string, string> = {
   email: 'Email',
 }
 
+const CHANNEL_BADGE: Record<string, string> = {
+  whatsapp: 'bg-[#052e16] text-[#34d399] border-[#065f46]',
+  email: 'bg-[#1e1b4b] text-[#a5b4fc] border-[#3730a3]',
+}
+
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat('es-ES', {
     day: '2-digit',
-    month: '2-digit',
+    month: 'short',
     year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
   }).format(new Date(date))
 }
 
 export default async function BriefsListPage() {
   const session = await auth()
-  const briefs = await listBriefs(session!.user.id)
+  if (!session?.user?.id) redirect('/login')
+  const briefs = await listBriefs(session.user.id)
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Briefings</h1>
-        <Link href="/briefs/new" className={buttonVariants()}>
-          Nuevo briefing
+    <div className="mx-auto max-w-3xl px-6 py-10">
+
+      {/* Page header */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold prisma-gradient-text">Briefings</h1>
+          <p className="text-sm text-[#94a3b8] mt-1">
+            {briefs.length === 0
+              ? 'Crea tu primer briefing para empezar'
+              : `${briefs.length} briefing${briefs.length !== 1 ? 's' : ''} en total`}
+          </p>
+        </div>
+        <Link
+          href="/briefs/new"
+          className="rounded-xl px-4 py-2 text-sm font-semibold text-white prisma-gradient-bg hover:opacity-90 transition-all shadow-lg shadow-purple-900/30"
+        >
+          + Nuevo briefing
         </Link>
       </div>
 
+      {/* Empty state */}
       {briefs.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center text-zinc-500">
-            No hay briefings todavía.{' '}
-            <Link href="/briefs/new" className="underline underline-offset-4 hover:text-zinc-900">
-              Crea el primero
-            </Link>
-            .
-          </CardContent>
-        </Card>
+        <div
+          className="rounded-2xl px-6 py-16 text-center space-y-4"
+          style={{
+            background: '#0f0f1a',
+            border: '1px dashed #1e1e3a',
+          }}
+        >
+          <div className="text-4xl mb-2">📄</div>
+          <p className="text-base font-medium text-[#e2e8f0]">Sin briefings todavía</p>
+          <p className="text-sm text-[#94a3b8]">
+            Empieza creando un briefing para generar mensajes de captación.
+          </p>
+          <Link
+            href="/briefs/new"
+            className="inline-block rounded-xl px-5 py-2 text-sm font-semibold text-white prisma-gradient-bg hover:opacity-90 transition-all shadow-lg shadow-purple-900/30 mt-2"
+          >
+            Crear briefing
+          </Link>
+        </div>
       ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-medium text-zinc-500">
-              {briefs.length} briefing{briefs.length !== 1 ? 's' : ''} en total
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <ul>
-              {briefs.map((brief, index) => (
-                <li key={brief.id}>
-                  {index > 0 && <Separator />}
-                  <Link
-                    href={`/briefs/${brief.id}`}
-                    className="flex items-center justify-between px-6 py-4 hover:bg-zinc-50 transition-colors"
-                  >
-                    <div className="space-y-0.5">
-                      <p className="font-medium leading-snug">{brief.title}</p>
-                      <p className="text-sm text-zinc-500">
-                        {CHANNEL_LABELS[brief.channel] ?? brief.channel}
-                      </p>
-                    </div>
-                    <p className="text-sm text-zinc-400 shrink-0 ml-4">
-                      {formatDate(brief.createdAt)}
+        <div
+          className="rounded-2xl overflow-hidden"
+          style={{ background: '#0f0f1a', border: '1px solid #1e1e3a' }}
+        >
+          <ul>
+            {briefs.map((brief, idx) => (
+              <li
+                key={brief.id}
+                style={idx < briefs.length - 1 ? { borderBottom: '1px solid #1a1a2e' } : {}}
+              >
+                <Link
+                  href={`/briefs/${brief.id}`}
+                  className="flex items-center justify-between px-6 py-4 gap-4 group transition-colors hover:bg-[#1a1a2e]"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span
+                      className={`inline-flex items-center text-xs font-medium px-2.5 py-0.5 rounded-full border shrink-0 ${
+                        CHANNEL_BADGE[brief.channel] ?? 'bg-[#1e1e3a] text-[#94a3b8] border-[#1e1e3a]'
+                      }`}
+                    >
+                      {CHANNEL_LABELS[brief.channel] ?? brief.channel}
+                    </span>
+                    <p className="font-medium text-[#e2e8f0] truncate group-hover:text-white transition-colors">
+                      {brief.title}
                     </p>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <p className="text-sm text-[#94a3b8]">{formatDate(brief.createdAt)}</p>
+                    <span className="text-[#7c3aed] opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   )
