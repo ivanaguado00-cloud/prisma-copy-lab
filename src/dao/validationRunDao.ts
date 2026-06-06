@@ -32,7 +32,11 @@ export async function listValidationRunsByMessage(messageVersionId: string) {
   })
 }
 
-export async function getValidationStats(): Promise<ValidationStats> {
+export async function getValidationStats(userId?: string): Promise<ValidationStats> {
+  const briefFilter = userId ? { userId } : {}
+  const versionFilter = userId ? { brief: { userId } } : {}
+  const runFilter = userId ? { messageVersion: { brief: { userId } } } : {}
+
   const [
     totalValidations,
     countAprobada,
@@ -41,12 +45,12 @@ export async function getValidationStats(): Promise<ValidationStats> {
     totalBriefs,
     totalVersions,
   ] = await Promise.all([
-    prisma.validationRun.count(),
-    prisma.validationRun.count({ where: { overallVerdict: 'aprobada' } }),
-    prisma.validationRun.count({ where: { overallVerdict: 'aprobada_con_ajustes' } }),
-    prisma.validationRun.count({ where: { overallVerdict: 'no_aprobada' } }),
-    prisma.brief.count(),
-    prisma.messageVersion.count(),
+    prisma.validationRun.count({ where: runFilter }),
+    prisma.validationRun.count({ where: { ...runFilter, overallVerdict: 'aprobada' } }),
+    prisma.validationRun.count({ where: { ...runFilter, overallVerdict: 'aprobada_con_ajustes' } }),
+    prisma.validationRun.count({ where: { ...runFilter, overallVerdict: 'no_aprobada' } }),
+    prisma.brief.count({ where: briefFilter }),
+    prisma.messageVersion.count({ where: versionFilter }),
   ])
 
   return {

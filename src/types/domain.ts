@@ -40,6 +40,7 @@ export type CriterionKey = (typeof CRITERION_KEY)[keyof typeof CRITERION_KEY]
 // ── DTOs de entrada (usados por los DAOs) ────────────────────────────────────
 
 export interface CreateBriefInput {
+  userId: string
   title: string
   programOrTitulation?: string
   objective: string

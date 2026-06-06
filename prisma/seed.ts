@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
 import { PrismaClient } from '../src/generated/prisma/client'
+import bcrypt from 'bcryptjs'
 import {
   CHANNEL,
   MODE,
@@ -15,9 +16,33 @@ const adapter = new PrismaBetterSqlite3({
 const prisma = new PrismaClient({ adapter })
 
 async function main() {
+  // ── Usuarios de prueba ────────────────────────────────────────────────────
+  const passwordHash = await bcrypt.hash('prisma2024', 10)
+
+  const admin = await prisma.user.upsert({
+    where: { email: 'admin@prisma.es' },
+    update: {},
+    create: {
+      name: 'Admin Prisma',
+      email: 'admin@prisma.es',
+      passwordHash,
+    },
+  })
+
+  await prisma.user.upsert({
+    where: { email: 'redactor@prisma.es' },
+    update: {},
+    create: {
+      name: 'Redactor Prisma',
+      email: 'redactor@prisma.es',
+      passwordHash,
+    },
+  })
+
   // ── Brief 1: WhatsApp captación máster ─────────────────────────────────────
   const brief1 = await prisma.brief.create({
     data: {
+      userId: admin.id,
       title: 'Captación Máster Marketing Digital — Convocatoria Septiembre',
       programOrTitulation: 'Máster en Marketing Digital y Estrategia de Contenidos',
       objective: 'Conseguir que el lead solicite información sobre el máster',
@@ -46,7 +71,6 @@ async function main() {
     },
   })
 
-  // Validation run 1 → aprobada (todos bien)
   const run1 = await prisma.validationRun.create({
     data: {
       messageVersionId: mv1.id,
@@ -117,6 +141,7 @@ async function main() {
   // ── Brief 2: Email reactivación leads fríos ─────────────────────────────────
   const brief2 = await prisma.brief.create({
     data: {
+      userId: admin.id,
       title: 'Reactivación Leads Fríos — Grado en Psicología',
       programOrTitulation: 'Grado en Psicología',
       objective: 'Reactivar el interés de leads que solicitaron información hace más de 6 meses y no matricularon',
@@ -149,7 +174,6 @@ async function main() {
     },
   })
 
-  // Validation run 2 → aprobada_con_ajustes (dos mejorables, ningún crítico)
   const run2 = await prisma.validationRun.create({
     data: {
       messageVersionId: mv2.id,
@@ -230,6 +254,7 @@ async function main() {
   // ── Brief 3: WhatsApp matrícula grado ──────────────────────────────────────
   const brief3 = await prisma.brief.create({
     data: {
+      userId: admin.id,
       title: 'Cierre Matrícula Grado en Derecho — Último Aviso',
       programOrTitulation: 'Grado en Derecho',
       objective: 'Urgir al lead a formalizar la matrícula antes del cierre del plazo',
@@ -258,7 +283,6 @@ async function main() {
     },
   })
 
-  // Validation run 3 → no_aprobada (tono_coherencia_marca en critico)
   const run3 = await prisma.validationRun.create({
     data: {
       messageVersionId: mv3.id,
@@ -335,6 +359,7 @@ async function main() {
   })
 
   console.log('✓ Seed completado:')
+  console.log('  Usuarios: admin@prisma.es, redactor@prisma.es (contraseña: prisma2024)')
   console.log(`  Brief 1: ${brief1.title}`)
   console.log(`  Brief 2: ${brief2.title}`)
   console.log(`  Brief 3: ${brief3.title}`)

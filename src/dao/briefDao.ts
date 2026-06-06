@@ -5,10 +5,15 @@ export async function createBrief(input: CreateBriefInput) {
   return prisma.brief.create({ data: input })
 }
 
-export async function getBriefById(id: string) {
-  return prisma.brief.findUnique({ where: { id } })
+export async function getBriefById(id: string, userId?: string) {
+  return prisma.brief.findFirst({
+    where: { id, ...(userId ? { userId } : {}) },
+  })
 }
 
-export async function listBriefs() {
-  return prisma.brief.findMany({ orderBy: { createdAt: 'desc' } })
+export async function listBriefs(userId: string) {
+  return prisma.brief.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+  })
 }

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { auth } from '../../auth'
 import { listBriefs } from '../../dao/briefDao'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { buttonVariants } from '../../components/ui/button'
@@ -24,7 +25,8 @@ function formatDate(date: Date): string {
 }
 
 export default async function BriefsListPage() {
-  const briefs = await listBriefs()
+  const session = await auth()
+  const briefs = await listBriefs(session!.user.id)
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">

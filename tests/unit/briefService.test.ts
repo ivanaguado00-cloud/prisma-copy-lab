@@ -29,43 +29,43 @@ beforeEach(() => {
 
 describe('createBriefService — campos obligatorios', () => {
   it('devuelve error cuando falta title', async () => {
-    const result = await createBriefService({ ...validInput, title: '' })
+    const result = await createBriefService({ ...validInput, title: '' }, 'user-test-id')
     expect(result.success).toBe(false)
     expect(result.errors?.some((e) => e.field === 'title')).toBe(true)
   })
 
   it('devuelve error cuando falta objective', async () => {
-    const result = await createBriefService({ ...validInput, objective: '' })
+    const result = await createBriefService({ ...validInput, objective: '' }, 'user-test-id')
     expect(result.success).toBe(false)
     expect(result.errors?.some((e) => e.field === 'objective')).toBe(true)
   })
 
   it('devuelve error cuando falta audience', async () => {
-    const result = await createBriefService({ ...validInput, audience: '' })
+    const result = await createBriefService({ ...validInput, audience: '' }, 'user-test-id')
     expect(result.success).toBe(false)
     expect(result.errors?.some((e) => e.field === 'audience')).toBe(true)
   })
 
   it('devuelve error cuando falta channel', async () => {
-    const result = await createBriefService({ ...validInput, channel: undefined as never })
+    const result = await createBriefService({ ...validInput, channel: undefined as never }, 'user-test-id')
     expect(result.success).toBe(false)
     expect(result.errors?.some((e) => e.field === 'channel')).toBe(true)
   })
 
   it('devuelve error cuando falta mode', async () => {
-    const result = await createBriefService({ ...validInput, mode: undefined as never })
+    const result = await createBriefService({ ...validInput, mode: undefined as never }, 'user-test-id')
     expect(result.success).toBe(false)
     expect(result.errors?.some((e) => e.field === 'mode')).toBe(true)
   })
 
   it('devuelve error cuando falta valueProposition', async () => {
-    const result = await createBriefService({ ...validInput, valueProposition: '' })
+    const result = await createBriefService({ ...validInput, valueProposition: '' }, 'user-test-id')
     expect(result.success).toBe(false)
     expect(result.errors?.some((e) => e.field === 'valueProposition')).toBe(true)
   })
 
   it('devuelve error cuando falta cta', async () => {
-    const result = await createBriefService({ ...validInput, cta: '' })
+    const result = await createBriefService({ ...validInput, cta: '' }, 'user-test-id')
     expect(result.success).toBe(false)
     expect(result.errors?.some((e) => e.field === 'cta')).toBe(true)
   })
@@ -73,13 +73,13 @@ describe('createBriefService — campos obligatorios', () => {
 
 describe('createBriefService — valores de enum', () => {
   it('devuelve error cuando channel no es un valor válido', async () => {
-    const result = await createBriefService({ ...validInput, channel: 'telegram' as never })
+    const result = await createBriefService({ ...validInput, channel: 'telegram' as never }, 'user-test-id')
     expect(result.success).toBe(false)
     expect(result.errors?.some((e) => e.field === 'channel')).toBe(true)
   })
 
   it('devuelve error cuando mode no es un valor válido', async () => {
-    const result = await createBriefService({ ...validInput, mode: 'borrador' as never })
+    const result = await createBriefService({ ...validInput, mode: 'borrador' as never }, 'user-test-id')
     expect(result.success).toBe(false)
     expect(result.errors?.some((e) => e.field === 'mode')).toBe(true)
   })
@@ -96,7 +96,7 @@ describe('createBriefService — normalización de espacios', () => {
       cta: '  CTA con espacios  ',
     }
 
-    const result = await createBriefService(inputWithSpaces)
+    const result = await createBriefService(inputWithSpaces, 'user-test-id')
 
     expect(result.success).toBe(true)
     expect(mockCreateBrief).toHaveBeenCalledOnce()
@@ -116,7 +116,7 @@ describe('createBriefService — normalización de espacios', () => {
       constraints: '',
     }
 
-    await createBriefService(inputWithEmpty)
+    await createBriefService(inputWithEmpty, 'user-test-id')
 
     const calledWith = mockCreateBrief.mock.calls[0]![0]!
     expect(calledWith.programOrTitulation).toBeUndefined()
@@ -126,7 +126,7 @@ describe('createBriefService — normalización de espacios', () => {
 
 describe('createBriefService — caso feliz', () => {
   it('delega en briefDao y devuelve el id del briefing creado', async () => {
-    const result = await createBriefService(validInput)
+    const result = await createBriefService(validInput, 'user-test-id')
 
     expect(result.success).toBe(true)
     expect(result.briefId).toBe('generated-id')
@@ -145,7 +145,7 @@ describe('createBriefService — caso feliz', () => {
       cta: validInput.cta,
     }
 
-    await createBriefService(inputWithoutOptionals)
+    await createBriefService(inputWithoutOptionals, 'user-test-id')
 
     const calledWith = mockCreateBrief.mock.calls[0]![0]!
     expect(calledWith.programOrTitulation).toBeUndefined()

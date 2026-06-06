@@ -28,6 +28,7 @@ const mockClient = { generate: vi.fn() }
 
 const baseBrief: Brief = {
   id: 'brief-1',
+  userId: 'user-1',
   title: 'Campaña MBA',
   programOrTitulation: 'Máster MBA',
   objective: 'Captar leads',

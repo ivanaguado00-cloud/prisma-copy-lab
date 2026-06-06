@@ -21,7 +21,6 @@ function makeVersion(
     llmModel: 'gpt-4o-mini',
     generationPromptVersion: 'v1.0',
     createdAt: new Date('2026-01-01'),
-    updatedAt: new Date('2026-01-01'),
   }
 }
 
