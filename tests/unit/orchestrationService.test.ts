@@ -32,6 +32,7 @@ const mockGetGenerationClient = vi.mocked(getGenerationClient)
 
 const baseBrief: Brief = {
   id: 'brief-1',
+  userId: 'user-1',
   title: 'Test',
   programOrTitulation: 'MBA',
   objective: 'Captar leads',
@@ -57,7 +58,6 @@ function makeVersion(id: string): MessageVersion {
     userInstruction: null,
     parentVersionId: null,
     createdAt: new Date(),
-    updatedAt: new Date(),
   }
 }
 

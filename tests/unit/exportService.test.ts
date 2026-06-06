@@ -26,6 +26,7 @@ const mockListRuns = vi.mocked(listValidationRunsByMessage)
 
 const baseBrief: Brief = {
   id: 'brief-1',
+  userId: 'user-1',
   title: 'Campaña MBA',
   programOrTitulation: 'Máster MBA',
   objective: 'Captar leads',
@@ -51,7 +52,6 @@ function makeVersion(id: string, num: number, userInstruction: string | null = n
     userInstruction,
     parentVersionId: null,
     createdAt: new Date('2026-06-01T10:00:00'),
-    updatedAt: new Date('2026-06-01T10:00:00'),
   }
 }
 

@@ -24,7 +24,7 @@ type RawBriefInput = {
   constraints?: string
 }
 
-export async function createBriefService(input: RawBriefInput): Promise<BriefServiceResult> {
+export async function createBriefService(input: RawBriefInput, userId: string): Promise<BriefServiceResult> {
   const errors: FieldError[] = []
 
   if (!input.title?.trim()) {
@@ -58,6 +58,7 @@ export async function createBriefService(input: RawBriefInput): Promise<BriefSer
   }
 
   const normalized: CreateBriefInput = {
+    userId,
     title: input.title!.trim(),
     programOrTitulation: input.programOrTitulation?.trim() || undefined,
     objective: input.objective!.trim(),

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { auth } from '../../auth'
 import { getValidationStats } from '../../dao/validationRunDao'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { Separator } from '../../components/ui/separator'
@@ -21,7 +22,8 @@ const VERDICT_BAR_COLOR: Record<string, string> = {
 }
 
 export default async function DashboardPage() {
-  const stats = await getValidationStats()
+  const session = await auth()
+  const stats = await getValidationStats(session!.user.id)
 
   const metricCards = [
     { label: 'Briefings creados', value: stats.totalBriefs },

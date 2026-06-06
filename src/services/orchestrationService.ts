@@ -93,7 +93,10 @@ export async function generateAndApprove(
     const version = await generateMessage(brief, currentOptions)
     await validateMessage(version.id)
 
-    const [latestRun] = await listValidationRunsByMessage(version.id)
+    const runs = await listValidationRunsByMessage(version.id)
+    const latestRun = runs[0]
+    if (!latestRun) throw new Error(`Sin resultado de validación para la versión ${version.id}`)
+
     const criticalCount = latestRun.scores.filter((s) => s.status === 'critico').length
 
     console.log(

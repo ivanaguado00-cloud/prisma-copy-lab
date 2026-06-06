@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { auth } from '../../../auth'
 import { getBriefById } from '../../../dao/briefDao'
 import { listVersionsByBrief } from '../../../dao/messageVersionDao'
 import { listValidationRunsByMessage } from '../../../dao/validationRunDao'
@@ -53,8 +54,9 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function BriefDetailPage({ params }: Props) {
   const { id } = await params
+  const session = await auth()
   const [brief, versions] = await Promise.all([
-    getBriefById(id),
+    getBriefById(id, session!.user.id),
     listVersionsByBrief(id),
   ])
 

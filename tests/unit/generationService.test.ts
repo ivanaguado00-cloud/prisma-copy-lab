@@ -24,6 +24,7 @@ const mockGetClient = vi.mocked(getGenerationClient)
 
 const baseBrief: Brief = {
   id: 'brief-1',
+  userId: 'user-1',
   title: 'Campaña MBA',
   programOrTitulation: 'Máster MBA',
   objective: 'Captar leads',
@@ -46,7 +47,7 @@ beforeEach(() => {
   mockGetClient.mockReturnValue(mockClient)
   mockClient.generate.mockResolvedValue('Mensaje generado de prueba')
   mockListVersions.mockResolvedValue([])
-  mockCreateVersion.mockResolvedValue({ id: 'mv-1', ...baseBrief } as never)
+  mockCreateVersion.mockResolvedValue({ id: 'mv-1' } as never)
 })
 
 describe('buildUserPrompt', () => {
