@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { getBriefById } from '../../dao/briefDao'
-import { generateMessage } from '../../services/generationService'
+import { generateAndApprove } from '../../services/orchestrationService'
 
 export async function generateMessageAction(briefId: string): Promise<void> {
   const brief = await getBriefById(briefId)
@@ -11,7 +11,7 @@ export async function generateMessageAction(briefId: string): Promise<void> {
     throw new Error('Briefing no encontrado')
   }
 
-  await generateMessage(brief)
+  await generateAndApprove(brief)
 
   redirect(`/briefs/${briefId}`)
 }
@@ -34,7 +34,7 @@ export async function refineMessageAction(
     throw new Error('Briefing no encontrado')
   }
 
-  await generateMessage(brief, { userInstruction, parentVersionId })
+  await generateAndApprove(brief, { userInstruction, parentVersionId })
 
   redirect(`/briefs/${briefId}`)
 }

@@ -1,5 +1,8 @@
 'use server'
 
+// @deprecated — El refinamiento autónomo es ahora interno a orchestrationService.
+// Esta acción ya no se usa desde la UI (Phase 11).
+
 import { redirect } from 'next/navigation'
 import { getBriefById } from '../../dao/briefDao'
 import { autoRefine } from '../../services/agentService'
