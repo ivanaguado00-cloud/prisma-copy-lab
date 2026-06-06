@@ -5,7 +5,6 @@ import { createBriefAction, type BriefActionState } from '../../app/actions/brie
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { Label } from '../ui/label'
-import { Button } from '../ui/button'
 import {
   Select,
   SelectContent,
@@ -18,7 +17,7 @@ import { CHANNEL, MODE } from '../../types/domain'
 function FieldError({ state, field }: { state: BriefActionState | null; field: string }) {
   const error = state?.errors?.find((e) => e.field === field)
   if (!error) return null
-  return <p className="text-sm text-red-600 mt-1">{error.message}</p>
+  return <p className="text-sm text-[#f87171] mt-1">{error.message}</p>
 }
 
 export function BriefingForm() {
@@ -160,9 +159,13 @@ export function BriefingForm() {
         />
       </div>
 
-      <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
+      <button
+        type="submit"
+        disabled={isPending}
+        className="rounded-xl px-6 py-2.5 text-sm font-semibold text-white prisma-gradient-bg hover:opacity-90 active:opacity-80 transition-all shadow-lg shadow-purple-900/30 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+      >
         {isPending ? 'Guardando…' : 'Crear briefing'}
-      </Button>
+      </button>
     </form>
   )
 }
