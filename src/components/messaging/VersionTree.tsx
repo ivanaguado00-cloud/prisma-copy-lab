@@ -1,5 +1,4 @@
 import type { MessageVersion } from '../../generated/prisma/client'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { buildVersionTree } from '../../lib/versionTreeUtils'
 import type { VersionNode } from '../../lib/versionTreeUtils'
 
@@ -8,23 +7,27 @@ export type { VersionNode } from '../../lib/versionTreeUtils'
 
 // ── Verdict badge ─────────────────────────────────────────────────────────────
 
-const VERDICT_STYLES: Record<string, { label: string; className: string }> = {
-  aprobada: { label: 'Aprobada', className: 'bg-green-100 text-green-700' },
-  aprobada_con_ajustes: { label: 'Con ajustes', className: 'bg-amber-100 text-amber-700' },
-  no_aprobada: { label: 'No aprobada', className: 'bg-red-100 text-red-700' },
+const VERDICT_STYLES: Record<string, { label: string; bg: string; text: string; border: string }> = {
+  aprobada:             { label: 'Aprobada',    bg: '#052e16', text: '#10b981', border: '#065f46' },
+  aprobada_con_ajustes: { label: 'Con ajustes', bg: '#1c1400', text: '#f59e0b', border: '#92400e' },
+  no_aprobada:          { label: 'No aprobada', bg: '#1c0000', text: '#ef4444', border: '#7f1d1d' },
 }
 
 function VerdictBadge({ verdict }: { verdict: string | null | undefined }) {
-  const style = verdict ? (VERDICT_STYLES[verdict] ?? null) : null
-  if (!style) {
+  if (!verdict) {
     return (
-      <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-500">
+      <span className="text-xs px-2 py-0.5 rounded-full bg-[#1e1e3a] text-slate-500 border border-[#1e1e3a]">
         Sin validar
       </span>
     )
   }
+  const style = VERDICT_STYLES[verdict]
+  if (!style) return null
   return (
-    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${style.className}`}>
+    <span
+      className="text-xs px-2 py-0.5 rounded-full border font-medium"
+      style={{ background: style.bg, color: style.text, borderColor: style.border }}
+    >
       {style.label}
     </span>
   )
@@ -47,24 +50,20 @@ function VersionTreeNode({
   return (
     <div>
       <div className="flex items-center gap-2 py-1.5 min-w-0">
-        <span className="text-sm font-medium text-zinc-700 shrink-0">
+        <span className="text-sm font-medium text-slate-300 shrink-0">
           v{version.versionNumber}
         </span>
         <VerdictBadge verdict={run?.overallVerdict} />
         {version.userInstruction && (
-          <span className="text-xs text-zinc-400 truncate min-w-0">
+          <span className="text-xs text-slate-500 truncate min-w-0">
             &ldquo;{version.userInstruction}&rdquo;
           </span>
         )}
       </div>
       {children.length > 0 && (
-        <div className="ml-3 border-l border-zinc-200 pl-3">
+        <div className="ml-3 pl-3" style={{ borderLeft: '1px solid #1e1e3a' }}>
           {children.map((child) => (
-            <VersionTreeNode
-              key={child.version.id}
-              node={child}
-              validationByVersion={validationByVersion}
-            />
+            <VersionTreeNode key={child.version.id} node={child} validationByVersion={validationByVersion} />
           ))}
         </div>
       )}
@@ -81,23 +80,16 @@ type Props = {
 
 export function VersionTree({ versions, validationByVersion }: Props) {
   const roots = buildVersionTree(versions)
-
   if (roots.length === 0) return null
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Árbol de versiones</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {roots.map((root) => (
-          <VersionTreeNode
-            key={root.version.id}
-            node={root}
-            validationByVersion={validationByVersion}
-          />
-        ))}
-      </CardContent>
-    </Card>
+    <div className="rounded-2xl p-4 bg-[#0f0f1a]" style={{ border: '1px solid #1e1e3a' }}>
+      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+        Árbol de versiones
+      </p>
+      {roots.map((root) => (
+        <VersionTreeNode key={root.version.id} node={root} validationByVersion={validationByVersion} />
+      ))}
+    </div>
   )
 }
