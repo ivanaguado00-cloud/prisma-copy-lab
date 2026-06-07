@@ -24,12 +24,13 @@ Los equipos de marketing y comunicación comercial de Universidad Prisma dedican
 - No es un CRM ni gestiona contactos.
 - No envía mensajes reales por WhatsApp ni por email.
 - No automatiza campañas comerciales.
-- No incluye autenticación, roles ni multiusuario.
+- No incluye roles, permisos avanzados ni flujos multiusuario complejos.
+- Aunque el repo actual incorpora autenticación básica para proteger la aplicación, no pretende resolver gestión organizativa de usuarios ni gobierno de accesos.
 - No reemplaza al equipo de marketing: lo asiste.
 
 ## Marco académico
 
-Este proyecto se entrega como práctica final del módulo "Desarrollo Vibe Coding" del Máster en IA Generativa. Forma parte de una línea de trabajo más amplia sobre Universidad Prisma vinculada al TFM. La práctica anterior cubrió la pieza de automatización en n8n; esta práctica aporta lo que aquella no podía: código propio en repositorio Git, base de datos relacional propia, validador automático contra los siete bloques y trazabilidad histórica.
+Este proyecto se entrega como práctica final del módulo "Desarrollo Vibe Coding" del Máster en IA Generativa. Forma parte de una línea de trabajo más amplia sobre Universidad Prisma vinculada al TFM. La práctica anterior en n8n queda como antecedente histórico y prototipo funcional: no forma parte de la arquitectura vigente de PRISMA Copy Lab. Este repositorio aporta código propio, base de datos relacional propia, autenticación básica, validador automático contra los siete bloques y trazabilidad histórica.
 
 ## Frase objetivo del MVP
 

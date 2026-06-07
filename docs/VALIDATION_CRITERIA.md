@@ -1,8 +1,8 @@
 # VALIDATION_CRITERIA.md
 
-Documento operativo del validador automático de PRISMA Copy Lab. Replica de forma fiel los criterios oficiales de Universidad Prisma, en formato consumible por el sistema.
+Documento operativo del validador automático de PRISMA Copy Lab. Es una adaptación operativa fiel de los criterios oficiales de Universidad Prisma, convertida a un formato consumible por el sistema.
 
-> Fuente literal: `data/corpus/criterios_validacion.md`. Si hay discrepancia, prevalece la fuente.
+> Fuente corporativa: `data/corpus/criterios_validacion.md`. Si hay discrepancia de criterio de marca o validación, prevalece la fuente. Las reglas deterministas descritas aquí son decisiones de implementación derivadas de esa fuente para garantizar trazabilidad y comportamiento estable.
 
 ---
 
@@ -185,13 +185,15 @@ Mapeo extraído del documento corporativo (sección 7).
 
 ## 6. Matriz de decisión del veredicto global
 
+El documento corporativo define tres resultados posibles y distingue criterios críticos frente a criterios ajustables. PRISMA Copy Lab traduce esa lógica a una matriz determinista de implementación para evitar que el veredicto dependa de la interpretación variable del LLM.
+
 El sistema decide el veredicto global de cada validación según esta matriz, en este orden:
 
 1. Si **algún bloque crítico está en estado `critico`** → `no_aprobada`.
 2. Si **dos o más bloques** están en estado `mejorable` o `critico` → `aprobada_con_ajustes`.
 3. Si **uno o cero bloques** están en estado `mejorable` y ninguno en `critico` → `aprobada`.
 
-Esta matriz prevalece sobre la valoración subjetiva del LLM. El LLM puede proponer un veredicto, pero el cálculo final es determinista y se hace en código a partir del detalle por bloque.
+Esta matriz no es una copia literal del texto corporativo: es la formalización técnica aplicada por el producto a partir de sus principios. Prevalece sobre cualquier valoración subjetiva del LLM. El LLM puede razonar sobre los bloques, pero el cálculo final es determinista y se hace en código a partir del detalle por bloque.
 
 ## 7. Salida estructurada esperada del LLM evaluador
 
