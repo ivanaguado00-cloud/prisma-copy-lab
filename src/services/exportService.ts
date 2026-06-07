@@ -25,8 +25,11 @@ const VERDICT_LABELS: Record<string, string> = {
 
 // ── Builder ───────────────────────────────────────────────────────────────────
 
-export async function buildExportText(briefId: string): Promise<string> {
-  const brief = await getBriefById(briefId)
+export async function buildExportText(
+  briefId: string,
+  userId?: string,
+): Promise<string> {
+  const brief = await getBriefById(briefId, userId)
   if (!brief) {
     throw new Error(`Briefing no encontrado: ${briefId}`)
   }
