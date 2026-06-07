@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '../../auth'
 import { getBriefById } from '../../dao/briefDao'
 import { getMessageVersionById } from '../../dao/messageVersionDao'
-import { generateAndApprove } from '../../services/orchestrationService'
+import { generateAndApprove, generateSingle } from '../../services/orchestrationService'
 
 export async function generateMessageAction(briefId: string): Promise<void> {
   const session = await auth()
@@ -51,7 +51,7 @@ export async function refineMessageAction(
     throw new Error('Versión de origen no encontrada o sin permisos')
   }
 
-  await generateAndApprove(brief, { userInstruction, parentVersionId })
+  await generateSingle(brief, { userInstruction, parentVersionId })
 
   redirect(`/briefs/${briefId}`)
 }

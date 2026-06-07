@@ -122,3 +122,14 @@ export async function generateAndApprove(
   )
   return best.version
 }
+
+// ── Single-attempt generation (for user-initiated refinements) ────────────────
+
+export async function generateSingle(
+  brief: Brief,
+  options: GenerateAndApproveOptions = {},
+): Promise<MessageVersion> {
+  const version = await generateMessage(brief, options)
+  await validateMessage(version.id)
+  return version
+}
