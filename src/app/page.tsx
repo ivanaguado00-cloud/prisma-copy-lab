@@ -35,14 +35,14 @@ const quickCards = [
 export default function HomePage() {
   return (
     <div
-      className="flex flex-col flex-1 items-center justify-center min-h-screen px-6 bg-[#0a0a0f] relative overflow-hidden"
+      className="flex flex-col flex-1 items-center justify-center min-h-screen px-6 bg-[#0d0e10] relative overflow-hidden"
     >
-      {/* Radial glow */}
+      {/* Radial lime glow */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'radial-gradient(ellipse 70% 55% at 50% 35%, rgba(124,58,237,0.15) 0%, rgba(10,10,15,0) 65%)',
+            'radial-gradient(ellipse 70% 55% at 50% 35%, rgba(195,244,0,0.08) 0%, rgba(13,14,16,0) 65%)',
         }}
       />
 
@@ -50,26 +50,26 @@ export default function HomePage() {
 
         {/* Hero */}
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center gap-2 text-xs font-medium text-[#a855f7] bg-[#1e1e3a] border border-[#7c3aed]/30 rounded-full px-4 py-1.5 mb-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#a855f7] animate-pulse" />
+          <div className="inline-flex items-center gap-2 text-xs font-medium text-[#c3f400] bg-[#1f2022] border border-[#c3f400]/25 rounded-full px-4 py-1.5 mb-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#c3f400] animate-pulse" />
             Universidad Prisma
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold prisma-gradient-text leading-tight">
             PRISMA Copy Lab
           </h1>
-          <p className="text-lg text-slate-400 max-w-md mx-auto leading-relaxed">
+          <p className="text-lg text-[#c4c9ac] max-w-md mx-auto leading-relaxed">
             Genera, refina y valida mensajes de captación con inteligencia artificial.
           </p>
           <div className="flex items-center justify-center gap-3 pt-2">
             <Link
               href="/briefs/new"
-              className="rounded-xl px-6 py-2.5 text-sm font-semibold text-white prisma-gradient-bg hover:opacity-90 transition-all shadow-lg shadow-purple-900/30"
+              className="rounded px-6 py-2.5 text-sm font-semibold text-[#283500] prisma-gradient-bg hover:opacity-90 transition-all shadow-lg shadow-[#abd600]/20"
             >
               Crear briefing
             </Link>
             <Link
               href="/briefs"
-              className="rounded-xl px-6 py-2.5 text-sm font-medium text-violet-400 border border-violet-500/40 hover:bg-[#1e1e3a] hover:border-violet-500 transition-all"
+              className="rounded px-6 py-2.5 text-sm font-medium text-[#c3f400] border border-[#c3f400]/40 hover:bg-[#1f2022] hover:border-[#c3f400] transition-all"
             >
               Ver histórico
             </Link>
@@ -81,19 +81,19 @@ export default function HomePage() {
           {quickCards.map(({ icon, title, description, href, cta, primary }) => (
             <div
               key={href}
-              className="rounded-2xl p-5 space-y-4 prisma-card"
+              className="rounded-lg p-5 space-y-4 prisma-card"
             >
               <div>
                 <div className="text-2xl mb-3">{icon}</div>
-                <h2 className="text-base font-semibold text-slate-100 mb-1">{title}</h2>
-                <p className="text-sm text-slate-400 leading-relaxed">{description}</p>
+                <h2 className="text-base font-semibold text-[#e3e2e5] mb-1">{title}</h2>
+                <p className="text-sm text-[#c4c9ac] leading-relaxed">{description}</p>
               </div>
               <Link
                 href={href}
                 className={
                   primary
-                    ? 'block w-full text-center rounded-xl px-4 py-2 text-sm font-semibold text-white prisma-gradient-bg hover:opacity-90 transition-all shadow-md shadow-purple-900/20'
-                    : 'block w-full text-center rounded-xl px-4 py-2 text-sm font-medium text-violet-400 border border-violet-500/40 hover:bg-[#1e1e3a] hover:border-violet-500 transition-all'
+                    ? 'block w-full text-center rounded px-4 py-2 text-sm font-semibold text-[#283500] prisma-gradient-bg hover:opacity-90 transition-all shadow-md shadow-[#abd600]/15'
+                    : 'block w-full text-center rounded px-4 py-2 text-sm font-medium text-[#c3f400] border border-[#c3f400]/40 hover:bg-[#1f2022] hover:border-[#c3f400] transition-all'
                 }
               >
                 {cta}

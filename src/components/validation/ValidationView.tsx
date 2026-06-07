@@ -27,7 +27,7 @@ const VERDICT_META: Record<string, { label: string; bg: string; text: string; bo
 
 function VerdictBadge({ verdict }: { verdict: string }) {
   const meta = VERDICT_META[verdict] ?? {
-    label: verdict, bg: '#1e1e3a', text: '#94a3b8', border: '#1e1e3a', dot: '#94a3b8',
+    label: verdict, bg: '#1f2022', text: '#c4c9ac', border: '#444933', dot: '#c4c9ac',
   }
   return (
     <span
@@ -49,18 +49,18 @@ const STATUS_META: Record<string, { label: string; bar: string; text: string }> 
 }
 
 function ScoreBlock({ score }: { score: ValidationScore }) {
-  const meta = STATUS_META[score.status] ?? { label: score.status, bar: '#94a3b8', text: '#94a3b8' }
+  const meta = STATUS_META[score.status] ?? { label: score.status, bar: '#c4c9ac', text: '#c4c9ac' }
   return (
     <div className="py-3 flex gap-3">
       <div className="w-1 rounded-full shrink-0 mt-0.5" style={{ background: meta.bar }} />
       <div className="flex-1 space-y-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-xs font-semibold text-slate-200 leading-snug">{score.criterionName}</span>
+          <span className="text-xs font-semibold text-[#e3e2e5] leading-snug">{score.criterionName}</span>
           <span className="text-[11px] font-medium shrink-0" style={{ color: meta.text }}>{meta.label}</span>
         </div>
-        <p className="text-xs text-slate-400 leading-relaxed">{score.comment}</p>
+        <p className="text-xs text-[#c4c9ac] leading-relaxed">{score.comment}</p>
         {score.suggestedFix && (
-          <p className="text-[11px] text-slate-500 italic leading-relaxed">→ {score.suggestedFix}</p>
+          <p className="text-[11px] text-[#c4c9ac]/60 italic leading-relaxed">→ {score.suggestedFix}</p>
         )}
       </div>
     </div>
@@ -82,22 +82,22 @@ function ValidationContent({ run }: { run: ValidationRunWithScores }) {
     <>
       <div className="px-5 py-4 space-y-2">
         <VerdictBadge verdict={run.overallVerdict} />
-        <p className="text-xs text-slate-200 leading-relaxed">{run.summary}</p>
-        <p className="text-[11px] text-slate-600">{formatDate(run.createdAt)}</p>
+        <p className="text-xs text-[#e3e2e5] leading-relaxed">{run.summary}</p>
+        <p className="text-[11px] text-[#c4c9ac]/40">{formatDate(run.createdAt)}</p>
       </div>
 
-      <div style={{ borderTop: '1px solid #1e1e3a' }} />
+      <div style={{ borderTop: '1px solid #444933' }} />
 
       <div className="px-5">
         {orderedScores.map((score, idx) => (
-          <div key={score.id} style={idx < orderedScores.length - 1 ? { borderBottom: '1px solid #1a1a2e' } : {}}>
+          <div key={score.id} style={idx < orderedScores.length - 1 ? { borderBottom: '1px solid #1f2022' } : {}}>
             <ScoreBlock score={score} />
           </div>
         ))}
       </div>
 
       {run.suggestedRewrite && (
-        <div className="mx-5 mb-5 mt-2 rounded-xl p-4 space-y-1.5" style={{ background: '#1c1400', border: '1px solid #92400e' }}>
+        <div className="mx-5 mb-5 mt-2 rounded px-4 py-3 space-y-1.5" style={{ background: '#1c1400', border: '1px solid #92400e' }}>
           <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: '#f59e0b' }}>
             Reescritura sugerida
           </p>
@@ -107,7 +107,7 @@ function ValidationContent({ run }: { run: ValidationRunWithScores }) {
         </div>
       )}
 
-      <div className="px-5 py-3 flex flex-wrap gap-3 text-[11px] text-slate-600" style={{ borderTop: '1px solid #1e1e3a' }}>
+      <div className="px-5 py-3 flex flex-wrap gap-3 text-[11px] text-[#c4c9ac]/40" style={{ borderTop: '1px solid #444933' }}>
         <span>{run.validatorModel}</span>
         <span>Criterios v{run.criteriaVersion}</span>
         <span>Prompt v{run.validatorPromptVersion}</span>
@@ -128,28 +128,28 @@ export function ValidationView({ run, panel = false }: Props) {
   }
 
   return (
-    <div className="rounded-2xl overflow-hidden bg-[#0f0f1a]" style={{ border: '1px solid #1e1e3a' }}>
-      <div className="px-5 py-4" style={{ borderBottom: '1px solid #1e1e3a' }}>
+    <div className="rounded-lg overflow-hidden bg-[#1b1c1e]" style={{ border: '1px solid #444933' }}>
+      <div className="px-5 py-4" style={{ borderBottom: '1px solid #444933' }}>
         <div className="flex items-center justify-between flex-wrap gap-2">
-          <span className="text-sm text-slate-400 font-medium">Validación automática</span>
+          <span className="text-sm text-[#c4c9ac] font-medium">Validación automática</span>
           <VerdictBadge verdict={run.overallVerdict} />
         </div>
-        <p className="text-xs text-slate-600 mt-1">{formatDate(run.createdAt)}</p>
+        <p className="text-xs text-[#c4c9ac]/40 mt-1">{formatDate(run.createdAt)}</p>
       </div>
 
       <div className="px-5 py-4 space-y-4">
-        <p className="text-sm text-slate-200">{run.summary}</p>
+        <p className="text-sm text-[#e3e2e5]">{run.summary}</p>
 
         <div>
           {[...run.scores].sort((a, b) => a.criterionKey.localeCompare(b.criterionKey)).map((score, idx, arr) => (
-            <div key={score.id} style={idx < arr.length - 1 ? { borderBottom: '1px solid #1a1a2e' } : {}}>
+            <div key={score.id} style={idx < arr.length - 1 ? { borderBottom: '1px solid #1f2022' } : {}}>
               <ScoreBlock score={score} />
             </div>
           ))}
         </div>
 
         {run.suggestedRewrite && (
-          <div className="rounded-xl p-4 space-y-1.5" style={{ background: '#1c1400', border: '1px solid #92400e' }}>
+          <div className="rounded px-4 py-3 space-y-1.5" style={{ background: '#1c1400', border: '1px solid #92400e' }}>
             <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: '#f59e0b' }}>
               Reescritura sugerida
             </p>
@@ -159,7 +159,7 @@ export function ValidationView({ run, panel = false }: Props) {
           </div>
         )}
 
-        <div className="flex flex-wrap gap-3 text-xs text-slate-600 pt-2" style={{ borderTop: '1px solid #1e1e3a' }}>
+        <div className="flex flex-wrap gap-3 text-xs text-[#c4c9ac]/40 pt-2" style={{ borderTop: '1px solid #444933' }}>
           <span>Modelo: {run.validatorModel}</span>
           <span>Criterios: {run.criteriaVersion}</span>
           <span>Prompt: {run.validatorPromptVersion}</span>

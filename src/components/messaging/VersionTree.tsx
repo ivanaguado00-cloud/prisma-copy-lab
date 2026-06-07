@@ -16,7 +16,7 @@ const VERDICT_STYLES: Record<string, { label: string; bg: string; text: string; 
 function VerdictBadge({ verdict }: { verdict: string | null | undefined }) {
   if (!verdict) {
     return (
-      <span className="text-xs px-2 py-0.5 rounded-full bg-[#1e1e3a] text-slate-500 border border-[#1e1e3a]">
+      <span className="text-xs px-2 py-0.5 rounded-full bg-[#1f2022] text-[#c4c9ac] border border-[#444933]">
         Sin validar
       </span>
     )
@@ -50,18 +50,18 @@ function VersionTreeNode({
   return (
     <div>
       <div className="flex items-center gap-2 py-1.5 min-w-0">
-        <span className="text-sm font-medium text-slate-300 shrink-0">
+        <span className="text-sm font-medium text-[#e3e2e5] shrink-0">
           v{version.versionNumber}
         </span>
         <VerdictBadge verdict={run?.overallVerdict} />
         {version.userInstruction && (
-          <span className="text-xs text-slate-500 truncate min-w-0">
+          <span className="text-xs text-[#c4c9ac] truncate min-w-0">
             &ldquo;{version.userInstruction}&rdquo;
           </span>
         )}
       </div>
       {children.length > 0 && (
-        <div className="ml-3 pl-3" style={{ borderLeft: '1px solid #1e1e3a' }}>
+        <div className="ml-3 pl-3" style={{ borderLeft: '1px solid #444933' }}>
           {children.map((child) => (
             <VersionTreeNode key={child.version.id} node={child} validationByVersion={validationByVersion} />
           ))}
@@ -83,8 +83,8 @@ export function VersionTree({ versions, validationByVersion }: Props) {
   if (roots.length === 0) return null
 
   return (
-    <div className="rounded-2xl p-4 bg-[#0f0f1a]" style={{ border: '1px solid #1e1e3a' }}>
-      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+    <div className="rounded-lg p-4 bg-[#1b1c1e]" style={{ border: '1px solid #444933' }}>
+      <p className="text-xs font-semibold text-[#c4c9ac] uppercase tracking-wider mb-3">
         Árbol de versiones
       </p>
       {roots.map((root) => (

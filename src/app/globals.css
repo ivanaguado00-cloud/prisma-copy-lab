@@ -39,61 +39,62 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 1.5);
+  --radius-lg: calc(var(--radius) * 2);
+  --radius-xl: calc(var(--radius) * 3);
+  --radius-2xl: calc(var(--radius) * 4);
+  --radius-3xl: calc(var(--radius) * 6);
+  --radius-4xl: calc(var(--radius) * 8);
 
-  /* Prisma brand tokens */
-  --color-prisma-bg: #0a0a0f;
-  --color-prisma-surface: #0f0f1a;
-  --color-prisma-border: #1e1e3a;
-  --color-prisma-purple: #7c3aed;
-  --color-prisma-violet: #a855f7;
-  --color-prisma-indigo: #6366f1;
-  --color-prisma-cyan: #06b6d4;
-  --color-prisma-text: #ffffff;
-  --color-prisma-muted: #94a3b8;
-  --color-prisma-light: #e2e8f0;
+  /* Prisma Stitch design tokens */
+  --color-prisma-bg:              #0d0e10;
+  --color-prisma-surface:         #1b1c1e;
+  --color-prisma-surface-high:    #292a2c;
+  --color-prisma-surface-highest: #343537;
+  --color-prisma-border:          #444933;
+  --color-prisma-border-subtle:   #2e3135;
+  --color-prisma-lime:            #c3f400;
+  --color-prisma-lime-dim:        #abd600;
+  --color-prisma-text:            #e3e2e5;
+  --color-prisma-muted:           #c4c9ac;
+  --color-prisma-on-primary:      #283500;
 }
 
 :root {
-  /* Prisma dark theme */
-  --background: #0a0a0f;
-  --foreground: #e2e8f0;
-  --card: #0f0f1a;
-  --card-foreground: #e2e8f0;
-  --popover: #0f0f1a;
-  --popover-foreground: #e2e8f0;
-  --primary: #7c3aed;
-  --primary-foreground: #ffffff;
-  --secondary: #1e1e3a;
-  --secondary-foreground: #e2e8f0;
-  --muted: #1a1a2e;
-  --muted-foreground: #94a3b8;
-  --accent: #1e1e3a;
-  --accent-foreground: #e2e8f0;
-  --destructive: #ef4444;
-  --border: #1e1e3a;
-  --input: #1e1e3a;
-  --ring: #7c3aed;
-  --chart-1: #7c3aed;
-  --chart-2: #06b6d4;
-  --chart-3: #10b981;
-  --chart-4: #f59e0b;
-  --chart-5: #ef4444;
-  --radius: 0.75rem;
-  --sidebar: #0f0f1a;
-  --sidebar-foreground: #e2e8f0;
-  --sidebar-primary: #7c3aed;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1e1e3a;
-  --sidebar-accent-foreground: #e2e8f0;
-  --sidebar-border: #1e1e3a;
-  --sidebar-ring: #7c3aed;
+  /* Prisma Stitch theme — obsidian + lime */
+  --background:          #0d0e10;
+  --foreground:          #e3e2e5;
+  --card:                #1b1c1e;
+  --card-foreground:     #e3e2e5;
+  --popover:             #1b1c1e;
+  --popover-foreground:  #e3e2e5;
+  --primary:             #c3f400;
+  --primary-foreground:  #283500;
+  --secondary:           #292a2c;
+  --secondary-foreground:#e3e2e5;
+  --muted:               #1f2022;
+  --muted-foreground:    #c4c9ac;
+  --accent:              #292a2c;
+  --accent-foreground:   #e3e2e5;
+  --destructive:         #ffb4ab;
+  --border:              #444933;
+  --input:               #1f2022;
+  --ring:                #c3f400;
+  --chart-1:             #c3f400;
+  --chart-2:             #abd600;
+  --chart-3:             #e3e2e5;
+  --chart-4:             #c4c9ac;
+  --chart-5:             #ffb4ab;
+  --radius:              0.25rem;
+  --sidebar:             #1b1c1e;
+  --sidebar-foreground:  #e3e2e5;
+  --sidebar-primary:     #c3f400;
+  --sidebar-primary-foreground: #283500;
+  --sidebar-accent:      #292a2c;
+  --sidebar-accent-foreground: #e3e2e5;
+  --sidebar-border:      #444933;
+  --sidebar-ring:        #c3f400;
 }
 
 @layer base {
@@ -101,19 +102,15 @@
     @apply border-border outline-ring/50;
   }
 
-  /*
-   * Explicit dark background on html and body prevents the white flash that
-   * appears on /briefs, /dashboard and /briefs/new when the CSS-variable-based
-   * bg-background class resolves later than the paint.
-   */
   html,
   body {
-    background-color: #0a0a0f;
-    color: #e2e8f0;
+    background-color: #0d0e10;
+    color: #e3e2e5;
   }
 
   body {
     @apply bg-background text-foreground min-h-full flex flex-col;
+    font-family: 'Inter', sans-serif;
   }
 
   html {
@@ -126,53 +123,101 @@
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #0a0a0f;
+    background: #0d0e10;
   }
   ::-webkit-scrollbar-thumb {
-    background: #1e1e3a;
+    background: #444933;
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #7c3aed;
+    background: #abd600;
   }
 }
 
-/* Prisma gradient utilities */
+/* Prisma Stitch utility classes */
 @layer utilities {
+  /* Texto con gradiente lima */
   .prisma-gradient-text {
-    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #6366f1 100%);
+    background: linear-gradient(135deg, #c3f400 0%, #abd600 60%, #e3e2e5 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  .prisma-gradient-text-cyan {
-    background: linear-gradient(135deg, #a78bfa 0%, #c084fc 40%, #67e8f9 100%);
+  /* Variante cálida para subtítulos */
+  .prisma-gradient-text-warm {
+    background: linear-gradient(135deg, #e3e2e5 0%, #c4c9ac 50%, #abd600 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
+  /* Fondo degradado primario */
   .prisma-gradient-bg {
-    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #6366f1 100%);
+    background: linear-gradient(135deg, #c3f400 0%, #abd600 100%);
   }
 
+  /* Card base: tonal layering nivel 1 */
   .prisma-card {
-    background: #0f0f1a;
-    border: 1px solid #1e1e3a;
+    background: #1b1c1e;
+    border: 1px solid #444933;
     transition: box-shadow 0.2s ease, border-color 0.2s ease;
   }
 
   .prisma-card:hover {
-    border-color: #3b1f6e;
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.12);
+    border-color: #abd600;
+    box-shadow: 0 0 20px rgba(195, 244, 0, 0.10);
   }
 
+  /* Card nivel 2 — modales / popovers glassmorphism */
+  .prisma-card-glass {
+    background: rgba(27, 28, 30, 0.80);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(195, 244, 0, 0.10);
+  }
+
+  /* Neon glow lima — botones primarios, inputs activos */
   .prisma-glow {
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.15);
+    box-shadow: 0 0 12px rgba(195, 244, 0, 0.15);
   }
 
-  .prisma-glow-cyan {
-    box-shadow: 0 0 20px rgba(6, 182, 212, 0.15);
+  .prisma-glow-active {
+    box-shadow: 0 0 20px rgba(195, 244, 0, 0.25);
+  }
+
+  /* Borde activo de inputs */
+  .prisma-input-focus {
+    border-color: #c3f400;
+    box-shadow: 0 0 0 3px rgba(195, 244, 0, 0.12);
+  }
+
+  /* Badge de veredicto */
+  .prisma-badge-approved {
+    background: rgba(195, 244, 0, 0.12);
+    color: #c3f400;
+    border: 1px solid rgba(195, 244, 0, 0.25);
+  }
+  .prisma-badge-pending {
+    background: rgba(196, 201, 172, 0.10);
+    color: #c4c9ac;
+    border: 1px solid rgba(196, 201, 172, 0.20);
+  }
+  .prisma-badge-rejected {
+    background: rgba(255, 180, 171, 0.10);
+    color: #ffb4ab;
+    border: 1px solid rgba(255, 180, 171, 0.20);
+  }
+
+  /* Badge de canal */
+  .prisma-badge-whatsapp {
+    background: rgba(37, 150, 119, 0.12);
+    color: #4ade80;
+    border: 1px solid rgba(37, 150, 119, 0.20);
+  }
+  .prisma-badge-email {
+    background: rgba(99, 130, 201, 0.12);
+    color: #93c5fd;
+    border: 1px solid rgba(99, 130, 201, 0.20);
   }
 }

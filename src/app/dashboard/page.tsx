@@ -35,8 +35,8 @@ const CHANNEL_LABELS: Record<string, string> = {
 }
 
 const CHANNEL_BADGE: Record<string, string> = {
-  whatsapp: 'bg-[#052e16] text-[#34d399] border-[#065f46]',
-  email: 'bg-[#1e1b4b] text-[#a5b4fc] border-[#3730a3]',
+  whatsapp: 'bg-[#0d2318] text-[#4ade80] border-[#1a4731]',
+  email:    'bg-[#1f2022] text-[#93c5fd] border-[#444933]',
 }
 
 function formatDate(date: Date): string {
@@ -68,8 +68,8 @@ export default async function DashboardPage() {
     [keyof typeof stats.verdicts, number]
   >
 
-  const darkCard = { background: '#0f0f1a', border: '1px solid #1e1e3a' } as const
-  const sectionBorder = { borderBottom: '1px solid #1e1e3a' } as const
+  const darkCard = { background: '#1b1c1e', border: '1px solid #444933' } as const
+  const sectionBorder = { borderBottom: '1px solid #444933' } as const
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10 space-y-8">
@@ -78,11 +78,11 @@ export default async function DashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold prisma-gradient-text">Dashboard</h1>
-          <p className="text-sm text-slate-400 mt-1">Resumen de actividad del equipo</p>
+          <p className="text-sm text-[#c4c9ac] mt-1">Resumen de actividad del equipo</p>
         </div>
         <Link
           href="/briefs"
-          className="text-sm font-medium text-slate-400 hover:text-white border border-[#1e1e3a] hover:border-[#7c3aed]/50 rounded-xl px-4 py-2 hover:bg-[#1e1e3a] transition-all"
+          className="text-sm font-medium text-[#c4c9ac] hover:text-[#e3e2e5] border border-[#444933] hover:border-[#c3f400]/40 rounded px-4 py-2 hover:bg-[#1f2022] transition-all"
         >
           ← Briefings
         </Link>
@@ -91,17 +91,17 @@ export default async function DashboardPage() {
       {/* Metric cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {metricCards.map(({ label, value, icon }) => (
-          <div key={label} className="rounded-2xl px-5 py-5 space-y-3" style={darkCard}>
+          <div key={label} className="rounded-lg px-5 py-5 space-y-3" style={darkCard}>
             <div className="flex items-center justify-between">
-              <p className="text-xs font-medium text-slate-400">{label}</p>
+              <p className="text-xs font-medium text-[#c4c9ac]">{label}</p>
               <span
-                className="text-base w-8 h-8 flex items-center justify-center rounded-lg"
-                style={{ background: 'rgba(124,58,237,0.12)', border: '1px solid rgba(124,58,237,0.2)' }}
+                className="text-base w-8 h-8 flex items-center justify-center rounded"
+                style={{ background: 'rgba(195,244,0,0.08)', border: '1px solid rgba(195,244,0,0.16)' }}
               >
                 {icon}
               </span>
             </div>
-            <p className="text-3xl font-bold text-slate-100 tracking-tight">{value}</p>
+            <p className="text-3xl font-bold text-[#e3e2e5] tracking-tight">{value}</p>
           </div>
         ))}
       </div>
@@ -109,11 +109,11 @@ export default async function DashboardPage() {
       {/* First-attempt rate + most-used channel */}
       <div className="grid gap-4 sm:grid-cols-2">
 
-        <div className="rounded-2xl px-5 py-5 space-y-3" style={darkCard}>
-          <p className="text-xs font-medium text-slate-400">Tasa de aprobación en 1.ª versión</p>
+        <div className="rounded-lg px-5 py-5 space-y-3" style={darkCard}>
+          <p className="text-xs font-medium text-[#c4c9ac]">Tasa de aprobación en 1.ª versión</p>
           <div className="flex items-end gap-2">
-            <p className="text-3xl font-bold text-slate-100 tracking-tight">{firstAttemptRate}%</p>
-            <p className="text-xs text-slate-500 mb-1">mensajes v1 aprobados</p>
+            <p className="text-3xl font-bold text-[#e3e2e5] tracking-tight">{firstAttemptRate}%</p>
+            <p className="text-xs text-[#c4c9ac]/60 mb-1">mensajes v1 aprobados</p>
           </div>
           <div className="h-2 w-full rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
             <div
@@ -123,31 +123,31 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl px-5 py-5 space-y-3" style={darkCard}>
-          <p className="text-xs font-medium text-slate-400">Canal más usado</p>
+        <div className="rounded-lg px-5 py-5 space-y-3" style={darkCard}>
+          <p className="text-xs font-medium text-[#c4c9ac]">Canal más usado</p>
           {stats.mostUsedChannel ? (
             <div className="flex items-center gap-3">
               <span
                 className={`inline-flex items-center text-sm font-semibold px-3 py-1 rounded-full border ${
-                  CHANNEL_BADGE[stats.mostUsedChannel] ?? 'bg-[#1e1e3a] text-slate-300 border-[#1e1e3a]'
+                  CHANNEL_BADGE[stats.mostUsedChannel] ?? 'bg-[#1f2022] text-[#c4c9ac] border-[#444933]'
                 }`}
               >
                 {stats.mostUsedChannel === 'whatsapp' ? '💬 ' : '✉️ '}
                 {CHANNEL_LABELS[stats.mostUsedChannel] ?? stats.mostUsedChannel}
               </span>
-              <p className="text-xs text-slate-500">de {stats.totalBriefs} briefings</p>
+              <p className="text-xs text-[#c4c9ac]/60">de {stats.totalBriefs} briefings</p>
             </div>
           ) : (
-            <p className="text-sm text-slate-500 mt-1">Sin datos todavía</p>
+            <p className="text-sm text-[#c4c9ac]/50 mt-1">Sin datos todavía</p>
           )}
         </div>
       </div>
 
       {/* Verdict distribution */}
-      <div className="rounded-2xl overflow-hidden" style={darkCard}>
+      <div className="rounded-lg overflow-hidden" style={darkCard}>
         <div className="px-6 py-4" style={sectionBorder}>
-          <h2 className="text-sm font-semibold text-slate-100">Distribución de veredictos</h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h2 className="text-sm font-semibold text-[#e3e2e5]">Distribución de veredictos</h2>
+          <p className="text-xs text-[#c4c9ac]/60 mt-0.5">
             Basado en {stats.totalValidations} validación{stats.totalValidations !== 1 ? 'es' : ''}
           </p>
         </div>
@@ -155,17 +155,17 @@ export default async function DashboardPage() {
           {stats.totalValidations === 0 ? (
             <div className="text-center py-8 space-y-2">
               <div className="text-3xl">📊</div>
-              <p className="text-sm text-slate-500">No hay validaciones todavía.</p>
+              <p className="text-sm text-[#c4c9ac]/60">No hay validaciones todavía.</p>
             </div>
           ) : (
             <div className="space-y-5">
               {verdictEntries.map(([verdict, count]) => {
                 const pct = Math.round((count / stats.totalValidations) * 100)
-                const meta = VERDICT_BAR[verdict] ?? { bar: '#94a3b8', text: '#94a3b8' }
+                const meta = VERDICT_BAR[verdict] ?? { bar: '#c4c9ac', text: '#c4c9ac' }
                 return (
                   <div key={verdict} className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="font-medium text-slate-200">{VERDICT_LABELS[verdict]}</span>
+                      <span className="font-medium text-[#e3e2e5]">{VERDICT_LABELS[verdict]}</span>
                       <span className="font-semibold tabular-nums" style={{ color: meta.text }}>
                         {count} ({pct}%)
                       </span>
@@ -185,17 +185,17 @@ export default async function DashboardPage() {
       </div>
 
       {/* Actividad reciente */}
-      <div className="rounded-2xl overflow-hidden" style={darkCard}>
+      <div className="rounded-lg overflow-hidden" style={darkCard}>
         <div className="px-6 py-4" style={sectionBorder}>
-          <h2 className="text-sm font-semibold text-slate-100">Actividad reciente</h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h2 className="text-sm font-semibold text-[#e3e2e5]">Actividad reciente</h2>
+          <p className="text-xs text-[#c4c9ac]/60 mt-0.5">
             Últimos {recentBriefs.length} briefings
           </p>
         </div>
 
         {recentBriefs.length === 0 ? (
           <div className="px-6 py-10 text-center">
-            <p className="text-sm text-slate-500">No hay briefings todavía.</p>
+            <p className="text-sm text-[#c4c9ac]/50">No hay briefings todavía.</p>
           </div>
         ) : (
           <ul>
@@ -204,21 +204,21 @@ export default async function DashboardPage() {
               return (
                 <li
                   key={brief.id}
-                  style={idx < recentBriefs.length - 1 ? { borderBottom: '1px solid #1a1a2e' } : {}}
+                  style={idx < recentBriefs.length - 1 ? { borderBottom: '1px solid #1f2022' } : {}}
                 >
                   <Link
                     href={`/briefs/${brief.id}`}
-                    className="flex items-center justify-between px-6 py-3.5 gap-4 group hover:bg-[#1a1a2e] transition-colors"
+                    className="flex items-center justify-between px-6 py-3.5 gap-4 group hover:bg-[#1f2022] transition-colors"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <span
                         className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full border shrink-0 ${
-                          CHANNEL_BADGE[brief.channel] ?? 'bg-[#1e1e3a] text-slate-400 border-[#1e1e3a]'
+                          CHANNEL_BADGE[brief.channel] ?? 'bg-[#1f2022] text-[#c4c9ac] border-[#444933]'
                         }`}
                       >
                         {CHANNEL_LABELS[brief.channel] ?? brief.channel}
                       </span>
-                      <p className="text-sm font-medium text-slate-300 truncate group-hover:text-white transition-colors">
+                      <p className="text-sm font-medium text-[#e3e2e5] truncate group-hover:text-white transition-colors">
                         {brief.title}
                       </p>
                     </div>
@@ -231,9 +231,9 @@ export default async function DashboardPage() {
                           {VERDICT_LABELS[brief.latestVerdict!]}
                         </span>
                       ) : (
-                        <span className="text-xs text-slate-600">Sin validar</span>
+                        <span className="text-xs text-[#c4c9ac]/40">Sin validar</span>
                       )}
-                      <span className="text-xs text-slate-500">{formatDate(brief.createdAt)}</span>
+                      <span className="text-xs text-[#c4c9ac]/50">{formatDate(brief.createdAt)}</span>
                     </div>
                   </Link>
                 </li>

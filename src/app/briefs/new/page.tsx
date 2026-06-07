@@ -9,19 +9,19 @@ export default function NewBriefPage() {
     <div className="mx-auto max-w-2xl px-6 py-10">
 
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Nuevo briefing</h1>
-        <p className="text-sm text-slate-400 mt-1">
+        <h1 className="text-2xl font-bold text-[#e3e2e5]">Nuevo briefing</h1>
+        <p className="text-sm text-[#c4c9ac] mt-1">
           Rellena los datos del briefing para generar el mensaje de captación.
-          Los campos marcados con <span className="text-[#f87171]">*</span> son obligatorios.
+          Los campos marcados con <span className="text-[#ffb4ab]">*</span> son obligatorios.
         </p>
       </div>
 
       <div
-        className="rounded-2xl p-6"
+        className="rounded-lg p-6"
         style={{
-          background: '#0f0f1a',
-          border: '1px solid #1e1e3a',
-          boxShadow: '0 0 32px rgba(124,58,237,0.08)',
+          background: '#1b1c1e',
+          border: '1px solid #444933',
+          boxShadow: '0 0 32px rgba(195,244,0,0.05)',
         }}
       >
         <BriefingForm />

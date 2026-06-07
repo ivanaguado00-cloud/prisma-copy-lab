@@ -16,19 +16,19 @@ import { CHANNEL, MODE } from '../../types/domain'
 function FieldError({ state, field }: { state: BriefActionState | null; field: string }) {
   const error = state?.errors?.find((e) => e.field === field)
   if (!error) return null
-  return <p className="text-sm text-[#f87171] mt-1">{error.message}</p>
+  return <p className="text-sm text-[#ffb4ab] mt-1">{error.message}</p>
 }
 
 function FormLabel({ htmlFor, children }: { htmlFor: string; children: React.ReactNode }) {
   return (
-    <label htmlFor={htmlFor} className="text-sm font-medium text-slate-200 block">
+    <label htmlFor={htmlFor} className="text-sm font-medium text-[#e3e2e5] block">
       {children}
     </label>
   )
 }
 
 const inputCls =
-  'bg-[#0a0a0f] border-[#1e1e3a] text-slate-200 placeholder:text-slate-600 focus-visible:ring-[#7c3aed]/40 focus-visible:border-[#7c3aed]'
+  'bg-[#0d0e10] border-[#444933] text-[#e3e2e5] placeholder:text-[#c4c9ac]/40 focus-visible:ring-[#c3f400]/30 focus-visible:border-[#c3f400]'
 
 export function BriefingForm() {
   const [state, formAction, isPending] = useActionState<BriefActionState | null, FormData>(
@@ -42,7 +42,7 @@ export function BriefingForm() {
       {/* title */}
       <div className="space-y-1.5">
         <FormLabel htmlFor="title">
-          Título <span className="text-[#f87171]">*</span>
+          Título <span className="text-[#ffb4ab]">*</span>
         </FormLabel>
         <Input id="title" name="title" placeholder="Nombre o título de campaña" disabled={isPending} className={inputCls} />
         <FieldError state={state} field="title" />
@@ -57,7 +57,7 @@ export function BriefingForm() {
       {/* objective */}
       <div className="space-y-1.5">
         <FormLabel htmlFor="objective">
-          Objetivo <span className="text-[#f87171]">*</span>
+          Objetivo <span className="text-[#ffb4ab]">*</span>
         </FormLabel>
         <Textarea id="objective" name="objective" placeholder="Objetivo único de la pieza" rows={3} disabled={isPending} className={`${inputCls} resize-none`} />
         <FieldError state={state} field="objective" />
@@ -66,7 +66,7 @@ export function BriefingForm() {
       {/* audience */}
       <div className="space-y-1.5">
         <FormLabel htmlFor="audience">
-          Audiencia <span className="text-[#f87171]">*</span>
+          Audiencia <span className="text-[#ffb4ab]">*</span>
         </FormLabel>
         <Textarea id="audience" name="audience" placeholder="Descripción del público objetivo" rows={3} disabled={isPending} className={`${inputCls} resize-none`} />
         <FieldError state={state} field="audience" />
@@ -76,15 +76,15 @@ export function BriefingForm() {
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div className="space-y-1.5">
           <FormLabel htmlFor="channel">
-            Canal <span className="text-[#f87171]">*</span>
+            Canal <span className="text-[#ffb4ab]">*</span>
           </FormLabel>
           <Select name="channel" disabled={isPending}>
-            <SelectTrigger id="channel" className="bg-[#0a0a0f] border-[#1e1e3a] text-slate-200 focus:ring-[#7c3aed]/40">
+            <SelectTrigger id="channel" className="bg-[#0d0e10] border-[#444933] text-[#e3e2e5] focus:ring-[#c3f400]/30">
               <SelectValue placeholder="Selecciona un canal" />
             </SelectTrigger>
-            <SelectContent className="bg-[#0f0f1a] border-[#1e1e3a]">
-              <SelectItem value={CHANNEL.whatsapp} className="text-slate-200 focus:bg-[#1e1e3a] focus:text-white">WhatsApp</SelectItem>
-              <SelectItem value={CHANNEL.email} className="text-slate-200 focus:bg-[#1e1e3a] focus:text-white">Email</SelectItem>
+            <SelectContent className="bg-[#1b1c1e] border-[#444933]">
+              <SelectItem value={CHANNEL.whatsapp} className="text-[#e3e2e5] focus:bg-[#1f2022] focus:text-white">WhatsApp</SelectItem>
+              <SelectItem value={CHANNEL.email} className="text-[#e3e2e5] focus:bg-[#1f2022] focus:text-white">Email</SelectItem>
             </SelectContent>
           </Select>
           <FieldError state={state} field="channel" />
@@ -92,15 +92,15 @@ export function BriefingForm() {
 
         <div className="space-y-1.5">
           <FormLabel htmlFor="mode">
-            Modo <span className="text-[#f87171]">*</span>
+            Modo <span className="text-[#ffb4ab]">*</span>
           </FormLabel>
           <Select name="mode" disabled={isPending}>
-            <SelectTrigger id="mode" className="bg-[#0a0a0f] border-[#1e1e3a] text-slate-200 focus:ring-[#7c3aed]/40">
+            <SelectTrigger id="mode" className="bg-[#0d0e10] border-[#444933] text-[#e3e2e5] focus:ring-[#c3f400]/30">
               <SelectValue placeholder="Selecciona un modo" />
             </SelectTrigger>
-            <SelectContent className="bg-[#0f0f1a] border-[#1e1e3a]">
-              <SelectItem value={MODE.produccion} className="text-slate-200 focus:bg-[#1e1e3a] focus:text-white">Producción</SelectItem>
-              <SelectItem value={MODE.exploracion} className="text-slate-200 focus:bg-[#1e1e3a] focus:text-white">Exploración</SelectItem>
+            <SelectContent className="bg-[#1b1c1e] border-[#444933]">
+              <SelectItem value={MODE.produccion} className="text-[#e3e2e5] focus:bg-[#1f2022] focus:text-white">Producción</SelectItem>
+              <SelectItem value={MODE.exploracion} className="text-[#e3e2e5] focus:bg-[#1f2022] focus:text-white">Exploración</SelectItem>
             </SelectContent>
           </Select>
           <FieldError state={state} field="mode" />
@@ -110,7 +110,7 @@ export function BriefingForm() {
       {/* valueProposition */}
       <div className="space-y-1.5">
         <FormLabel htmlFor="valueProposition">
-          Propuesta de valor <span className="text-[#f87171]">*</span>
+          Propuesta de valor <span className="text-[#ffb4ab]">*</span>
         </FormLabel>
         <Textarea id="valueProposition" name="valueProposition" placeholder="Palanca o propuesta de valor principal" rows={3} disabled={isPending} className={`${inputCls} resize-none`} />
         <FieldError state={state} field="valueProposition" />
@@ -119,7 +119,7 @@ export function BriefingForm() {
       {/* cta */}
       <div className="space-y-1.5">
         <FormLabel htmlFor="cta">
-          CTA <span className="text-[#f87171]">*</span>
+          CTA <span className="text-[#ffb4ab]">*</span>
         </FormLabel>
         <Input id="cta" name="cta" placeholder="Llamada a la acción esperada" disabled={isPending} className={inputCls} />
         <FieldError state={state} field="cta" />
@@ -134,7 +134,7 @@ export function BriefingForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-xl px-6 py-2.5 text-sm font-semibold text-white prisma-gradient-bg hover:opacity-90 active:opacity-80 transition-all shadow-lg shadow-purple-900/30 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+        className="rounded px-6 py-2.5 text-sm font-semibold text-[#283500] prisma-gradient-bg hover:opacity-90 active:opacity-80 transition-all shadow-lg shadow-[#abd600]/20 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
       >
         {isPending ? 'Guardando…' : 'Crear briefing'}
       </button>
