@@ -39,6 +39,16 @@ async function main() {
     },
   })
 
+  await prisma.user.upsert({
+    where: { email: 'demo@prisma.local' },
+    update: {},
+    create: {
+      name: 'Demo Prisma',
+      email: 'demo@prisma.local',
+      passwordHash,
+    },
+  })
+
   // ── Brief 1: WhatsApp captación máster ─────────────────────────────────────
   const brief1 = await prisma.brief.create({
     data: {
@@ -359,7 +369,8 @@ async function main() {
   })
 
   console.log('✓ Seed completado:')
-  console.log('  Usuarios: admin@prisma.es, redactor@prisma.es (contraseña: prisma2024)')
+  console.log('  Usuarios: admin@prisma.es, redactor@prisma.es, demo@prisma.local')
+  console.log('  Contraseña local de desarrollo: prisma2024')
   console.log(`  Brief 1: ${brief1.title}`)
   console.log(`  Brief 2: ${brief2.title}`)
   console.log(`  Brief 3: ${brief3.title}`)
