@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 vi.mock('../../src/lib/prisma', () => ({
   prisma: {
     validationRun: { count: vi.fn() },
-    brief: { count: vi.fn() },
+    brief: { count: vi.fn(), groupBy: vi.fn() },
     messageVersion: { count: vi.fn() },
   },
 }))
@@ -13,10 +13,12 @@ import { prisma } from '../../src/lib/prisma'
 
 const mockValidationCount = vi.mocked(prisma.validationRun.count)
 const mockBriefCount = vi.mocked(prisma.brief.count)
+const mockBriefGroupBy = vi.mocked(prisma.brief.groupBy)
 const mockVersionCount = vi.mocked(prisma.messageVersion.count)
 
 beforeEach(() => {
   vi.clearAllMocks()
+  mockBriefGroupBy.mockResolvedValue([])
 })
 
 describe('getValidationStats — totales y veredictos', () => {
@@ -27,6 +29,10 @@ describe('getValidationStats — totales y veredictos', () => {
       .mockResolvedValueOnce(3)  // aprobada_con_ajustes
       .mockResolvedValueOnce(2)  // no_aprobada
     mockBriefCount.mockResolvedValue(4)
+    mockBriefGroupBy.mockResolvedValue([
+      { channel: 'email', _count: { channel: 3 } },
+      { channel: 'whatsapp', _count: { channel: 1 } },
+    ])
     mockVersionCount.mockResolvedValue(12)
 
     const stats = await getValidationStats()
@@ -38,6 +44,7 @@ describe('getValidationStats — totales y veredictos', () => {
     expect(stats.totalBriefs).toBe(4)
     expect(stats.totalVersions).toBe(12)
     expect(stats.avgVersionsPerBrief).toBe(3)
+    expect(stats.mostUsedChannel).toBe('email')
   })
 
   it('devuelve ceros cuando la base de datos está vacía', async () => {
@@ -53,6 +60,7 @@ describe('getValidationStats — totales y veredictos', () => {
     expect(stats.verdicts.no_aprobada).toBe(0)
     expect(stats.totalBriefs).toBe(0)
     expect(stats.totalVersions).toBe(0)
+    expect(stats.mostUsedChannel).toBeNull()
   })
 })
 
@@ -116,6 +124,7 @@ describe('getValidationStats — literales de veredicto en español', () => {
 
     expect(prisma.validationRun.count).toHaveBeenCalledTimes(4)
     expect(prisma.brief.count).toHaveBeenCalledTimes(1)
+    expect(prisma.brief.groupBy).toHaveBeenCalledTimes(1)
     expect(prisma.messageVersion.count).toHaveBeenCalledTimes(1)
   })
 })
