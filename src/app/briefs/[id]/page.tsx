@@ -70,9 +70,16 @@ type Props = { params: Promise<{ id: string }> }
 
 export async function generateMetadata({ params }: Props) {
   const { id } = await params
-  const brief = await getBriefById(id)
+  const session = await auth()
+  if (!session?.user?.id) {
+    return {
+      title: 'Briefing - PRISMA Copy Lab',
+    }
+  }
+
+  const brief = await getBriefById(id, session.user.id)
   return {
-    title: brief ? `${brief.title} — PRISMA Copy Lab` : 'Briefing no encontrado',
+    title: brief ? `${brief.title} — PRISMA Copy Lab` : 'Briefing - PRISMA Copy Lab',
   }
 }
 
