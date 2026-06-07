@@ -1,14 +1,21 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { auth } from '../../auth'
 import { getBriefById } from '../../dao/briefDao'
+import { getMessageVersionById } from '../../dao/messageVersionDao'
 import { generateAndApprove } from '../../services/orchestrationService'
 
 export async function generateMessageAction(briefId: string): Promise<void> {
-  const brief = await getBriefById(briefId)
+  const session = await auth()
+  if (!session?.user?.id) {
+    throw new Error('No autenticado')
+  }
+
+  const brief = await getBriefById(briefId, session.user.id)
 
   if (!brief) {
-    throw new Error('Briefing no encontrado')
+    throw new Error('Briefing no encontrado o sin permisos')
   }
 
   await generateAndApprove(brief)
@@ -28,10 +35,20 @@ export async function refineMessageAction(
     throw new Error('La instrucción de ajuste no puede estar vacía')
   }
 
-  const brief = await getBriefById(briefId)
+  const session = await auth()
+  if (!session?.user?.id) {
+    throw new Error('No autenticado')
+  }
+
+  const brief = await getBriefById(briefId, session.user.id)
 
   if (!brief) {
-    throw new Error('Briefing no encontrado')
+    throw new Error('Briefing no encontrado o sin permisos')
+  }
+
+  const parentVersion = await getMessageVersionById(parentVersionId)
+  if (!parentVersion || parentVersion.briefId !== brief.id) {
+    throw new Error('Versión de origen no encontrada o sin permisos')
   }
 
   await generateAndApprove(brief, { userInstruction, parentVersionId })
