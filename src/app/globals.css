@@ -100,14 +100,27 @@
   * {
     @apply border-border outline-ring/50;
   }
+
+  /*
+   * Explicit dark background on html and body prevents the white flash that
+   * appears on /briefs, /dashboard and /briefs/new when the CSS-variable-based
+   * bg-background class resolves later than the paint.
+   */
+  html,
   body {
-    @apply bg-background text-foreground;
-  }
-  html {
-    @apply font-sans;
+    background-color: #0a0a0f;
+    color: #e2e8f0;
   }
 
-  /* Custom scrollbar */
+  body {
+    @apply bg-background text-foreground min-h-full flex flex-col;
+  }
+
+  html {
+    @apply font-sans h-full;
+  }
+
+  /* Custom dark scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -128,6 +141,13 @@
 @layer utilities {
   .prisma-gradient-text {
     background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #6366f1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .prisma-gradient-text-cyan {
+    background: linear-gradient(135deg, #a78bfa 0%, #c084fc 40%, #67e8f9 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

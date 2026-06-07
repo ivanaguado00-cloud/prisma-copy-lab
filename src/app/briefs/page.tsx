@@ -37,7 +37,7 @@ export default async function BriefsListPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold prisma-gradient-text">Briefings</h1>
-          <p className="text-sm text-[#94a3b8] mt-1">
+          <p className="text-sm text-slate-400 mt-1">
             {briefs.length === 0
               ? 'Crea tu primer briefing para empezar'
               : `${briefs.length} briefing${briefs.length !== 1 ? 's' : ''} en total`}
@@ -54,15 +54,12 @@ export default async function BriefsListPage() {
       {/* Empty state */}
       {briefs.length === 0 ? (
         <div
-          className="rounded-2xl px-6 py-16 text-center space-y-4"
-          style={{
-            background: '#0f0f1a',
-            border: '1px dashed #1e1e3a',
-          }}
+          className="rounded-2xl px-6 py-16 text-center space-y-4 bg-[#0f0f1a]"
+          style={{ border: '1px dashed #1e1e3a' }}
         >
           <div className="text-4xl mb-2">📄</div>
-          <p className="text-base font-medium text-[#e2e8f0]">Sin briefings todavía</p>
-          <p className="text-sm text-[#94a3b8]">
+          <p className="text-base font-medium text-slate-200">Sin briefings todavía</p>
+          <p className="text-sm text-slate-400">
             Empieza creando un briefing para generar mensajes de captación.
           </p>
           <Link
@@ -73,10 +70,7 @@ export default async function BriefsListPage() {
           </Link>
         </div>
       ) : (
-        <div
-          className="rounded-2xl overflow-hidden"
-          style={{ background: '#0f0f1a', border: '1px solid #1e1e3a' }}
-        >
+        <div className="rounded-2xl overflow-hidden bg-[#0f0f1a]" style={{ border: '1px solid #1e1e3a' }}>
           <ul>
             {briefs.map((brief, idx) => (
               <li
@@ -85,23 +79,23 @@ export default async function BriefsListPage() {
               >
                 <Link
                   href={`/briefs/${brief.id}`}
-                  className="flex items-center justify-between px-6 py-4 gap-4 group transition-colors hover:bg-[#1a1a2e]"
+                  className="flex items-center justify-between px-6 py-4 gap-4 group hover:bg-[#1a1a2e] transition-colors"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <span
                       className={`inline-flex items-center text-xs font-medium px-2.5 py-0.5 rounded-full border shrink-0 ${
-                        CHANNEL_BADGE[brief.channel] ?? 'bg-[#1e1e3a] text-[#94a3b8] border-[#1e1e3a]'
+                        CHANNEL_BADGE[brief.channel] ?? 'bg-[#1e1e3a] text-slate-400 border-[#1e1e3a]'
                       }`}
                     >
                       {CHANNEL_LABELS[brief.channel] ?? brief.channel}
                     </span>
-                    <p className="font-medium text-[#e2e8f0] truncate group-hover:text-white transition-colors">
+                    <p className="font-medium text-slate-300 truncate group-hover:text-white transition-colors">
                       {brief.title}
                     </p>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
-                    <p className="text-sm text-[#94a3b8]">{formatDate(brief.createdAt)}</p>
-                    <span className="text-[#7c3aed] opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                    <p className="text-sm text-slate-500">{formatDate(brief.createdAt)}</p>
+                    <span className="text-violet-500 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
                   </div>
                 </Link>
               </li>

@@ -11,24 +11,9 @@ function formatDate(date: Date): string {
 }
 
 const VERDICT_BADGE: Record<string, { label: string; bg: string; text: string; border: string }> = {
-  aprobada: {
-    label: 'Aprobada',
-    bg: '#052e16',
-    text: '#10b981',
-    border: '#065f46',
-  },
-  aprobada_con_ajustes: {
-    label: 'Con ajustes',
-    bg: '#1c1400',
-    text: '#f59e0b',
-    border: '#92400e',
-  },
-  no_aprobada: {
-    label: 'No aprobada',
-    bg: '#1c0000',
-    text: '#ef4444',
-    border: '#7f1d1d',
-  },
+  aprobada:             { label: 'Aprobada',    bg: '#052e16', text: '#10b981', border: '#065f46' },
+  aprobada_con_ajustes: { label: 'Con ajustes', bg: '#1c1400', text: '#f59e0b', border: '#92400e' },
+  no_aprobada:          { label: 'No aprobada', bg: '#1c0000', text: '#ef4444', border: '#7f1d1d' },
 }
 
 type Props = {
@@ -42,10 +27,7 @@ export function MessageVersionView({ version, channel, verdictStatus }: Props) {
   const verdict = verdictStatus ? VERDICT_BADGE[verdictStatus] : null
 
   return (
-    <div
-      className="rounded-2xl overflow-hidden"
-      style={{ background: '#0f0f1a', border: '1px solid #1e1e3a' }}
-    >
+    <div className="rounded-2xl overflow-hidden bg-[#0f0f1a]" style={{ border: '1px solid #1e1e3a' }}>
 
       {/* Card header */}
       <div
@@ -57,7 +39,7 @@ export function MessageVersionView({ version, channel, verdictStatus }: Props) {
       >
         <div className="flex items-center gap-2.5">
           <span className="text-sm">{isWhatsApp ? '💬' : '✉️'}</span>
-          <span className="text-sm font-semibold text-[#e2e8f0]">
+          <span className="text-sm font-semibold text-slate-100">
             Versión {version.versionNumber}
           </span>
           {verdict && (
@@ -69,7 +51,7 @@ export function MessageVersionView({ version, channel, verdictStatus }: Props) {
             </span>
           )}
         </div>
-        <span className="text-xs text-[#94a3b8]">{formatDate(version.createdAt)}</span>
+        <span className="text-xs text-slate-500">{formatDate(version.createdAt)}</span>
       </div>
 
       {/* Message body */}
@@ -84,21 +66,15 @@ export function MessageVersionView({ version, channel, verdictStatus }: Props) {
             </p>
           </div>
         ) : (
-          <div
-            className="rounded-xl overflow-hidden"
-            style={{ border: '1px solid #1e1e3a' }}
-          >
-            <div
-              className="px-4 py-2.5"
-              style={{ background: '#1a1a2e', borderBottom: '1px solid #1e1e3a' }}
-            >
-              <p className="text-xs text-[#94a3b8]">
-                <span className="font-medium text-[#e2e8f0]">Asunto:</span>{' '}
+          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #1e1e3a' }}>
+            <div className="px-4 py-2.5 bg-[#1a1a2e]" style={{ borderBottom: '1px solid #1e1e3a' }}>
+              <p className="text-xs text-slate-400">
+                <span className="font-medium text-slate-200">Asunto:</span>{' '}
                 {firstLine(version.content)}
               </p>
             </div>
             <div className="px-4 py-3">
-              <p className="text-sm text-[#e2e8f0] whitespace-pre-wrap leading-relaxed">
+              <p className="text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">
                 {version.content}
               </p>
             </div>
@@ -106,20 +82,17 @@ export function MessageVersionView({ version, channel, verdictStatus }: Props) {
         )}
 
         {version.userInstruction && (
-          <div
-            className="mt-3 text-xs rounded-xl px-3 py-2"
-            style={{ background: '#1a1a2e', border: '1px solid #1e1e3a' }}
-          >
-            <span className="font-medium text-[#a855f7]">Instrucción aplicada:</span>{' '}
-            <span className="text-[#94a3b8]">&ldquo;{version.userInstruction}&rdquo;</span>
+          <div className="mt-3 text-xs rounded-xl px-3 py-2 bg-[#1a1a2e]" style={{ border: '1px solid #1e1e3a' }}>
+            <span className="font-medium text-violet-400">Instrucción aplicada:</span>{' '}
+            <span className="text-slate-400">&ldquo;{version.userInstruction}&rdquo;</span>
           </div>
         )}
       </div>
 
       {/* Footer metadata */}
       <div
-        className="px-4 py-2 flex gap-4 text-[11px] text-[#94a3b8]/60"
-        style={{ borderTop: '1px solid #1e1e3a', background: '#0a0a0f' }}
+        className="px-4 py-2 flex gap-4 text-[11px] text-slate-600 bg-[#0a0a0f]"
+        style={{ borderTop: '1px solid #1e1e3a' }}
       >
         <span>Modelo: {version.llmModel}</span>
         <span>Prompt v{version.generationPromptVersion}</span>

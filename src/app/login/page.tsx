@@ -9,7 +9,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-[#0a0a0f] relative overflow-hidden">
 
-      {/* Radial glow background */}
+      {/* Radial purple glow */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -26,7 +26,7 @@ export default function LoginPage() {
             <span className="text-white font-bold text-lg tracking-tight">P</span>
           </div>
           <h1 className="text-2xl font-bold prisma-gradient-text">PRISMA Copy Lab</h1>
-          <p className="text-sm text-[#94a3b8]">Accede con tu cuenta institucional</p>
+          <p className="text-sm text-slate-400">Accede con tu cuenta institucional</p>
         </div>
 
         {/* Card */}
@@ -41,7 +41,7 @@ export default function LoginPage() {
           <form action={formAction} className="space-y-4">
 
             <div className="space-y-1.5">
-              <label htmlFor="email" className="text-sm font-medium text-[#e2e8f0]">
+              <label htmlFor="email" className="text-sm font-medium text-slate-200 block">
                 Email
               </label>
               <input
@@ -51,12 +51,12 @@ export default function LoginPage() {
                 required
                 autoComplete="email"
                 placeholder="usuario@prisma.es"
-                className="w-full rounded-xl border border-[#1e1e3a] bg-[#0a0a0f] px-4 py-2.5 text-sm text-[#e2e8f0] focus:outline-none focus:ring-2 focus:ring-[#7c3aed]/40 focus:border-[#7c3aed] placeholder:text-[#94a3b8]/50 transition-all"
+                className="w-full rounded-xl border border-[#1e1e3a] bg-[#0a0a0f] px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]/40 focus:border-[#7c3aed] placeholder:text-slate-600 transition-all"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="password" className="text-sm font-medium text-[#e2e8f0]">
+              <label htmlFor="password" className="text-sm font-medium text-slate-200 block">
                 Contraseña
               </label>
               <input
@@ -66,7 +66,7 @@ export default function LoginPage() {
                 required
                 autoComplete="current-password"
                 placeholder="••••••••"
-                className="w-full rounded-xl border border-[#1e1e3a] bg-[#0a0a0f] px-4 py-2.5 text-sm text-[#e2e8f0] focus:outline-none focus:ring-2 focus:ring-[#7c3aed]/40 focus:border-[#7c3aed] placeholder:text-[#94a3b8]/50 transition-all"
+                className="w-full rounded-xl border border-[#1e1e3a] bg-[#0a0a0f] px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#7c3aed]/40 focus:border-[#7c3aed] placeholder:text-slate-600 transition-all"
               />
             </div>
 
@@ -87,7 +87,7 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p className="text-center text-xs text-[#94a3b8]/60">
+        <p className="text-center text-xs text-slate-600">
           Universidad Prisma — uso interno
         </p>
       </div>
