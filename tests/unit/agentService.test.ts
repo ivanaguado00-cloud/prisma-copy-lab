@@ -29,6 +29,7 @@ const mockClient = { generate: vi.fn() }
 const baseBrief: Brief = {
   id: 'brief-1',
   userId: 'user-1',
+  briefNumber: 1,
   title: 'Campaña MBA',
   programOrTitulation: 'Máster MBA',
   objective: 'Captar leads',
@@ -38,6 +39,14 @@ const baseBrief: Brief = {
   valueProposition: 'Red de alumni y empleabilidad',
   cta: 'Solicitar info',
   constraints: null,
+  crmStatus: null,
+  selectedTemplateId: null,
+  crmSentAt: null,
+  crmSentBy: null,
+  crmEmailHtml: null,
+  crmEmailPlainText: null,
+  crmInternalSubject: null,
+  crmNotes: null,
   createdAt: new Date('2026-01-01'),
   updatedAt: new Date('2026-01-01'),
 }

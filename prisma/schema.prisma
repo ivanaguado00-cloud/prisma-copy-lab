@@ -67,6 +67,7 @@ model VerificationToken {
 model Brief {
   id                  String           @id @default(cuid())
   userId              String
+  briefNumber         Int
   title               String
   programOrTitulation String?
   objective           String
@@ -76,11 +77,22 @@ model Brief {
   valueProposition    String
   cta                 String
   constraints         String?
+  // CRM flow
+  crmStatus           String?
+  selectedTemplateId  String?
+  crmSentAt           DateTime?
+  crmSentBy           String?
+  crmEmailHtml        String?
+  crmEmailPlainText   String?
+  crmInternalSubject  String?
+  crmNotes            String?
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
 
   user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   versions MessageVersion[]
+
+  @@unique([userId, briefNumber])
 }
 
 model MessageVersion {

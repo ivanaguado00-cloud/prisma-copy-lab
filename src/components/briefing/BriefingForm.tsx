@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useActionState } from 'react'
 import { createBriefAction, type BriefActionState } from '../../app/actions/briefActions'
 import { Input } from '../ui/input'
@@ -7,34 +8,43 @@ import { Textarea } from '../ui/textarea'
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '../ui/select'
 import { CHANNEL, MODE } from '../../types/domain'
+import { PROGRAM_GROUPS, PREDEFINED_CTAS, CTA_CUSTOM_SENTINEL } from '../../lib/briefingOptions'
 
 function FieldError({ state, field }: { state: BriefActionState | null; field: string }) {
   const error = state?.errors?.find((e) => e.field === field)
   if (!error) return null
-  return <p className="text-sm text-[#ffb4ab] mt-1">{error.message}</p>
+  return <p className="text-sm text-[#ba1a1a] mt-1">{error.message}</p>
 }
 
 function FormLabel({ htmlFor, children }: { htmlFor: string; children: React.ReactNode }) {
   return (
-    <label htmlFor={htmlFor} className="text-sm font-medium text-[#e3e2e5] block">
+    <label htmlFor={htmlFor} className="text-sm font-medium text-[#1b1c1c] block">
       {children}
     </label>
   )
 }
 
 const inputCls =
-  'bg-[#0d0e10] border-[#444933] text-[#e3e2e5] placeholder:text-[#c4c9ac]/40 focus-visible:ring-[#c3f400]/30 focus-visible:border-[#c3f400]'
+  'bg-transparent border-[#cfc4c5] text-[#1b1c1c] placeholder:text-[#7e7576] focus-visible:ring-0 focus-visible:border-[#1b1c1c]'
 
 export function BriefingForm() {
   const [state, formAction, isPending] = useActionState<BriefActionState | null, FormData>(
     createBriefAction,
     null,
   )
+
+  const [ctaSelection, setCtaSelection] = useState<string>('')
+  const [ctaCustom, setCtaCustom] = useState<string>('')
+
+  const isCustomCta = ctaSelection === CTA_CUSTOM_SENTINEL
+  const finalCta = isCustomCta ? ctaCustom : ctaSelection
 
   return (
     <form action={formAction} className="space-y-6">
@@ -51,7 +61,27 @@ export function BriefingForm() {
       {/* programOrTitulation */}
       <div className="space-y-1.5">
         <FormLabel htmlFor="programOrTitulation">Titulación o programa</FormLabel>
-        <Input id="programOrTitulation" name="programOrTitulation" placeholder="Titulación o programa referenciado (opcional)" disabled={isPending} className={inputCls} />
+        <Select name="programOrTitulation" disabled={isPending}>
+          <SelectTrigger id="programOrTitulation" className="bg-transparent border-[#cfc4c5] text-[#1b1c1c] focus:ring-0 focus:border-[#1b1c1c]">
+            <SelectValue placeholder="Selecciona un programa (opcional)" />
+          </SelectTrigger>
+          <SelectContent className="bg-[#ffffff] border-[#cfc4c5] max-h-72 overflow-y-auto">
+            {PROGRAM_GROUPS.map((group) => (
+              <SelectGroup key={group.school}>
+                <SelectLabel className="text-[#4c4546] text-xs px-2 py-1.5">{group.school}</SelectLabel>
+                {group.programs.map((program) => (
+                  <SelectItem
+                    key={program}
+                    value={program}
+                    className="text-[#1b1c1c] focus:bg-[#f5f3f3] focus:text-[#1b1c1c] pl-4"
+                  >
+                    {program}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* objective */}
@@ -79,12 +109,12 @@ export function BriefingForm() {
             Canal <span className="text-[#ffb4ab]">*</span>
           </FormLabel>
           <Select name="channel" disabled={isPending}>
-            <SelectTrigger id="channel" className="bg-[#0d0e10] border-[#444933] text-[#e3e2e5] focus:ring-[#c3f400]/30">
+            <SelectTrigger id="channel" className="bg-transparent border-[#cfc4c5] text-[#1b1c1c] focus:ring-0 focus:border-[#1b1c1c]">
               <SelectValue placeholder="Selecciona un canal" />
             </SelectTrigger>
-            <SelectContent className="bg-[#1b1c1e] border-[#444933]">
-              <SelectItem value={CHANNEL.whatsapp} className="text-[#e3e2e5] focus:bg-[#1f2022] focus:text-white">WhatsApp</SelectItem>
-              <SelectItem value={CHANNEL.email} className="text-[#e3e2e5] focus:bg-[#1f2022] focus:text-white">Email</SelectItem>
+            <SelectContent className="bg-[#ffffff] border-[#cfc4c5]">
+              <SelectItem value={CHANNEL.whatsapp} className="text-[#1b1c1c] focus:bg-[#f5f3f3]">WhatsApp</SelectItem>
+              <SelectItem value={CHANNEL.email} className="text-[#1b1c1c] focus:bg-[#f5f3f3]">Email</SelectItem>
             </SelectContent>
           </Select>
           <FieldError state={state} field="channel" />
@@ -95,12 +125,12 @@ export function BriefingForm() {
             Modo <span className="text-[#ffb4ab]">*</span>
           </FormLabel>
           <Select name="mode" disabled={isPending}>
-            <SelectTrigger id="mode" className="bg-[#0d0e10] border-[#444933] text-[#e3e2e5] focus:ring-[#c3f400]/30">
+            <SelectTrigger id="mode" className="bg-transparent border-[#cfc4c5] text-[#1b1c1c] focus:ring-0 focus:border-[#1b1c1c]">
               <SelectValue placeholder="Selecciona un modo" />
             </SelectTrigger>
-            <SelectContent className="bg-[#1b1c1e] border-[#444933]">
-              <SelectItem value={MODE.produccion} className="text-[#e3e2e5] focus:bg-[#1f2022] focus:text-white">Producción</SelectItem>
-              <SelectItem value={MODE.exploracion} className="text-[#e3e2e5] focus:bg-[#1f2022] focus:text-white">Exploración</SelectItem>
+            <SelectContent className="bg-[#ffffff] border-[#cfc4c5]">
+              <SelectItem value={MODE.produccion} className="text-[#1b1c1c] focus:bg-[#f5f3f3]">Producción</SelectItem>
+              <SelectItem value={MODE.exploracion} className="text-[#1b1c1c] focus:bg-[#f5f3f3]">Exploración</SelectItem>
             </SelectContent>
           </Select>
           <FieldError state={state} field="mode" />
@@ -116,12 +146,44 @@ export function BriefingForm() {
         <FieldError state={state} field="valueProposition" />
       </div>
 
-      {/* cta */}
+      {/* cta — hidden field carries the final value; select + optional custom input drive the state */}
+      <input type="hidden" name="cta" value={finalCta} />
       <div className="space-y-1.5">
-        <FormLabel htmlFor="cta">
+        <FormLabel htmlFor="cta-select">
           CTA <span className="text-[#ffb4ab]">*</span>
         </FormLabel>
-        <Input id="cta" name="cta" placeholder="Llamada a la acción esperada" disabled={isPending} className={inputCls} />
+        <Select
+          value={ctaSelection}
+          onValueChange={(v) => setCtaSelection(v ?? '')}
+          disabled={isPending}
+        >
+          <SelectTrigger id="cta-select" className="bg-transparent border-[#cfc4c5] text-[#1b1c1c] focus:ring-0 focus:border-[#1b1c1c]">
+            <SelectValue placeholder="Selecciona una llamada a la acción" />
+          </SelectTrigger>
+          <SelectContent className="bg-[#ffffff] border-[#cfc4c5]">
+            {PREDEFINED_CTAS.map((cta) => (
+              <SelectItem key={cta} value={cta} className="text-[#1b1c1c] focus:bg-[#f5f3f3]">
+                {cta}
+              </SelectItem>
+            ))}
+            <SelectItem value={CTA_CUSTOM_SENTINEL} className="text-[#4c4546] focus:bg-[#f5f3f3] italic">
+              Otro (personalizado)
+            </SelectItem>
+          </SelectContent>
+        </Select>
+
+        {isCustomCta && (
+          <Input
+            id="cta-custom"
+            value={ctaCustom}
+            onChange={(e) => setCtaCustom(e.target.value)}
+            placeholder="Escribe tu CTA personalizada"
+            disabled={isPending}
+            required
+            className={inputCls}
+          />
+        )}
+
         <FieldError state={state} field="cta" />
       </div>
 
@@ -134,7 +196,7 @@ export function BriefingForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="rounded px-6 py-2.5 text-sm font-semibold text-[#283500] prisma-gradient-bg hover:opacity-90 active:opacity-80 transition-all shadow-lg shadow-[#abd600]/20 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+        className="rounded px-8 py-3 text-sm font-semibold bg-[#1b1c1c] text-white hover:bg-[#4c4546] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
       >
         {isPending ? 'Guardando…' : 'Crear briefing'}
       </button>

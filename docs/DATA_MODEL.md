@@ -23,6 +23,7 @@ Información estructurada que el usuario rellena en el wizard.
 | Campo | Tipo | Notas |
 |---|---|---|
 | `id` | string (cuid) | PK |
+| `briefNumber` | int | número secuencial visible por usuario (`BR-001`, `BR-002`...) |
 | `title` | string | nombre o título de campaña |
 | `programOrTitulation` | string? | titulación o programa referenciado, opcional |
 | `objective` | string | objetivo único de la pieza |
@@ -38,6 +39,7 @@ Información estructurada que el usuario rellena en el wizard.
 Reglas:
 - `title`, `objective`, `audience`, `channel`, `mode`, `valueProposition` y `cta` son obligatorios.
 - `programOrTitulation` y `constraints` son opcionales.
+- `briefNumber` empieza en 1 por usuario y es único junto con `userId`.
 
 ## 3. Tabla `message_versions`
 
@@ -122,6 +124,8 @@ datasource db {
 
 model Brief {
   id                  String           @id @default(cuid())
+  userId              String
+  briefNumber         Int
   title               String
   programOrTitulation String?
   objective           String
@@ -135,6 +139,8 @@ model Brief {
   updatedAt           DateTime         @updatedAt
 
   versions            MessageVersion[]
+
+  @@unique([userId, briefNumber])
 }
 
 model MessageVersion {

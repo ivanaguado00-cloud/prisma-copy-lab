@@ -16,6 +16,7 @@ export interface ValidationStats {
 
 export interface RecentBriefSummary {
   id: string
+  briefNumber: number
   title: string
   channel: string
   createdAt: Date
@@ -136,6 +137,7 @@ export async function getRecentBriefsSummary(
     const latestRun = brief.versions[0]?.validationRuns[0] ?? null
     return {
       id: brief.id,
+      briefNumber: brief.briefNumber,
       title: brief.title,
       channel: brief.channel,
       createdAt: brief.createdAt,

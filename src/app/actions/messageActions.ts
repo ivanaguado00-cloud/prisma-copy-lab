@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '../../auth'
 import { getBriefById } from '../../dao/briefDao'
 import { getMessageVersionById } from '../../dao/messageVersionDao'
-import { generateAndApprove, generateSingle } from '../../services/orchestrationService'
+import { generateSingle } from '../../services/orchestrationService'
 
 export async function generateMessageAction(briefId: string): Promise<void> {
   const session = await auth()
@@ -18,7 +18,7 @@ export async function generateMessageAction(briefId: string): Promise<void> {
     throw new Error('Briefing no encontrado o sin permisos')
   }
 
-  await generateAndApprove(brief)
+  await generateSingle(brief)
 
   redirect(`/briefs/${briefId}`)
 }

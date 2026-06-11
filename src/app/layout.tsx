@@ -1,10 +1,16 @@
 import type { Metadata } from 'next'
-import { Inter, Geist_Mono } from 'next/font/google'
+import { Inter, Geist_Mono, Hanken_Grotesk } from 'next/font/google'
 import { Navbar } from '../components/layout/Navbar'
 import './globals.css'
 
 const inter = Inter({
   variable: '--font-sans',
+  subsets: ['latin'],
+  display: 'swap',
+})
+
+const hankenGrotesk = Hanken_Grotesk({
+  variable: '--font-heading',
   subsets: ['latin'],
   display: 'swap',
 })
@@ -27,7 +33,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${inter.variable} ${geistMono.variable} antialiased`}
+      className={`${inter.variable} ${hankenGrotesk.variable} ${geistMono.variable} antialiased`}
     >
       <body>
         <Navbar />

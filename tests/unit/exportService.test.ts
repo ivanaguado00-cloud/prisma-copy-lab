@@ -27,6 +27,7 @@ const mockListRuns = vi.mocked(listValidationRunsByMessage)
 const baseBrief: Brief = {
   id: 'brief-1',
   userId: 'user-1',
+  briefNumber: 1,
   title: 'Campaña MBA',
   programOrTitulation: 'Máster MBA',
   objective: 'Captar leads',
@@ -36,6 +37,14 @@ const baseBrief: Brief = {
   valueProposition: 'Red de alumni',
   cta: 'Solicitar info',
   constraints: null,
+  crmStatus: null,
+  selectedTemplateId: null,
+  crmSentAt: null,
+  crmSentBy: null,
+  crmEmailHtml: null,
+  crmEmailPlainText: null,
+  crmInternalSubject: null,
+  crmNotes: null,
   createdAt: new Date('2026-01-01'),
   updatedAt: new Date('2026-01-01'),
 }
@@ -92,6 +101,11 @@ describe('buildExportText — cabecera y datos del briefing', () => {
   it('incluye el título del briefing en la cabecera', async () => {
     const text = await buildExportText('brief-1')
     expect(text).toContain('Campaña MBA')
+  })
+
+  it('incluye el número estable del briefing en la cabecera', async () => {
+    const text = await buildExportText('brief-1')
+    expect(text).toContain('Briefing: BR-001')
   })
 
   it('incluye todos los campos del briefing', async () => {

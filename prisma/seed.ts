@@ -53,6 +53,7 @@ async function main() {
   const brief1 = await prisma.brief.create({
     data: {
       userId: admin.id,
+      briefNumber: 1,
       title: 'Captación Máster Marketing Digital — Convocatoria Septiembre',
       programOrTitulation: 'Máster en Marketing Digital y Estrategia de Contenidos',
       objective: 'Conseguir que el lead solicite información sobre el máster',
@@ -152,6 +153,7 @@ async function main() {
   const brief2 = await prisma.brief.create({
     data: {
       userId: admin.id,
+      briefNumber: 2,
       title: 'Reactivación Leads Fríos — Grado en Psicología',
       programOrTitulation: 'Grado en Psicología',
       objective: 'Reactivar el interés de leads que solicitaron información hace más de 6 meses y no matricularon',
@@ -265,6 +267,7 @@ async function main() {
   const brief3 = await prisma.brief.create({
     data: {
       userId: admin.id,
+      briefNumber: 3,
       title: 'Cierre Matrícula Grado en Derecho — Último Aviso',
       programOrTitulation: 'Grado en Derecho',
       objective: 'Urgir al lead a formalizar la matrícula antes del cierre del plazo',

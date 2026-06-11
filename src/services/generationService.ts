@@ -1,10 +1,12 @@
 import type { Brief } from '../generated/prisma/client'
-import { listVersionsByBrief, createMessageVersion } from '../dao/messageVersionDao'
-import { getGenerationClient, } from './llm/factory'
+import {
+  createMessageVersion,
+  getMessageVersionById,
+  listVersionsByBrief,
+} from '../dao/messageVersionDao'
+import { getGenerationClient } from './llm/factory'
 import { getModel } from './llm/client'
 import { GENERATION_PROMPT_VERSION } from '../types/llm'
-
-// ── Prompt templates (v1.0) ───────────────────────────────────────────────────
 
 const GENERATION_SYSTEM_PROMPT = `Eres el asistente de redacción comercial de Universidad Prisma, una universidad
 privada española 100% online.
@@ -22,7 +24,7 @@ flexibilidad, progreso profesional, acompañamiento, actualización, accesibilid
 REGLAS DE PRODUCTO
 - No prometas resultados absolutos.
 - No exageres ("la mejor", "oportunidad única", "no dejes pasar...").
-- No reprochas al destinatario su falta de respuesta.
+- No reproches al destinatario su falta de respuesta.
 - Mantén un único objetivo por mensaje.
 - Adapta longitud y estilo al canal indicado.
 
@@ -33,15 +35,9 @@ REGLAS POR CANAL
   primera línea y el cuerpo a continuación. 80-180 palabras aproximadamente.
 
 DEVUELVE SOLO EL TEXTO DEL MENSAJE. SIN EXPLICACIONES, SIN COMILLAS, SIN
-COMENTARIOS METADATOS.`
-
-const TEMPERATURE: Record<string, number> = {
-  produccion: 0.4,
-  exploracion: 0.7,
-}
+COMENTARIOS NI METADATOS.`
 
 function buildUserPrompt(brief: Brief): string {
-  const modeLabel = brief.mode === 'exploracion' ? 'EXPLORACIÓN' : 'PRODUCCIÓN'
   const modeNote =
     brief.mode === 'exploracion'
       ? 'Modo: EXPLORACIÓN. Puedes proponer enfoques creativos o estructuras menos\nconvencionales, siempre dentro de las reglas de marca y sin romper tono.'
@@ -61,7 +57,35 @@ function buildUserPrompt(brief: Brief): string {
 ${modeNote}`
 }
 
-// ── Service ───────────────────────────────────────────────────────────────────
+function buildIterationUserPrompt(params: {
+  brief: Brief
+  previousContent: string
+  userInstruction: string
+}): string {
+  const { brief, previousContent, userInstruction } = params
+
+  return `Aquí tienes una versión previa de un mensaje comercial generado para Universidad Prisma:
+
+VERSIÓN ANTERIOR:
+${previousContent}
+
+BRIEFING ORIGINAL:
+- campaña: ${brief.title}
+- programa o titulación: ${brief.programOrTitulation ?? 'no especificado'}
+- objetivo único: ${brief.objective}
+- público: ${brief.audience}
+- canal: ${brief.channel}
+- propuesta de valor: ${brief.valueProposition}
+- CTA: ${brief.cta}
+- restricciones específicas: ${brief.constraints ?? 'ninguna'}
+
+INSTRUCCIÓN DEL USUARIO PARA LA NUEVA VERSIÓN:
+${userInstruction}
+
+Aplica la instrucción del usuario siempre que sea compatible con los criterios institucionales. Si la instrucción entra en conflicto con tono, canal, precisión o fiabilidad, prioriza esos criterios y conserva una versión segura.
+
+Devuelve solo la nueva versión final del mensaje, sin explicaciones ni alternativas.`
+}
 
 interface GenerateOptions {
   userInstruction?: string
@@ -71,13 +95,25 @@ interface GenerateOptions {
 export async function generateMessage(brief: Brief, options: GenerateOptions = {}) {
   const { userInstruction, parentVersionId } = options
   const client = getGenerationClient()
-  const temperature = TEMPERATURE[brief.mode] ?? 0.4
 
   const systemPrompt = GENERATION_SYSTEM_PROMPT
   let userPrompt = buildUserPrompt(brief)
 
   if (userInstruction) {
-    userPrompt += `\n\nINSTRUCCIÓN DE AJUSTE DEL USUARIO:\n"${userInstruction}"\nAplica esta instrucción manteniendo el resto de criterios institucionales.`
+    if (!parentVersionId) {
+      throw new Error('La iteración con instrucción de usuario requiere una versión de origen')
+    }
+
+    const parentVersion = await getMessageVersionById(parentVersionId)
+    if (!parentVersion || parentVersion.briefId !== brief.id) {
+      throw new Error('Versión de origen no encontrada para este briefing')
+    }
+
+    userPrompt = buildIterationUserPrompt({
+      brief,
+      previousContent: parentVersion.content,
+      userInstruction,
+    })
   }
 
   const content = await client.generate(systemPrompt, userPrompt)
@@ -85,8 +121,7 @@ export async function generateMessage(brief: Brief, options: GenerateOptions = {
   const existingVersions = await listVersionsByBrief(brief.id)
   const versionNumber = existingVersions.length + 1
 
-  const llmModel =
-    process.env.LLM_MOCK === 'true' ? 'mock' : getModel()
+  const llmModel = process.env.LLM_MOCK === 'true' ? 'mock' : getModel()
 
   return createMessageVersion({
     briefId: brief.id,
@@ -100,4 +135,4 @@ export async function generateMessage(brief: Brief, options: GenerateOptions = {
   })
 }
 
-export { buildUserPrompt, GENERATION_SYSTEM_PROMPT }
+export { buildUserPrompt, buildIterationUserPrompt, GENERATION_SYSTEM_PROMPT }

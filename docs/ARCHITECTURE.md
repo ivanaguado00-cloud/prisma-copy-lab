@@ -44,6 +44,7 @@ prisma-copy-lab/
 │   │   │   ├── agentActions.ts
 │   │   │   ├── authActions.ts
 │   │   │   ├── briefActions.ts
+│   │   │   ├── crmActions.ts
 │   │   │   ├── messageActions.ts
 │   │   │   └── validationActions.ts
 │   │   ├── api/
@@ -60,6 +61,11 @@ prisma-copy-lab/
 │   ├── auth.ts
 │   ├── components/
 │   │   ├── briefing/BriefingForm.tsx
+│   │   ├── crm/
+│   │   │   ├── CrmFlow.tsx
+│   │   │   ├── CrmTemplateSelector.tsx
+│   │   │   ├── CrmEmailPreview.tsx
+│   │   │   └── PrepareCrmButton.tsx
 │   │   ├── layout/Navbar.tsx
 │   │   ├── messaging/MessageVersionView.tsx
 │   │   ├── messaging/VersionTree.tsx
@@ -72,12 +78,16 @@ prisma-copy-lab/
 │   │   └── validationScoreDao.ts
 │   ├── generated/prisma/
 │   ├── lib/
+│   │   ├── briefingOptions.ts
+│   │   ├── emailTemplates.ts
 │   │   ├── prisma.ts
 │   │   ├── utils.ts
 │   │   └── versionTreeUtils.ts
 │   ├── services/
 │   │   ├── agentService.ts
 │   │   ├── briefService.ts
+│   │   ├── crmService.ts
+│   │   ├── emailService.ts
 │   │   ├── exportService.ts
 │   │   ├── generationService.ts
 │   │   ├── orchestrationService.ts
@@ -108,7 +118,7 @@ Ningún componente React debe llamar directamente a Prisma. Ningún DAO debe con
 
 Todo acceso de dominio a base de datos pasa por `src/dao/`. Cada tabla principal del flujo de copy tiene su DAO:
 
-- `briefDao.ts`: operaciones de persistencia y lectura de briefings.
+- `briefDao.ts`: operaciones de persistencia y lectura de briefings; incluye `updateBriefCrm` para actualizar el estado y datos del flujo CRM.
 - `messageVersionDao.ts`: operaciones sobre versiones de mensajes.
 - `validationRunDao.ts`: operaciones sobre ejecuciones de validación.
 - `validationScoreDao.ts`: persistencia de scores por bloque.
@@ -130,6 +140,8 @@ Relaciones relevantes:
 
 - Un `User` tiene muchos `Brief`.
 - Un `Brief` tiene muchas `MessageVersion`.
+- Cada `Brief` tiene `briefNumber`, un número secuencial visible y único por usuario.
+- Un `Brief` puede tener campos CRM opcionales: `crmStatus`, `selectedTemplateId`, `crmSentAt`, `crmSentBy`, `crmEmailHtml`, `crmEmailPlainText`, `crmInternalSubject`, `crmNotes`. Estos campos se rellenan cuando se completa el flujo "Preparar para CRM".
 - Una `MessageVersion` puede tener `parentVersionId` y `userInstruction`, lo que permite representar iteraciones y árboles de versiones.
 - Una `MessageVersion` tiene muchas `ValidationRun`.
 - Una `ValidationRun` tiene siete `ValidationScore`.
@@ -145,7 +157,9 @@ SQLite no usa enums nativos; los valores de dominio se modelan como `String` y s
 - `validationService.ts`: llamada al validador, parseo estricto de JSON, cálculo determinista del veredicto y persistencia de `ValidationRun` + `ValidationScore`.
 - `exportService.ts`: construcción de una exportación `.txt` con briefing, versiones y validaciones.
 - `agentService.ts`: genera instrucciones de mejora a partir de validaciones no aprobadas y crea una nueva versión.
-- `orchestrationService.ts`: coordina generación, validación y refinamiento automático con límite de intentos.
+- `orchestrationService.ts`: coordina generación y validación en un único intento visible por petición de usuario.
+- `emailService.ts`: abstracción de envío de email. En modo mock (sin `SMTP_HOST`) registra el envío en consola. Con `SMTP_HOST` configurado usa nodemailer (dependencia opcional).
+- `crmService.ts`: `buildCrmPreview` y `sendToCrm`. Construye el HTML y texto plano del email maquetado usando `emailTemplates.ts`, compone el correo interno para CRM, delega el envío en `emailService` y actualiza el estado del brief.
 - `services/llm/client.ts`: clientes OpenAI reales para generación y validación.
 - `services/llm/mockClient.ts`: clientes mock activables con `LLM_MOCK=true`.
 - `services/llm/factory.ts`: selección de cliente real o mock.
@@ -167,7 +181,7 @@ Alcance: autenticación básica y asociación de briefings a usuario. No documen
 
 Decisión vigente:
 
-- **Server Actions** para mutaciones ligadas a UI: autenticación, crear briefing, generar mensaje, validar mensaje y acciones de agente/refinamiento.
+- **Server Actions** para mutaciones ligadas a UI: autenticación, crear briefing, generar mensaje, validar mensaje, acciones de agente/refinamiento y flujo CRM (`previewCrmEmailAction`, `sendToCrmAction`).
 - **Route Handlers** cuando existe una superficie HTTP concreta:
   - `src/app/api/auth/[...nextauth]/route.ts`: contrato requerido por NextAuth/Auth.js.
   - `src/app/api/export/[briefId]/route.ts`: descarga `.txt` de un caso exportado.
@@ -186,6 +200,29 @@ La documentación corporativa completa vive en `data/corpus/`:
 `docs/PRISMA_CONTEXT.md` funciona como resumen operativo para generación y validación. `docs/VALIDATION_CRITERIA.md` adapta los criterios corporativos a una matriz determinista consumible por el validador.
 
 En el repo actual no existe `src/lib/corpus.ts`; por tanto, cualquier carga o inyección de contexto debe comprobarse en los servicios y prompts vigentes antes de documentarse como implementada.
+
+## 16. Flujo CRM
+
+El flujo "Preparar para CRM" es exclusivo de briefs de canal email con validación aprobada:
+
+1. `PrepareCrmButton` (Client Component) comprueba las condiciones en render y abre el modal `CrmFlow`.
+2. `CrmFlow` gestiona los pasos del flujo con estado local: selección → preview → enviando → éxito/error.
+3. `CrmTemplateSelector` muestra 4 cards con las plantillas disponibles.
+4. Al seleccionar, `previewCrmEmailAction` (Server Action) llama a `crmService.buildCrmPreview` y devuelve el HTML al cliente sin persistir ni enviar nada.
+5. `CrmEmailPreview` renderiza el HTML en un iframe y muestra el panel de brief. El usuario puede añadir notas.
+6. Al confirmar, `sendToCrmAction` (Server Action) llama a `crmService.sendToCrm`: genera el HTML final, construye el correo interno, delega en `emailService`, actualiza el brief en BD.
+7. Tras envío exitoso, el brief queda con `crmStatus = 'sent_to_crm'`.
+
+Separación en `src/lib/emailTemplates.ts`:
+- `PRISMA_BRAND_KIT`: colores, logo, tipografía, footer. Cambiar aquí afecta todos los emails.
+- `EMAIL_TEMPLATES`: definición de 4 plantillas (id, nombre, descripción, layout).
+- `renderEmailHtml`: genera el HTML del email. Cuatro layouts: informative, commercial, reminder, visual.
+- `renderEmailPlainText`: genera la versión texto plano.
+
+Restricciones de seguridad del flujo:
+- El destinatario CRM es fijo (variable de entorno); el usuario no puede escribir destinatarios arbitrarios.
+- Ninguna credencial de email se expone al cliente.
+- El estado del brief no se actualiza si el envío falla.
 
 ## 9. Exportación
 
@@ -207,6 +244,8 @@ El producto permite representar iteraciones mediante:
 - `src/lib/versionTreeUtils.ts`
 
 Esto soporta trazabilidad de versiones derivadas sin introducir un sistema colaborativo completo.
+
+Regla de producto vigente: una acción explícita del usuario crea como máximo una `MessageVersion` visible. No se persisten como versiones públicas los intentos internos o ajustes automáticos derivados de validación.
 
 ## 11. Cliente LLM
 
@@ -246,7 +285,7 @@ Cualquier documento o ZIP de n8n debe tratarse como referencia histórica, no co
 - **Service Layer**: centraliza reglas de negocio y orquestación.
 - **Adapter**: clientes LLM real/mock bajo contrato común.
 - **Strategy suave**: modo `produccion`/`exploracion` y flujos de refinamiento cambian comportamiento sin dispersar reglas.
-- **Orchestration**: `orchestrationService.ts` coordina intentos de generación, validación y mejora.
+- **Orchestration**: `orchestrationService.ts` coordina generación y validación posterior sin crear versiones intermedias automáticas.
 
 ## 15. Testing
 
@@ -270,5 +309,11 @@ Cobertura prioritaria:
 | `OPENAI_MODEL` | Modelo a usar |
 | `LLM_MOCK` | `true` activa clientes mock |
 | `AUTH_SECRET` | Secreto de autenticación |
+| `CRM_RECIPIENT_EMAIL` | Destinatario fijo del correo interno CRM (por defecto: `ivan.aguado00@gmail.com`) |
+| `SMTP_HOST` | Servidor SMTP para envío real (si no está presente, opera en modo mock) |
+| `SMTP_PORT` | Puerto SMTP (por defecto: 587) |
+| `SMTP_USER` | Usuario SMTP |
+| `SMTP_PASS` | Contraseña SMTP |
+| `SMTP_FROM` | Dirección de remitente para envíos reales |
 
 Plantilla en `.env.example`. Las claves reales nunca deben subirse al repositorio.

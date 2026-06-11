@@ -12,6 +12,12 @@ export const MODE = {
 } as const
 export type Mode = (typeof MODE)[keyof typeof MODE]
 
+export const CRM_STATUS = {
+  ready_for_crm: 'ready_for_crm',
+  sent_to_crm: 'sent_to_crm',
+} as const
+export type CrmStatus = (typeof CRM_STATUS)[keyof typeof CRM_STATUS]
+
 export const OVERALL_VERDICT = {
   aprobada: 'aprobada',
   aprobada_con_ajustes: 'aprobada_con_ajustes',

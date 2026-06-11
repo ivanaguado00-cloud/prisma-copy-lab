@@ -19,7 +19,7 @@ Plantillas de prompts para PRISMA Copy Lab. Versionadas y trazables.
 - **System prompt**: contiene identidad y reglas no negociables. **User prompt**: contiene los datos variables del caso.
 - Nunca enviar al modelo la documentación íntegra del corpus. Inyectar el resumen operativo (`docs/PRISMA_CONTEXT.md` y `docs/VALIDATION_CRITERIA.md`).
 
-## 2. Plantilla de generación (`v1.0`)
+## 2. Plantilla de generación (`v1.1`)
 
 ### System
 ```
@@ -91,7 +91,7 @@ convencionales, siempre dentro de las reglas de marca y sin romper tono.
 - `temperature: 0.4` para producción, `0.7` para exploración
 - `max_tokens`: ~400
 
-## 3. Plantilla de iteración (`v1.0`)
+## 3. Plantilla de iteración (`v1.1`)
 
 Para F7 (recomendable). Cuando el usuario crea una nueva versión a partir de una instrucción.
 
@@ -119,7 +119,13 @@ INSTRUCCIÓN DEL USUARIO PARA LA NUEVA VERSIÓN:
 {{userInstruction}}
 
 Devuelve la nueva versión del mensaje aplicando la instrucción, manteniendo
-las reglas de tono y marca. Solo el texto del mensaje, sin explicaciones.
+las reglas de tono y marca.
+
+Si la instrucción entra en conflicto con tono, canal, precisión o fiabilidad,
+prioriza esos criterios y conserva una versión segura.
+
+Devuelve solo la nueva versión final del mensaje, sin explicaciones ni
+alternativas.
 ```
 
 ## 4. Plantilla del validador (`v1.0`)
@@ -256,7 +262,7 @@ Evalúa este mensaje contra los siete bloques y devuelve el JSON exigido.
 
 - Cada plantilla declara su versión en código:
   ```ts
-  export const GENERATION_PROMPT_VERSION = "v1.0";
+  export const GENERATION_PROMPT_VERSION = "v1.1";
   export const VALIDATOR_PROMPT_VERSION = "v1.0";
   ```
 - Cualquier cambio en una plantilla incrementa el patch (`v1.1`) si es retoque menor o el major (`v2.0`) si cambia la estructura del JSON o el contrato.

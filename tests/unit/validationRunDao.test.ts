@@ -32,7 +32,7 @@ describe('getValidationStats — totales y veredictos', () => {
     mockBriefGroupBy.mockResolvedValue([
       { channel: 'email', _count: { channel: 3 } },
       { channel: 'whatsapp', _count: { channel: 1 } },
-    ])
+    ] as never)
     mockVersionCount.mockResolvedValue(12)
 
     const stats = await getValidationStats()

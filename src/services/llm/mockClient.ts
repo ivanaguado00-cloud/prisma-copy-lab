@@ -84,7 +84,7 @@ const MOCK_VALIDATION_RESPONSE = JSON.stringify({
 })
 
 export class MockValidationClient implements ValidationClient {
-  async validate(_systemPrompt: string, _userPrompt: string): Promise<string> {
+  async validate(): Promise<string> {
     return MOCK_VALIDATION_RESPONSE
   }
 }

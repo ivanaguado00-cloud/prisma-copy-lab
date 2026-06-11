@@ -17,6 +17,10 @@ function formatDate(date: Date): string {
   }).format(new Date(date))
 }
 
+function formatBriefNumber(briefNumber: number): string {
+  return `BR-${briefNumber.toString().padStart(3, '0')}`
+}
+
 const VERDICT_LABELS: Record<string, string> = {
   aprobada: 'APROBADA',
   aprobada_con_ajustes: 'APROBADA CON AJUSTES',
@@ -52,6 +56,7 @@ export async function buildExportText(
   sections.push([
     LINE_DOUBLE,
     'PRISMA Copy Lab — Exportación de caso',
+    `Briefing: ${formatBriefNumber(brief.briefNumber)}`,
     `Campaña: ${brief.title}`,
     `Exportado el: ${formatDate(new Date())}`,
     LINE_DOUBLE,

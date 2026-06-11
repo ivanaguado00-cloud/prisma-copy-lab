@@ -25,8 +25,15 @@ dist/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.*.local
 # Conservamos .env.example como plantilla pública del proyecto
 !.env.example
+
+# ----- Credenciales cifradas locales (DPAPI) -----
+# .gmailpass contiene una App Password de Gmail cifrada con DPAPI de Windows.
+# Solo puede descifrarlo el mismo usuario en el mismo PC. Nunca subir al repo.
+scripts/.gmailpass
+.gmailpass
 
 # ----- Base de datos local SQLite -----
 prisma/dev.db

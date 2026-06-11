@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 vi.mock('../../src/dao/messageVersionDao', () => ({
   listVersionsByBrief: vi.fn(),
   createMessageVersion: vi.fn(),
+  getMessageVersionById: vi.fn(),
 }))
 
 vi.mock('../../src/services/llm/factory', () => ({
@@ -13,18 +14,29 @@ vi.mock('../../src/services/llm/client', () => ({
   getModel: vi.fn(() => 'gpt-4o-mini'),
 }))
 
-import { generateMessage, buildUserPrompt, GENERATION_SYSTEM_PROMPT } from '../../src/services/generationService'
-import { listVersionsByBrief, createMessageVersion } from '../../src/dao/messageVersionDao'
+import {
+  generateMessage,
+  buildIterationUserPrompt,
+  buildUserPrompt,
+  GENERATION_SYSTEM_PROMPT,
+} from '../../src/services/generationService'
+import {
+  listVersionsByBrief,
+  createMessageVersion,
+  getMessageVersionById,
+} from '../../src/dao/messageVersionDao'
 import { getGenerationClient } from '../../src/services/llm/factory'
-import type { Brief } from '../../src/generated/prisma/client'
+import type { Brief, MessageVersion } from '../../src/generated/prisma/client'
 
 const mockListVersions = vi.mocked(listVersionsByBrief)
 const mockCreateVersion = vi.mocked(createMessageVersion)
+const mockGetMessageVersion = vi.mocked(getMessageVersionById)
 const mockGetClient = vi.mocked(getGenerationClient)
 
 const baseBrief: Brief = {
   id: 'brief-1',
   userId: 'user-1',
+  briefNumber: 1,
   title: 'Campaña MBA',
   programOrTitulation: 'Máster MBA',
   objective: 'Captar leads',
@@ -34,6 +46,14 @@ const baseBrief: Brief = {
   valueProposition: 'Red de alumni y empleabilidad',
   cta: 'Solicitar info',
   constraints: null,
+  crmStatus: null,
+  selectedTemplateId: null,
+  crmSentAt: null,
+  crmSentBy: null,
+  crmEmailHtml: null,
+  crmEmailPlainText: null,
+  crmInternalSubject: null,
+  crmNotes: null,
   createdAt: new Date('2026-01-01'),
   updatedAt: new Date('2026-01-01'),
 }
@@ -42,11 +62,25 @@ const mockClient = {
   generate: vi.fn(),
 }
 
+const parentVersion: MessageVersion = {
+  id: 'mv-parent',
+  briefId: 'brief-1',
+  versionNumber: 1,
+  content: 'Asunto: Version previa\n\nContenido anterior.',
+  llmProvider: 'openai',
+  llmModel: 'gpt-4o-mini',
+  generationPromptVersion: 'v1.0',
+  userInstruction: null,
+  parentVersionId: null,
+  createdAt: new Date('2026-01-01'),
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
   mockGetClient.mockReturnValue(mockClient)
   mockClient.generate.mockResolvedValue('Mensaje generado de prueba')
   mockListVersions.mockResolvedValue([])
+  mockGetMessageVersion.mockResolvedValue(parentVersion)
   mockCreateVersion.mockResolvedValue({ id: 'mv-1' } as never)
 })
 
@@ -103,6 +137,59 @@ describe('generateMessage — llamada al cliente LLM', () => {
       expect.objectContaining({ content: 'Respuesta del mock' }),
     )
   })
+
+  it('usa la version anterior cuando genera una iteracion con instruccion del usuario', async () => {
+    await generateMessage(baseBrief, {
+      userInstruction: 'Hazlo mas directo.',
+      parentVersionId: 'mv-parent',
+    })
+
+    const [, userPrompt] = mockClient.generate.mock.calls[0]!
+    expect(userPrompt).toContain('VERSIÓN ANTERIOR:')
+    expect(userPrompt).toContain(parentVersion.content)
+    expect(userPrompt).toContain('Hazlo mas directo.')
+    expect(mockCreateVersion).toHaveBeenCalledWith(
+      expect.objectContaining({
+        parentVersionId: 'mv-parent',
+        userInstruction: 'Hazlo mas directo.',
+      }),
+    )
+  })
+
+  it('rechaza una instruccion de iteracion sin version de origen', async () => {
+    await expect(
+      generateMessage(baseBrief, { userInstruction: 'Hazlo mas directo.' }),
+    ).rejects.toThrow(/versi.n de origen/i)
+
+    expect(mockClient.generate).not.toHaveBeenCalled()
+    expect(mockCreateVersion).not.toHaveBeenCalled()
+  })
+
+  it('rechaza una version de origen que pertenece a otro briefing', async () => {
+    mockGetMessageVersion.mockResolvedValue({ ...parentVersion, briefId: 'brief-2' })
+
+    await expect(
+      generateMessage(baseBrief, {
+        userInstruction: 'Hazlo mas directo.',
+        parentVersionId: 'mv-parent',
+      }),
+    ).rejects.toThrow(/este briefing/i)
+  })
+})
+
+describe('buildIterationUserPrompt', () => {
+  it('incluye briefing, version anterior e instruccion sin pedir alternativas', () => {
+    const prompt = buildIterationUserPrompt({
+      brief: baseBrief,
+      previousContent: parentVersion.content,
+      userInstruction: 'Dame una opcion menos promocional.',
+    })
+
+    expect(prompt).toContain(parentVersion.content)
+    expect(prompt).toContain('Campaña MBA')
+    expect(prompt).toContain('Dame una opcion menos promocional.')
+    expect(prompt).toContain('sin explicaciones ni alternativas')
+  })
 })
 
 describe('generateMessage — versionNumber', () => {
@@ -134,7 +221,7 @@ describe('generateMessage — metadatos persistidos', () => {
         briefId: 'brief-1',
         llmProvider: 'openai',
         llmModel: 'gpt-4o-mini',
-        generationPromptVersion: 'v1.0',
+        generationPromptVersion: 'v1.1',
       }),
     )
   })

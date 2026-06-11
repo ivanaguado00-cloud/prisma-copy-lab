@@ -14,13 +14,14 @@ Aplicación web interna que permite a un equipo de marketing y comunicación com
 - generar una propuesta de mensaje comercial con IA para WhatsApp o email
 - validar automáticamente la propuesta contra los siete criterios internos de la universidad
 - consultar el histórico de generaciones con su trazabilidad
+- preparar emails aprobados como propuesta maquetada y enviarla internamente al equipo de CRM
 
-No envía mensajes reales, no gestiona contactos y no automatiza campañas. Es un entorno controlado de creación, validación y trazabilidad.
+No envía mensajes reales a destinatarios finales, no gestiona contactos y no automatiza campañas. El flujo "Preparar para CRM" envía únicamente una propuesta interna al equipo de CRM para revisión humana previa. Es un entorno controlado de creación, validación, trazabilidad y preparación de materiales.
 
 ## 2. Módulos del sistema
 
 ### 2.1 Briefing
-Captura la información mínima para generar un mensaje. Implementado como wizard de varios pasos.
+Captura la información mínima para generar un mensaje. El campo "Titulación o programa" es un Select agrupado por escuela (5 escuelas, 23 programas de Universidad Prisma). El campo "CTA" es un Select con 7 opciones predefinidas más la opción "Otro" que despliega un input personalizado. Constantes de opciones en `src/lib/briefingOptions.ts`.
 
 ### 2.2 Generación
 Convierte un briefing en una propuesta de mensaje mediante una llamada a un proveedor LLM. Cada generación se guarda como una versión vinculada al briefing original.
@@ -32,16 +33,26 @@ Evalúa una versión de mensaje contra los siete bloques de criterios internos d
 Lista cronológica de briefings con sus versiones y validaciones. Permite acceder al detalle de cada caso.
 
 ### 2.5 Detalle de caso
-Vista que muestra briefing, versiones generadas, validaciones por bloque, veredicto global y metadatos de modelo y fecha.
+Vista que muestra briefing, versiones generadas, validaciones por bloque, veredicto global y metadatos de modelo y fecha. Incluye el botón "Preparar para CRM" cuando el brief es de canal email y la versión más reciente está validada como `aprobada` o `aprobada_con_ajustes`.
+
+### 2.6 Preparar para CRM
+Flujo de preparación de emails aprobados para el equipo de CRM. Solo aplica a briefs de canal email con validación aprobada. El flujo tiene tres pasos: (1) selección de plantilla visual entre 4 opciones, (2) previsualización del email maquetado con datos del brief, (3) aprobación y envío al correo interno de CRM (`CRM_RECIPIENT_EMAIL`).
+
+El email enviado a CRM contiene: la propuesta maquetada en HTML y texto plano, todos los datos relevantes del brief, asunto interno, preheader, CTA y notas opcionales para el equipo.
+
+Tras el envío exitoso, el estado del brief pasa a `sent_to_crm`. Sin SMTP configurado, el sistema opera en modo mock y registra el envío en consola.
+
+La identidad visual está separada de la lógica de contenido en `src/lib/emailTemplates.ts` (brand kit + templates). Las plantillas disponibles son: email informativo, email comercial, email recordatorio y email visual destacado.
 
 ## 3. Flujo principal de usuario
 
-1. Crear briefing comercial.
+1. Crear briefing comercial (seleccionar programa del catálogo y CTA predefinida o personalizada).
 2. Generar primera versión de mensaje.
 3. Lanzar validación automática.
 4. Consultar veredicto global y detalle por bloque.
 5. (Opcional) Crear nueva versión a partir de una instrucción de ajuste.
-6. Acceder al histórico para revisar casos anteriores.
+6. Si el brief es email y la validación es aprobada: "Preparar para CRM" → seleccionar plantilla → revisar previsualización → aprobar y enviar al equipo de CRM.
+7. Acceder al histórico para revisar casos anteriores.
 
 ## 4. Estado actual
 
@@ -98,12 +109,13 @@ Generación de mensajes con LLM. F2 del MVP operativa.
 
 Lo que está en marcha:
 
-- `src/types/llm.ts`: interfaz `GenerationClient { generate(system, user): Promise<string> }` + constante `GENERATION_PROMPT_VERSION = "v1.0"`. Contrato del patrón Adapter compartido por cliente real y mock.
+- `src/types/llm.ts`: interfaz `GenerationClient { generate(system, user): Promise<string> }` + constante `GENERATION_PROMPT_VERSION = "v1.1"`. Contrato del patrón Adapter compartido por cliente real y mock.
 - `src/services/llm/client.ts`: `OpenAIGenerationClient`. Usa SDK `openai` v4. Lee `OPENAI_API_KEY` y `OPENAI_MODEL` del entorno. Temperatura: 0.4 (producción) / 0.7 (exploración).
 - `src/services/llm/mockClient.ts`: `MockGenerationClient`. Devuelve respuestas pregrabadas por canal (whatsapp / email). Activo cuando `LLM_MOCK=true`.
 - `src/services/llm/factory.ts`: `getGenerationClient()`. Selecciona el cliente real o el mock según `process.env.LLM_MOCK`.
-- `src/services/generationService.ts`: `generateMessage(brief)`. Construye system prompt y user prompt (plantilla v1.0 de `docs/PROMPTS.md`), llama al cliente LLM, asigna `versionNumber` incremental y persiste `MessageVersion` con metadatos (`llmProvider`, `llmModel`, `generationPromptVersion`).
-- `src/app/actions/messageActions.ts`: Server Action `generateMessageAction(briefId)`. Recupera el briefing, delega en `generateMessage` y redirige a `/briefs/[id]` tras éxito.
+- `src/services/generationService.ts`: `generateMessage(brief)`. Construye system prompt y user prompt (plantilla v1.1 de `docs/PROMPTS.md`), llama al cliente LLM, asigna `versionNumber` incremental y persiste `MessageVersion` con metadatos (`llmProvider`, `llmModel`, `generationPromptVersion`). En iteraciones con `userInstruction`, carga la versión padre y genera una única versión final a partir de versión anterior + briefing + ajuste.
+- `src/app/actions/messageActions.ts`: Server Action `generateMessageAction(briefId)`. Recupera el briefing, delega en `generateSingle` y redirige a `/briefs/[id]` tras éxito. Cada acción explícita del usuario crea como máximo una versión visible.
+- `Brief.briefNumber`: número secuencial por usuario, visible como `BR-001`, `BR-002`... en listado, detalle, dashboard y exportación.
 - `src/components/messaging/MessageVersionView.tsx`: Server Component que renderiza una `MessageVersion` (número de versión, fecha, contenido, modelo, versión de prompt).
 - `src/app/briefs/[id]/page.tsx` ampliada: carga versiones en paralelo con el briefing; botón "Generar mensaje" prominente si no hay versiones, secundario ("+ Nueva versión") si ya existen; lista cada versión con `MessageVersionView`.
 - Dependencia `openai` (SDK v4) añadida como runtime.
@@ -115,7 +127,7 @@ Lo que está completado en fases siguientes:
 
 Lo que falta (próximas fases):
 
-- Iteración de versiones (F7): nueva versión a partir de instrucción del usuario.
+- Iteración de versiones (F7): nueva versión a partir de instrucción del usuario, sin publicar intentos internos automáticos.
 - Búsqueda y filtros (F6): filtrar briefings por canal, modo o veredicto.
 
 ### Fase completada: `feature/validation-engine`
@@ -137,11 +149,38 @@ Lo que está en marcha:
 
 El alcance del MVP está definido en `docs/SCOPE_MVP.md` (F1-F5 obligatorias, F6-F9 recomendables, F10+ excluidas).
 
+### Fase completada: mejoras al formulario de briefing
+
+- `programOrTitulation`: Select agrupado por escuela con los 23 programas oficiales de Universidad Prisma (5 escuelas). Opciones en `src/lib/briefingOptions.ts`.
+- `cta`: Select con 7 opciones predefinidas + opción "Otro" que despliega un input obligatorio para CTA personalizada. El Server Action y el servicio no requirieron cambios: el campo `cta` recibe siempre el valor final.
+
+### Fase completada: `feature/crm-flow`
+
+Funcionalidad "Preparar para CRM". Solo para briefs de canal email con validación aprobada.
+
+Lo que está en marcha:
+
+- `prisma/schema.prisma` ampliado en `Brief`: `crmStatus`, `selectedTemplateId`, `crmSentAt`, `crmSentBy`, `crmEmailHtml`, `crmEmailPlainText`, `crmInternalSubject`, `crmNotes`. Migración `20260607171000_add_crm_fields` aplicada.
+- `src/types/domain.ts`: enum `CRM_STATUS` con valores `ready_for_crm` y `sent_to_crm`.
+- `src/lib/emailTemplates.ts`: brand kit centralizado (`PRISMA_BRAND_KIT`) + definición de 4 plantillas (`EMAIL_TEMPLATES`) + renderizadores `renderEmailHtml` y `renderEmailPlainText`. La identidad visual (colores, logo, tipografía, footer) está separada del contenido y de la lógica de plantilla.
+- `src/services/emailService.ts`: abstracción `sendEmail(payload)`. Sin `SMTP_HOST`, opera en modo mock (registra el envío en consola). Con `SMTP_HOST`, usa nodemailer (dependencia opcional; instalar con `npm install nodemailer @types/nodemailer`).
+- `src/services/crmService.ts`: `buildCrmPreview` y `sendToCrm`. Construye el HTML final, el texto plano, el cuerpo del correo interno para CRM y delega el envío en `emailService`. Actualiza el estado del brief tras envío exitoso. El destinatario se toma de `CRM_RECIPIENT_EMAIL` (por defecto: `ivan.aguado00@gmail.com`).
+- `src/dao/briefDao.ts`: método `updateBriefCrm`.
+- `src/app/actions/crmActions.ts`: Server Actions `previewCrmEmailAction` (genera preview sin enviar) y `sendToCrmAction` (envía y actualiza estado).
+- `src/components/crm/CrmFlow.tsx`: orquestador del flujo modal con estados `selecting`, `loading_preview`, `previewing`, `sent`, `error`.
+- `src/components/crm/CrmTemplateSelector.tsx`: grid de 4 cards de plantilla.
+- `src/components/crm/CrmEmailPreview.tsx`: iframe con el HTML maquetado + panel lateral con datos del brief + campo de notas CRM + botón de confirmación.
+- `src/components/crm/PrepareCrmButton.tsx`: botón cliente que abre el flujo. Muestra "Enviado a CRM" si ya se envió.
+- `src/app/briefs/[id]/page.tsx`: calcula `isEmailApproved` a partir de `latestValidationRun.overallVerdict` y monta `PrepareCrmButton` en el panel izquierdo.
+- Variables de entorno nuevas en `.env.example`: `CRM_RECIPIENT_EMAIL`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`.
+- Tests de mock de `Brief` actualizados con los nuevos campos CRM nulos en todos los archivos de test afectados.
+
 ## 5. Restricciones funcionales
 
 - Sin login ni autenticación en MVP. Usuario implícito mock.
 - Sin envío real por WhatsApp ni email.
-- Sin CRM, contactos ni campañas reales.
+- Sin envío de mensajes a destinatarios finales (leads/alumnos). El flujo CRM solo envía propuestas internas al equipo de CRM para revisión humana previa.
+- Sin integración con CRM real, segmentación automática ni gestión de contactos.
 - Sin RAG con embeddings: el corpus de Prisma se carga como `.md` resumidos en `data/corpus/`.
 - Sin métricas avanzadas, A/B testing ni dashboards.
 - Sin integración con n8n dentro del MVP.
