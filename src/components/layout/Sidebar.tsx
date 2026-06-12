@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
+import { useSidebar } from './SidebarContext'
 
 // ── Icons (inline SVG, Material Symbols style) ────────────────────────────────
 
@@ -53,6 +54,22 @@ function IconAdd() {
   )
 }
 
+function IconChevronLeft() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+    </svg>
+  )
+}
+
+function IconChevronRight() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+    </svg>
+  )
+}
+
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const NAV_ITEMS = [
@@ -73,23 +90,28 @@ function NavItem({
   label,
   icon,
   active,
+  collapsed,
 }: {
   href: string
   label: string
   icon: React.ReactNode
   active: boolean
+  collapsed: boolean
 }) {
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+      title={collapsed ? label : undefined}
+      className={`flex items-center px-3 py-2.5 rounded-lg text-sm transition-colors ${
+        collapsed ? 'justify-center' : 'gap-3'
+      } ${
         active
           ? 'bg-secondary-container text-on-surface font-semibold'
           : 'text-on-surface-variant hover:bg-surface-container-high'
       }`}
     >
       {icon}
-      <span>{label}</span>
+      {!collapsed && <span>{label}</span>}
     </Link>
   )
 }
@@ -101,33 +123,56 @@ export function Sidebar() {
   const searchParams = useSearchParams()
   const channel = searchParams.get('channel')
   const verdict = searchParams.get('verdict')
+  const { collapsed, toggle } = useSidebar()
 
   return (
-    <aside className="hidden md:flex flex-col h-[calc(100vh-64px)] w-64 fixed left-0 top-16 bg-surface-container-low border-r border-outline-variant p-4 gap-2">
-
+    <aside
+      className={`hidden md:flex flex-col h-[calc(100vh-64px)] fixed left-0 top-16 bg-surface-container-low border-r border-outline-variant p-4 gap-2 transition-[width] duration-200 overflow-hidden ${
+        collapsed ? 'w-14' : 'w-64'
+      }`}
+    >
       {/* Header */}
-      <div className="px-2 mb-4">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-9 h-9 bg-on-surface rounded flex items-center justify-center shrink-0">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="white" aria-hidden="true">
-              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-            </svg>
+      <div className={`mb-4 ${collapsed ? 'px-0' : 'px-2'}`}>
+        {collapsed ? (
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-9 h-9 bg-on-surface rounded flex items-center justify-center shrink-0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+              </svg>
+            </div>
+            <Link
+              href="/briefs/new"
+              title="Create New Brief"
+              className="flex items-center justify-center w-9 h-9 bg-on-surface text-white rounded transition-colors hover:bg-on-surface-variant"
+            >
+              <IconAdd />
+            </Link>
           </div>
-          <div>
-            <p className="text-sm font-bold text-on-surface" style={{ fontFamily: 'var(--font-heading)' }}>
-              Creation Flow
-            </p>
-            <p className="text-xs text-on-surface-variant">Manage Copy Assets</p>
-          </div>
-        </div>
+        ) : (
+          <>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-9 h-9 bg-on-surface rounded flex items-center justify-center shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-on-surface" style={{ fontFamily: 'var(--font-heading)' }}>
+                  Creation Flow
+                </p>
+                <p className="text-xs text-on-surface-variant">Manage Copy Assets</p>
+              </div>
+            </div>
 
-        <Link
-          href="/briefs/new"
-          className="flex items-center justify-center gap-2 w-full bg-on-surface text-white py-2.5 px-4 rounded text-sm font-semibold hover:bg-on-surface-variant transition-colors"
-        >
-          <IconAdd />
-          Create New Brief
-        </Link>
+            <Link
+              href="/briefs/new"
+              className="flex items-center justify-center gap-2 w-full bg-on-surface text-white py-2.5 px-4 rounded text-sm font-semibold hover:bg-on-surface-variant transition-colors"
+            >
+              <IconAdd />
+              Create New Brief
+            </Link>
+          </>
+        )}
       </div>
 
       {/* Channel nav */}
@@ -139,6 +184,7 @@ export function Sidebar() {
             label={item.label}
             icon={item.icon}
             active={pathname.startsWith('/briefs') && channel === item.channelKey}
+            collapsed={collapsed}
           />
         ))}
       </nav>
@@ -155,9 +201,24 @@ export function Sidebar() {
             label={item.label}
             icon={item.icon}
             active={pathname.startsWith('/briefs') && verdict === item.verdictKey}
+            collapsed={collapsed}
           />
         ))}
       </nav>
+
+      {/* Toggle */}
+      <div className="mt-auto">
+        <button
+          onClick={toggle}
+          aria-label={collapsed ? 'Expandir panel' : 'Colapsar panel'}
+          className={`flex items-center w-full px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors ${
+            collapsed ? 'justify-center' : 'gap-3'
+          }`}
+        >
+          {collapsed ? <IconChevronRight /> : <IconChevronLeft />}
+          {!collapsed && <span className="text-sm">Colapsar</span>}
+        </button>
+      </div>
     </aside>
   )
 }
