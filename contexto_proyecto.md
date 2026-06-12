@@ -175,9 +175,26 @@ Lo que está en marcha:
 - Variables de entorno nuevas en `.env.example`: `CRM_RECIPIENT_EMAIL`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`.
 - Tests de mock de `Brief` actualizados con los nuevos campos CRM nulos en todos los archivos de test afectados.
 
+### Fase completada: `feature/fase-a-navegacion-ui`
+
+Navegación y panel lateral con estado activo, sistema de tokens y sidebar colapsable.
+
+Lo que está en marcha:
+
+- `src/components/layout/NavLinks.tsx`: Client Component (`'use client'`) con `usePathname()`. Estado activo por ruta exacta (`/`) o prefijo (`/briefs`, `/dashboard`). Activo: `font-semibold text-on-surface`; inactivo: `text-on-surface-variant hover:text-on-surface`.
+- `src/components/layout/Navbar.tsx`: conserva Server Component async con `await auth()`; delega la lista de links a `NavLinks`. Cero hex hardcodeados: usa tokens `bg-surface-bright`, `border-outline-variant`, `text-on-surface`, `text-on-surface-variant`, `bg-surface-container-highest`.
+- `src/components/layout/Sidebar.tsx`: tokenización completa (todos los hex reemplazados por tokens del sistema); canal activo por `useSearchParams().get('channel')` comparado contra `channelKey` del item; colapsado (w-14, solo iconos con tooltip) / expandido (w-64, labels); botón toggle en el fondo con chevron; transición `transition-[width] duration-200`.
+- `src/components/layout/SidebarContext.tsx`: Context + Provider con estado `collapsed` (default `false`); lee y persiste en `localStorage('prisma-sidebar-collapsed')` dentro de `useEffect` para evitar hydration mismatch; expone `useSidebar()` hook.
+- `src/components/layout/MainShell.tsx`: Client Component que consume `useSidebar()` y aplica `md:ml-64` (expandido) o `md:ml-14` (colapsado) con `transition-[margin] duration-200`.
+- `src/app/(app)/layout.tsx`: envuelve en `SidebarProvider`; `<Sidebar>` dentro de `<Suspense>` (requerido por `useSearchParams`); `<MainShell>` sustituye al `<main>` anterior.
+
+Tokens migrados en esta fase (hex → token): `#fbf9f8`→`surface-bright`, `#cfc4c5`→`outline-variant`, `#4c4546`→`on-surface-variant`, `#1b1c1c`→`on-surface`, `#e4e2e2`→`surface-container-highest`, `#f5f3f3`→`surface-container-low`, `#e3e2e2`→`secondary-container`, `#e9e8e7`→`surface-container-high`.
+
+Decisiones de diseño: `Navbar` permanece Server Component para conservar `await auth()` en servidor; el estado activo se resuelve en un Client Component hoja (`NavLinks`) que no arrastra lógica de sesión. El colapsado usa un Context de React con `localStorage` (no cookies) porque es una preferencia de UI local sin necesidad de SSR.
+
 ## 5. Restricciones funcionales
 
-- Sin login ni autenticación en MVP. Usuario implícito mock.
+- Autenticación básica implementada con NextAuth v5 (credentials). No hay roles ni permisos granulares.
 - Sin envío real por WhatsApp ni email.
 - Sin envío de mensajes a destinatarios finales (leads/alumnos). El flujo CRM solo envía propuestas internas al equipo de CRM para revisión humana previa.
 - Sin integración con CRM real, segmentación automática ni gestión de contactos.
