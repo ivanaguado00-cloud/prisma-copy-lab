@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 
 // ── Icons (inline SVG, Material Symbols style) ────────────────────────────────
 
@@ -53,18 +53,20 @@ function IconAdd() {
   )
 }
 
-// ── Sidebar ───────────────────────────────────────────────────────────────────
+// ── Data ──────────────────────────────────────────────────────────────────────
 
 const NAV_ITEMS = [
-  { href: '/briefs?channel=whatsapp', label: 'WhatsApp', icon: <IconChat /> },
-  { href: '/briefs?channel=email',    label: 'Email',    icon: <IconMail /> },
+  { href: '/briefs?channel=whatsapp', label: 'WhatsApp', icon: <IconChat />, channelKey: 'whatsapp' },
+  { href: '/briefs?channel=email',    label: 'Email',    icon: <IconMail />, channelKey: 'email' },
 ]
 
 const STATUS_ITEMS = [
-  { href: '/briefs?verdict=aprobada',  label: 'Aprobada',  icon: <IconCheckCircle /> },
-  { href: '/briefs?verdict=pendiente', label: 'Pendiente', icon: <IconHourglass /> },
-  { href: '/briefs?verdict=rechazada', label: 'Rechazada', icon: <IconCancel /> },
+  { href: '/briefs?verdict=aprobada',  label: 'Aprobada',  icon: <IconCheckCircle />, verdictKey: 'aprobada' },
+  { href: '/briefs?verdict=pendiente', label: 'Pendiente', icon: <IconHourglass />,   verdictKey: 'pendiente' },
+  { href: '/briefs?verdict=rechazada', label: 'Rechazada', icon: <IconCancel />,       verdictKey: 'rechazada' },
 ]
+
+// ── NavItem ───────────────────────────────────────────────────────────────────
 
 function NavItem({
   href,
@@ -82,8 +84,8 @@ function NavItem({
       href={href}
       className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
         active
-          ? 'bg-[#e3e2e2] text-[#1b1c1c] font-semibold'
-          : 'text-[#4c4546] hover:bg-[#e9e8e7]'
+          ? 'bg-secondary-container text-on-surface font-semibold'
+          : 'text-on-surface-variant hover:bg-surface-container-high'
       }`}
     >
       {icon}
@@ -92,31 +94,36 @@ function NavItem({
   )
 }
 
+// ── Sidebar ───────────────────────────────────────────────────────────────────
+
 export function Sidebar() {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const channel = searchParams.get('channel')
+  const verdict = searchParams.get('verdict')
 
   return (
-    <aside className="hidden md:flex flex-col h-[calc(100vh-64px)] w-64 fixed left-0 top-16 bg-[#f5f3f3] border-r border-[#cfc4c5] p-4 gap-2">
+    <aside className="hidden md:flex flex-col h-[calc(100vh-64px)] w-64 fixed left-0 top-16 bg-surface-container-low border-r border-outline-variant p-4 gap-2">
 
       {/* Header */}
       <div className="px-2 mb-4">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-9 h-9 bg-[#1b1c1c] rounded flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 bg-on-surface rounded flex items-center justify-center shrink-0">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="white" aria-hidden="true">
               <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
             </svg>
           </div>
           <div>
-            <p className="text-sm font-bold text-[#1b1c1c]" style={{ fontFamily: 'var(--font-heading)' }}>
+            <p className="text-sm font-bold text-on-surface" style={{ fontFamily: 'var(--font-heading)' }}>
               Creation Flow
             </p>
-            <p className="text-xs text-[#4c4546]">Manage Copy Assets</p>
+            <p className="text-xs text-on-surface-variant">Manage Copy Assets</p>
           </div>
         </div>
 
         <Link
           href="/briefs/new"
-          className="flex items-center justify-center gap-2 w-full bg-[#1b1c1c] text-white py-2.5 px-4 rounded text-sm font-semibold hover:bg-[#4c4546] transition-colors"
+          className="flex items-center justify-center gap-2 w-full bg-on-surface text-white py-2.5 px-4 rounded text-sm font-semibold hover:bg-on-surface-variant transition-colors"
         >
           <IconAdd />
           Create New Brief
@@ -131,13 +138,13 @@ export function Sidebar() {
             href={item.href}
             label={item.label}
             icon={item.icon}
-            active={false}
+            active={pathname.startsWith('/briefs') && channel === item.channelKey}
           />
         ))}
       </nav>
 
       {/* Divider */}
-      <div className="h-px bg-[#cfc4c5] mx-2 my-1" />
+      <div className="h-px bg-outline-variant mx-2 my-1" />
 
       {/* Status nav */}
       <nav className="flex flex-col gap-1">
@@ -147,7 +154,7 @@ export function Sidebar() {
             href={item.href}
             label={item.label}
             icon={item.icon}
-            active={pathname.includes(item.href.split('=')[1] ?? '')}
+            active={pathname.startsWith('/briefs') && verdict === item.verdictKey}
           />
         ))}
       </nav>
