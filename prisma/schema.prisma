@@ -16,6 +16,7 @@ model User {
   emailVerified DateTime?
   image         String?
   passwordHash  String?
+  role          String    @default("author")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -77,6 +78,11 @@ model Brief {
   valueProposition    String
   cta                 String
   constraints         String?
+  // Review flow
+  reviewStatus        String    @default("pending")
+  reviewedBy          String?
+  reviewedAt          DateTime?
+  reviewNote          String?
   // CRM flow
   crmStatus           String?
   selectedTemplateId  String?
