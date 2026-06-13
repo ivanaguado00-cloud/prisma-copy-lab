@@ -71,6 +71,14 @@ export const CRITERION_KEY = {
 } as const
 export type CriterionKey = (typeof CRITERION_KEY)[keyof typeof CRITERION_KEY]
 
+// ── DTOs de salida del LLM ────────────────────────────────────────────────────
+
+export interface GeneratedMessage {
+  body: string
+  emailSubject?: string
+  emailPreheader?: string
+}
+
 // ── DTOs de entrada (usados por los DAOs) ────────────────────────────────────
 
 export interface CreateBriefInput {
@@ -84,15 +92,15 @@ export interface CreateBriefInput {
   valueProposition: string
   cta: string
   constraints?: string
-  emailSubject?:   string
-  emailPreheader?: string
-  emailTemplate?:  EmailTemplate
+  emailTemplate?: EmailTemplate
 }
 
 export interface CreateMessageVersionInput {
   briefId: string
   versionNumber: number
   content: string
+  emailSubject?: string
+  emailPreheader?: string
   llmProvider: string
   llmModel: string
   generationPromptVersion: string

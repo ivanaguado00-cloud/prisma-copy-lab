@@ -8,7 +8,9 @@ import { getGenerationClient } from './llm/factory'
 import { getModel } from './llm/client'
 import { GENERATION_PROMPT_VERSION } from '../types/llm'
 
-const GENERATION_SYSTEM_PROMPT = `Eres el asistente de redacción comercial de Universidad Prisma, una universidad
+// ── System prompts ────────────────────────────────────────────────────────────
+
+const SHARED_IDENTITY = `Eres el asistente de redacción comercial de Universidad Prisma, una universidad
 privada española 100% online.
 
 IDENTIDAD VERBAL DE PRISMA
@@ -26,7 +28,9 @@ REGLAS DE PRODUCTO
 - No exageres ("la mejor", "oportunidad única", "no dejes pasar...").
 - No reproches al destinatario su falta de respuesta.
 - Mantén un único objetivo por mensaje.
-- Adapta longitud y estilo al canal indicado.
+- Adapta longitud y estilo al canal indicado.`
+
+export const GENERATION_SYSTEM_PROMPT = `${SHARED_IDENTITY}
 
 REGLAS POR CANAL
 - whatsapp: una sola idea principal, frases cortas, una única CTA, sin recursos
@@ -37,7 +41,29 @@ REGLAS POR CANAL
 DEVUELVE SOLO EL TEXTO DEL MENSAJE. SIN EXPLICACIONES, SIN COMILLAS, SIN
 COMENTARIOS NI METADATOS.`
 
-function buildUserPrompt(brief: Brief): string {
+export const EMAIL_GENERATION_SYSTEM_PROMPT = `${SHARED_IDENTITY}
+
+FORMATO DE SALIDA — OBLIGATORIO
+Devuelve ÚNICAMENTE un objeto JSON con exactamente estos tres campos:
+{
+  "emailSubject": "línea de asunto (máximo 60 caracteres, sin punto final)",
+  "emailPreheader": "texto de vista previa en bandeja de entrada (40-90 caracteres)",
+  "body": "cuerpo del email con párrafo de apertura, propuesta de valor y CTA final (80-180 palabras, párrafos cortos y escaneables)"
+}
+SIN TEXTO ADICIONAL. SIN EXPLICACIONES. SIN MARKDOWN. SOLO EL JSON.`
+
+// ── Template hints para el prompt de email ───────────────────────────────────
+
+const EMAIL_TEMPLATE_HINTS: Record<string, string> = {
+  standard:    'Estándar: estructura clásica, encabezado narrativo y CTA al final.',
+  promotional: 'Promocional: headline directo, beneficios destacados, CTA prominente.',
+  newsletter:  'Informativo/Newsletter: tono divulgativo, párrafos cortos, CTA invitacional.',
+  reminder:    'Recordatorio/Seguimiento: breve y directo, énfasis en la acción pendiente.',
+}
+
+// ── User prompts ──────────────────────────────────────────────────────────────
+
+export function buildUserPrompt(brief: Brief): string {
   const modeNote =
     brief.mode === 'exploracion'
       ? 'Modo: EXPLORACIÓN. Puedes proponer enfoques creativos o estructuras menos\nconvencionales, siempre dentro de las reglas de marca y sin romper tono.'
@@ -57,7 +83,33 @@ function buildUserPrompt(brief: Brief): string {
 ${modeNote}`
 }
 
-function buildIterationUserPrompt(params: {
+function buildEmailUserPrompt(brief: Brief): string {
+  const templateHint = brief.emailTemplate
+    ? (EMAIL_TEMPLATE_HINTS[brief.emailTemplate] ?? '')
+    : ''
+  const templateLine = brief.emailTemplate
+    ? `- plantilla: ${brief.emailTemplate}${templateHint ? ` — ${templateHint}` : ''}`
+    : ''
+
+  const modeNote =
+    brief.mode === 'exploracion'
+      ? 'Modo: EXPLORACIÓN. Puedes proponer enfoques creativos o estructuras menos\nconvencionales, siempre dentro de las reglas de marca y sin romper tono.'
+      : 'Modo: PRODUCCIÓN. Mantén ortodoxia respecto a tono y reglas de marca.'
+
+  return `Genera un email comercial con los siguientes datos:
+
+- campaña: ${brief.title}
+- programa o titulación: ${brief.programOrTitulation ?? 'no especificado'}
+- objetivo único: ${brief.objective}
+- público: ${brief.audience}
+- propuesta de valor o palanca principal: ${brief.valueProposition}
+- llamada a la acción esperada: ${brief.cta}
+- restricciones específicas: ${brief.constraints ?? 'ninguna'}
+${templateLine ? `${templateLine}\n` : ''}
+${modeNote}`
+}
+
+export function buildIterationUserPrompt(params: {
   brief: Brief
   previousContent: string
   userInstruction: string
@@ -87,6 +139,8 @@ Aplica la instrucción del usuario siempre que sea compatible con los criterios 
 Devuelve solo la nueva versión final del mensaje, sin explicaciones ni alternativas.`
 }
 
+// ── generateMessage ───────────────────────────────────────────────────────────
+
 interface GenerateOptions {
   userInstruction?: string
   parentVersionId?: string
@@ -95,9 +149,10 @@ interface GenerateOptions {
 export async function generateMessage(brief: Brief, options: GenerateOptions = {}) {
   const { userInstruction, parentVersionId } = options
   const client = getGenerationClient()
+  const isEmail = brief.channel === 'email'
 
-  const systemPrompt = GENERATION_SYSTEM_PROMPT
-  let userPrompt = buildUserPrompt(brief)
+  const systemPrompt = isEmail ? EMAIL_GENERATION_SYSTEM_PROMPT : GENERATION_SYSTEM_PROMPT
+  let userPrompt = isEmail ? buildEmailUserPrompt(brief) : buildUserPrompt(brief)
 
   if (userInstruction) {
     if (!parentVersionId) {
@@ -116,7 +171,7 @@ export async function generateMessage(brief: Brief, options: GenerateOptions = {
     })
   }
 
-  const content = await client.generate(systemPrompt, userPrompt)
+  const generated = await client.generate(systemPrompt, userPrompt, { jsonOutput: isEmail })
 
   const existingVersions = await listVersionsByBrief(brief.id)
   const versionNumber = existingVersions.length + 1
@@ -126,7 +181,9 @@ export async function generateMessage(brief: Brief, options: GenerateOptions = {
   return createMessageVersion({
     briefId: brief.id,
     versionNumber,
-    content,
+    content: generated.body,
+    emailSubject: generated.emailSubject,
+    emailPreheader: generated.emailPreheader,
     llmProvider: 'openai',
     llmModel,
     generationPromptVersion: GENERATION_PROMPT_VERSION,
@@ -135,4 +192,4 @@ export async function generateMessage(brief: Brief, options: GenerateOptions = {
   })
 }
 
-export { buildUserPrompt, buildIterationUserPrompt, GENERATION_SYSTEM_PROMPT }
+export { buildEmailUserPrompt, GENERATION_SYSTEM_PROMPT as WHATSAPP_GENERATION_SYSTEM_PROMPT }

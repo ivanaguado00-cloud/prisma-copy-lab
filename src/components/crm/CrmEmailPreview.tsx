@@ -12,7 +12,6 @@ interface Props {
   internalSubject: string
   recipientEmail: string
   onApprove: (crmNotes: string) => Promise<void>
-  onBack: () => void
   onCancel: () => void
 }
 
@@ -34,7 +33,6 @@ export function CrmEmailPreview({
   internalSubject,
   recipientEmail,
   onApprove,
-  onBack,
   onCancel,
 }: Props) {
   const [crmNotes, setCrmNotes] = useState('')
@@ -63,16 +61,7 @@ export function CrmEmailPreview({
       {/* ── Email preview panel ────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto">
         <div className="px-6 py-4 border-b border-outline-variant">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={onBack}
-              className="text-xs text-on-surface-variant hover:text-on-surface transition-colors"
-            >
-              ← Plantillas
-            </button>
-            <span className="text-outline-variant">/</span>
-            <span className="text-xs text-on-surface font-medium">{template.name}</span>
-          </div>
+          <span className="text-xs text-on-surface font-medium">{template.name}</span>
         </div>
 
         <div className="px-6 py-5">

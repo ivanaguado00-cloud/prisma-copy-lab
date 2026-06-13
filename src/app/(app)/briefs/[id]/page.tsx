@@ -6,6 +6,7 @@ import { listVersionsByBrief } from '../../../../dao/messageVersionDao'
 import { listValidationRunsByMessage } from '../../../../dao/validationRunDao'
 import { generateMessageAction, refineMessageAction } from '../../../actions/messageActions'
 import { PrepareCrmButton } from '../../../../components/crm/PrepareCrmButton'
+import { WhatsAppPreviewTabs } from '../../../../components/messaging/WhatsAppPreviewTabs'
 import { ReviewPanel } from '../../../../components/review/ReviewPanel'
 import { OVERALL_VERDICT, USER_ROLE, REVIEW_STATUS, EMAIL_TEMPLATE_LABELS } from '../../../../types/domain'
 import type { ValidationRun, ValidationScore, MessageVersion } from '../../../../generated/prisma/client'
@@ -171,7 +172,15 @@ function VersionHistoryTimeline({
   )
 }
 
-function MessagePreviewCard({ version, channel }: { version: MessageVersion; channel: string }) {
+function MessagePreviewCard({
+  version,
+  channel,
+  briefTitle,
+}: {
+  version: MessageVersion
+  channel: string
+  briefTitle?: string
+}) {
   const isWA = channel === 'whatsapp'
   return (
     <div className="bg-on-surface text-white p-5 rounded-lg flex flex-col gap-4 overflow-hidden relative">
@@ -183,9 +192,15 @@ function MessagePreviewCard({ version, channel }: { version: MessageVersion; cha
       <h3 className="text-xs font-bold flex items-center gap-2 tracking-wider uppercase opacity-70">
         <span>{isWA ? '💬' : '✉️'}</span> Vista previa del mensaje
       </h3>
-      <div className="bg-white text-on-surface p-4 rounded shadow-sm border-l-4 border-secondary-fixed-dim relative z-10">
-        <p className="text-sm leading-relaxed whitespace-pre-wrap line-clamp-6">{version.content}</p>
-      </div>
+      {isWA ? (
+        <div className="relative z-10">
+          <WhatsAppPreviewTabs content={version.content} contactName={briefTitle} />
+        </div>
+      ) : (
+        <div className="bg-white text-on-surface p-4 rounded shadow-sm border-l-4 border-secondary-fixed-dim relative z-10">
+          <p className="text-sm leading-relaxed whitespace-pre-wrap line-clamp-6">{version.content}</p>
+        </div>
+      )}
     </div>
   )
 }
@@ -348,7 +363,7 @@ export default async function BriefDetailPage({ params }: Props) {
 
             {/* Message Preview */}
             {latestVersion && (
-              <MessagePreviewCard version={latestVersion} channel={brief.channel} />
+              <MessagePreviewCard version={latestVersion} channel={brief.channel} briefTitle={brief.title} />
             )}
 
             {/* Refine form */}
@@ -456,29 +471,15 @@ export default async function BriefDetailPage({ params }: Props) {
               </div>
             )}
 
-            {/* Email-specific context cards */}
-            {brief.channel === 'email' && (brief.emailSubject || brief.emailPreheader || brief.emailTemplate) && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
-                {brief.emailSubject && (
-                  <div className="p-4 border border-outline-variant rounded-lg hover:border-on-surface transition-colors">
-                    <p className="text-xs font-bold text-on-surface mb-1">Asunto</p>
-                    <p className="text-xs text-on-surface-variant leading-relaxed">{brief.emailSubject}</p>
-                  </div>
-                )}
-                {brief.emailPreheader && (
-                  <div className="p-4 border border-outline-variant rounded-lg hover:border-on-surface transition-colors">
-                    <p className="text-xs font-bold text-on-surface mb-1">Preheader</p>
-                    <p className="text-xs text-on-surface-variant leading-relaxed">{brief.emailPreheader}</p>
-                  </div>
-                )}
-                {brief.emailTemplate && (
-                  <div className="p-4 border border-outline-variant rounded-lg hover:border-on-surface transition-colors">
-                    <p className="text-xs font-bold text-on-surface mb-1">Plantilla</p>
-                    <p className="text-xs text-on-surface-variant leading-relaxed">
-                      {EMAIL_TEMPLATE_LABELS[brief.emailTemplate] ?? brief.emailTemplate}
-                    </p>
-                  </div>
-                )}
+            {/* Email-specific context card */}
+            {brief.channel === 'email' && brief.emailTemplate && (
+              <div className="mt-2">
+                <div className="p-4 border border-outline-variant rounded-lg hover:border-on-surface transition-colors inline-block">
+                  <p className="text-xs font-bold text-on-surface mb-1">Plantilla</p>
+                  <p className="text-xs text-on-surface-variant leading-relaxed">
+                    {EMAIL_TEMPLATE_LABELS[brief.emailTemplate] ?? brief.emailTemplate}
+                  </p>
+                </div>
               </div>
             )}
           </div>

@@ -44,10 +44,7 @@ const baseBrief: Brief = {
   reviewedAt: null,
   reviewNote: null,
   crmStatus: null,
-  emailSubject: null,
-  emailPreheader: null,
   emailTemplate: null,
-  selectedTemplateId: null,
   crmSentAt: null,
   crmSentBy: null,
   crmEmailHtml: null,
@@ -100,7 +97,7 @@ const failingScores = [
 beforeEach(() => {
   vi.clearAllMocks()
   mockGetClient.mockReturnValue(mockClient)
-  mockClient.generate.mockResolvedValue('Mejora la estructura y suaviza el tono.')
+  mockClient.generate.mockResolvedValue({ body: 'Mejora la estructura y suaviza el tono.' })
   mockGenerateMessage.mockResolvedValue({ id: 'mv-2' } as never)
 })
 
@@ -157,7 +154,7 @@ describe('autoRefine — veredicto no_aprobada', () => {
 
   it('llama a generateMessage con la instrucción generada y parentVersionId', async () => {
     mockListRuns.mockResolvedValue([makeRun('no_aprobada', failingScores)] as never)
-    mockClient.generate.mockResolvedValue('  Reorganiza la estructura y ajusta el tono.  ')
+    mockClient.generate.mockResolvedValue({ body: '  Reorganiza la estructura y ajusta el tono.  ' })
 
     await autoRefine('mv-1', baseBrief)
 
@@ -204,7 +201,7 @@ describe('autoRefine — compatibilidad con LLM mock', () => {
 
   it('trimea espacios en la instrucción antes de pasarla a generateMessage', async () => {
     mockListRuns.mockResolvedValue([makeRun('no_aprobada', failingScores)] as never)
-    mockClient.generate.mockResolvedValue('\n  Instrucción con espacios.  \n')
+    mockClient.generate.mockResolvedValue({ body: '\n  Instrucción con espacios.  \n' })
 
     await autoRefine('mv-1', baseBrief)
 

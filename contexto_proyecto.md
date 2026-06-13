@@ -23,8 +23,12 @@ No envía mensajes reales a destinatarios finales, no gestiona contactos y no au
 ### 2.1 Briefing
 Captura la información mínima para generar un mensaje. El campo "Titulación o programa" es un Select agrupado por escuela (5 escuelas, 23 programas de Universidad Prisma). El campo "CTA" es un Select con 7 opciones predefinidas más la opción "Otro" que despliega un input personalizado. Constantes de opciones en `src/lib/briefingOptions.ts`.
 
+Para briefs de canal email, el usuario selecciona la **Plantilla** (`emailTemplate`: Estándar, Promocional, Informativo/Newsletter, Recordatorio/Seguimiento). El asunto (`emailSubject`) y el preheader (`emailPreheader`) **no son campos del formulario**: los genera la IA como parte del output estructurado de la generación y se persisten en `MessageVersion`.
+
 ### 2.2 Generación
 Convierte un briefing en una propuesta de mensaje mediante una llamada a un proveedor LLM. Cada generación se guarda como una versión vinculada al briefing original.
+
+Para canal **whatsapp** el LLM devuelve texto plano (el cuerpo del mensaje). Para canal **email** el LLM devuelve JSON estructurado `{ body, emailSubject, emailPreheader }` usando `response_format: json_object`; el prompt incluye la plantilla seleccionada en el brief para condicionar tono y estructura. Los tres campos se persisten en `MessageVersion` (`content` = body, más `emailSubject` y `emailPreheader` como columnas propias). El tipo de retorno del cliente LLM es `Promise<GeneratedMessage>` (en `src/types/domain.ts`).
 
 ### 2.3 Validación
 Evalúa una versión de mensaje contra los siete bloques de criterios internos de Prisma y produce un veredicto global. La validación se persiste como un registro independiente con detalle por bloque.
@@ -35,14 +39,16 @@ Lista cronológica de briefings con sus versiones y validaciones. Permite accede
 ### 2.5 Detalle de caso
 Vista que muestra briefing, versiones generadas, validaciones por bloque, veredicto global y metadatos de modelo y fecha. Incluye el botón "Preparar para CRM" cuando el brief es de canal email y la versión más reciente está validada como `aprobada` o `aprobada_con_ajustes`.
 
+Para canal **whatsapp**, la vista previa del mensaje muestra dos vistas alternables mediante tabs: notificación push (tarjeta simulada con icono verde de WhatsApp, nombre del brief y texto truncado) y burbuja de chat (interfaz de conversación WhatsApp con fondo oscuro y burbuja verde).
+
 ### 2.6 Preparar para CRM
-Flujo de preparación de emails aprobados para el equipo de CRM. Solo aplica a briefs de canal email con validación aprobada. El flujo tiene tres pasos: (1) selección de plantilla visual entre 4 opciones, (2) previsualización del email maquetado con datos del brief, (3) aprobación y envío al correo interno de CRM (`CRM_RECIPIENT_EMAIL`).
+Flujo de preparación de emails aprobados para el equipo de CRM. Solo aplica a briefs de canal email con validación aprobada. El flujo tiene dos pasos: (1) previsualización automática del email maquetado con la plantilla fijada en el brief, (2) aprobación y envío al correo interno de CRM (`CRM_RECIPIENT_EMAIL`). No hay selector de plantilla en este paso: la plantilla se elige al crear el brief (`emailTemplate`) y se usa directamente.
 
 El email enviado a CRM contiene: la propuesta maquetada en HTML y texto plano, todos los datos relevantes del brief, asunto interno, preheader, CTA y notas opcionales para el equipo.
 
 Tras el envío exitoso, el estado del brief pasa a `sent_to_crm`. Sin SMTP configurado, el sistema opera en modo mock y registra el envío en consola.
 
-La identidad visual está separada de la lógica de contenido en `src/lib/emailTemplates.ts` (brand kit + templates). Las plantillas disponibles son: email informativo, email comercial, email recordatorio y email visual destacado.
+La identidad visual está separada de la lógica de contenido en `src/lib/emailTemplates.ts` (brand kit + templates). Las plantillas disponibles y sus `templateId` (alineados con el enum de dominio) son: `standard` (informativo), `promotional` (comercial), `reminder` (recordatorio), `newsletter` (visual destacado).
 
 ## 3. Flujo principal de usuario
 
@@ -51,7 +57,7 @@ La identidad visual está separada de la lógica de contenido en `src/lib/emailT
 3. Lanzar validación automática.
 4. Consultar veredicto global y detalle por bloque.
 5. (Opcional) Crear nueva versión a partir de una instrucción de ajuste.
-6. Si el brief es email y la validación es aprobada: "Preparar para CRM" → seleccionar plantilla → revisar previsualización → aprobar y enviar al equipo de CRM.
+6. Si el brief es email y la validación es aprobada: "Preparar para CRM" → revisar previsualización con la plantilla del brief → aprobar y enviar al equipo de CRM.
 7. Acceder al histórico para revisar casos anteriores.
 
 ## 4. Estado actual
@@ -160,20 +166,17 @@ Funcionalidad "Preparar para CRM". Solo para briefs de canal email con validaci�
 
 Lo que está en marcha:
 
-- `prisma/schema.prisma` ampliado en `Brief`: `crmStatus`, `selectedTemplateId`, `crmSentAt`, `crmSentBy`, `crmEmailHtml`, `crmEmailPlainText`, `crmInternalSubject`, `crmNotes`. Migración `20260607171000_add_crm_fields` aplicada.
+- `prisma/schema.prisma` ampliado en `Brief`: `crmStatus`, `crmSentAt`, `crmSentBy`, `crmEmailHtml`, `crmEmailPlainText`, `crmInternalSubject`, `crmNotes`. `selectedTemplateId` eliminado en migración `20260613140000_remove_selected_template_id` (la plantilla queda en `emailTemplate`).
 - `src/types/domain.ts`: enum `CRM_STATUS` con valores `ready_for_crm` y `sent_to_crm`.
-- `src/lib/emailTemplates.ts`: brand kit centralizado (`PRISMA_BRAND_KIT`) + definición de 4 plantillas (`EMAIL_TEMPLATES`) + renderizadores `renderEmailHtml` y `renderEmailPlainText`. La identidad visual (colores, logo, tipografía, footer) está separada del contenido y de la lógica de plantilla.
-- `src/services/emailService.ts`: abstracción `sendEmail(payload)`. Sin `SMTP_HOST`, opera en modo mock (registra el envío en consola). Con `SMTP_HOST`, usa nodemailer (dependencia opcional; instalar con `npm install nodemailer @types/nodemailer`).
-- `src/services/crmService.ts`: `buildCrmPreview` y `sendToCrm`. Construye el HTML final, el texto plano, el cuerpo del correo interno para CRM y delega el envío en `emailService`. Actualiza el estado del brief tras envío exitoso. El destinatario se toma de `CRM_RECIPIENT_EMAIL` (por defecto: `ivan.aguado00@gmail.com`).
-- `src/dao/briefDao.ts`: método `updateBriefCrm`.
-- `src/app/actions/crmActions.ts`: Server Actions `previewCrmEmailAction` (genera preview sin enviar) y `sendToCrmAction` (envía y actualiza estado).
-- `src/components/crm/CrmFlow.tsx`: orquestador del flujo modal con estados `selecting`, `loading_preview`, `previewing`, `sent`, `error`.
-- `src/components/crm/CrmTemplateSelector.tsx`: grid de 4 cards de plantilla.
+- `src/lib/emailTemplates.ts`: brand kit centralizado (`PRISMA_BRAND_KIT`) + 4 plantillas (`EMAIL_TEMPLATES`) con `templateId`/`layout` alineados con el enum de dominio: `standard`, `promotional`, `reminder`, `newsletter`. Renderizadores `renderEmailHtml` y `renderEmailPlainText`.
+- `src/services/emailService.ts`: abstracción `sendEmail(payload)`. Sin `SMTP_HOST`, opera en modo mock. Con `SMTP_HOST`, usa nodemailer.
+- `src/services/crmService.ts`: `buildCrmPreview(brief, emailBody)` y `sendToCrm(input)`. La plantilla se deriva de `brief.emailTemplate` (fallback: `standard`). No acepta `templateId` como parámetro externo.
+- `src/dao/briefDao.ts`: método `updateBriefCrm`. `UpdateBriefCrmInput` ya no incluye `selectedTemplateId`.
+- `src/app/actions/crmActions.ts`: Server Actions `previewCrmEmailAction(briefId)` y `sendToCrmAction(briefId, crmNotes?)`. Sin parámetro `templateId`.
+- `src/components/crm/CrmFlow.tsx`: orquestador del flujo modal con estados `loading_preview`, `previewing`, `sent`, `error`. Carga la preview automáticamente al montar, sin paso de selección de plantilla.
 - `src/components/crm/CrmEmailPreview.tsx`: iframe con el HTML maquetado + panel lateral con datos del brief + campo de notas CRM + botón de confirmación.
 - `src/components/crm/PrepareCrmButton.tsx`: botón cliente que abre el flujo. Muestra "Enviado a CRM" si ya se envió.
-- `src/app/briefs/[id]/page.tsx`: calcula `isEmailApproved` a partir de `latestValidationRun.overallVerdict` y monta `PrepareCrmButton` en el panel izquierdo.
 - Variables de entorno nuevas en `.env.example`: `CRM_RECIPIENT_EMAIL`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`.
-- Tests de mock de `Brief` actualizados con los nuevos campos CRM nulos en todos los archivos de test afectados.
 
 ### Fase completada: `feature/fase-a-navegacion-ui`
 
@@ -246,6 +249,35 @@ Lo que está en marcha:
 - `src/app/(app)/briefs/[id]/page.tsx`: `ReviewStatusBadge` visible para todos los usuarios (pending/approved/rejected con nota); `ReviewPanel` montado solo para revisores; revisores acceden a cualquier brief (`getBriefById` sin filtro de userId).
 
 **Restricción activa:** el mismatch label/enum de los estados del sidebar (Pendiente/Rechazada vs valores reales) se deja para una fase posterior.
+
+### En curso: `feature/email-preview-refactor` — Cambios 1 y 2 completados
+
+Refactorización de previsualizaciones y generación estructurada de email.
+
+**Cambio 1 — Output estructurado del LLM para email (completado):**
+- `emailSubject` y `emailPreheader` eliminados del modelo `Brief` (migración `20260613120000_move_email_fields_to_message_version`).
+- Añadidos a `MessageVersion` como columnas propias (`emailSubject String?`, `emailPreheader String?`).
+- `GenerationClient.generate()` retorna `Promise<GeneratedMessage>` en vez de `Promise<string>`.
+- Para email: `response_format: json_object`, prompt específico con hint de plantilla, parser de JSON en el cliente.
+- Para whatsapp: retorno envuelto como `{ body: content }`, sin cambio en el prompt.
+- `BriefingForm` ya no muestra inputs de Asunto ni Preheader para email; solo el selector de Plantilla.
+- `briefService` ya no valida emailSubject/emailPreheader como campos obligatorios.
+
+**Cambio 2 — Unificación de plantillas y flujo CRM sin selector (completado):**
+- Nombres de plantillas en `emailTemplates.ts` migrados a los mismos valores que el enum de dominio: `standard`, `promotional`, `reminder`, `newsletter`. Eliminado el doble sistema de nombres.
+- `selectedTemplateId` eliminado de `Brief` (migración `20260613140000_remove_selected_template_id`). La plantilla se deriva directamente de `brief.emailTemplate`.
+- `buildCrmPreview` y `sendToCrm` ya no aceptan `templateId` como parámetro: lo derivan del brief.
+- `CrmFlow` arranca directamente en `loading_preview` al abrir; ya no tiene paso de selección de plantilla.
+- `CrmTemplateSelector` eliminado.
+
+**Cambio 3 — Previsualización dual WhatsApp: push notification + burbuja de chat (completado):**
+- `WhatsAppPreview.tsx` renombrado a `WhatsAppChatBubble.tsx` (misma UI, nombre explícito).
+- Nuevo `WhatsAppPushNotification.tsx`: simula tarjeta de notificación push Android/iOS con icono verde de WhatsApp, nombre de contacto, texto truncado a 2 líneas y marca "ahora". Usa tokens del sistema para el contenedor exterior; colores de WhatsApp hardcoded en la tarjeta.
+- Nuevo `WhatsAppPreviewTabs.tsx` (Client Component): tabs "Notificación push" / "Burbuja de chat" con chips de marca lima. Recibe `content` y `contactName` opcional.
+- `MessageVersionView.tsx`: usa `WhatsAppPreviewTabs` en lugar de `WhatsAppChatBubble` directamente; acepta nueva prop `briefTitle` que se pasa como `contactName`.
+- `briefs/[id]/page.tsx`: `MessagePreviewCard` actualizado para renderizar `WhatsAppPreviewTabs` en canal whatsapp; recibe `briefTitle={brief.title}` como nombre de contacto en la notificación push.
+
+La rama `feature/email-preview-refactor` contiene los tres cambios completados. Pendiente: apertura de PR hacia `main`.
 
 ## 5. Restricciones funcionales
 

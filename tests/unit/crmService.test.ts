@@ -3,11 +3,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 vi.mock('../../src/lib/emailTemplates', () => ({
   EMAIL_TEMPLATES: [
     {
-      templateId: 'informative',
+      templateId: 'standard',
       name: 'Email informativo',
       description: 'Test template',
       recommendedUse: 'Comunicaciones explicativas.',
-      layout: 'informative',
+      layout: 'standard',
     },
   ],
   PRISMA_BRAND_KIT: {
@@ -68,10 +68,7 @@ const baseBrief: Brief = {
   reviewedAt: null,
   reviewNote: null,
   crmStatus: null,
-  emailSubject: null,
-  emailPreheader: null,
-  emailTemplate: null,
-  selectedTemplateId: null,
+  emailTemplate: 'standard',
   crmSentAt: null,
   crmSentBy: null,
   crmEmailHtml: null,
@@ -92,77 +89,80 @@ beforeEach(() => {
 
 // ── buildCrmPreview ───────────────────────────────────────────────────────────
 
-describe('buildCrmPreview — validación de plantilla', () => {
-  it('lanza error cuando la plantilla no existe', () => {
-    expect(() => buildCrmPreview(baseBrief, 'plantilla_inexistente', 'Cuerpo.')).toThrow(
-      /Plantilla no encontrada/,
-    )
+describe('buildCrmPreview — derivación de plantilla', () => {
+  it('usa el emailTemplate del brief cuando existe', () => {
+    buildCrmPreview(baseBrief, 'Cuerpo.')
+    const [, template] = mockRenderHtml.mock.calls[0]!
+    expect(template.templateId).toBe('standard')
   })
 
-  it('no lanza error cuando la plantilla existe', () => {
-    expect(() => buildCrmPreview(baseBrief, 'informative', 'Cuerpo.')).not.toThrow()
+  it('usa standard como fallback cuando emailTemplate es null', () => {
+    const brief = { ...baseBrief, emailTemplate: null }
+    buildCrmPreview(brief, 'Cuerpo.')
+    const [, template] = mockRenderHtml.mock.calls[0]!
+    expect(template.templateId).toBe('standard')
   })
 })
 
 describe('buildCrmPreview — contenido generado', () => {
   it('devuelve el html renderizado por renderEmailHtml', () => {
-    const preview = buildCrmPreview(baseBrief, 'informative', 'Cuerpo.')
+    const preview = buildCrmPreview(baseBrief, 'Cuerpo.')
     expect(preview.html).toBe('<html>mock-html</html>')
   })
 
   it('devuelve el plainText renderizado por renderEmailPlainText', () => {
-    const preview = buildCrmPreview(baseBrief, 'informative', 'Cuerpo.')
+    const preview = buildCrmPreview(baseBrief, 'Cuerpo.')
     expect(preview.plainText).toBe('mock plain text')
   })
 
   it('el internalSubject incluye el prefijo de solicitud CRM', () => {
-    const preview = buildCrmPreview(baseBrief, 'informative', 'Cuerpo.')
+    const preview = buildCrmPreview(baseBrief, 'Cuerpo.')
     expect(preview.internalSubject).toContain('Solicitud CRM')
   })
 
   it('el internalSubject incluye el nombre de la plantilla', () => {
-    const preview = buildCrmPreview(baseBrief, 'informative', 'Cuerpo.')
+    const preview = buildCrmPreview(baseBrief, 'Cuerpo.')
     expect(preview.internalSubject).toContain('Email informativo')
   })
 
   it('el internalSubject incluye el programa cuando existe', () => {
-    const preview = buildCrmPreview(baseBrief, 'informative', 'Cuerpo.')
+    const preview = buildCrmPreview(baseBrief, 'Cuerpo.')
     expect(preview.internalSubject).toContain('Máster MBA')
   })
 
   it('el internalSubject no incluye el programa cuando es null', () => {
     const brief = { ...baseBrief, programOrTitulation: null }
-    const preview = buildCrmPreview(brief, 'informative', 'Cuerpo.')
+    const preview = buildCrmPreview(brief, 'Cuerpo.')
     expect(preview.internalSubject).not.toContain('null')
   })
 
   it('usa el título del brief como subject del contenido', () => {
-    buildCrmPreview(baseBrief, 'informative', 'Cuerpo.')
+    buildCrmPreview(baseBrief, 'Cuerpo.')
     const [content] = mockRenderHtml.mock.calls[0]!
     expect(content.subject).toBe('Campaña MBA')
   })
 
-  it('devuelve la plantilla seleccionada en el campo template', () => {
-    const preview = buildCrmPreview(baseBrief, 'informative', 'Cuerpo.')
-    expect(preview.template.templateId).toBe('informative')
+  it('devuelve la plantilla derivada del brief en el campo template', () => {
+    const preview = buildCrmPreview(baseBrief, 'Cuerpo.')
+    expect(preview.template.templateId).toBe('standard')
   })
 
   it('devuelve el recipientEmail por defecto cuando la env var no está configurada', () => {
-    const preview = buildCrmPreview(baseBrief, 'informative', 'Cuerpo.')
+    const preview = buildCrmPreview(baseBrief, 'Cuerpo.')
     expect(preview.recipientEmail).toBe('ivan.aguado00@gmail.com')
   })
 
   it('llama a renderEmailHtml y renderEmailPlainText exactamente una vez', () => {
-    buildCrmPreview(baseBrief, 'informative', 'Cuerpo.')
+    buildCrmPreview(baseBrief, 'Cuerpo.')
     expect(mockRenderHtml).toHaveBeenCalledOnce()
     expect(mockRenderPlain).toHaveBeenCalledOnce()
   })
 
   it('pasa la plantilla correcta a renderEmailHtml', () => {
-    buildCrmPreview(baseBrief, 'informative', 'Cuerpo.')
+    buildCrmPreview(baseBrief, 'Cuerpo.')
     const [, template] = mockRenderHtml.mock.calls[0]!
-    expect(template.templateId).toBe('informative')
-    expect(template.layout).toBe('informative')
+    expect(template.templateId).toBe('standard')
+    expect(template.layout).toBe('standard')
   })
 })
 
@@ -173,7 +173,6 @@ describe('sendToCrm — validaciones de entrada', () => {
     const brief = { ...baseBrief, channel: 'linkedin' }
     const result = await sendToCrm({
       brief: brief as Brief,
-      templateId: 'informative',
       emailContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
@@ -185,36 +184,11 @@ describe('sendToCrm — validaciones de entrada', () => {
   it('rechaza emailContent vacío', async () => {
     const result = await sendToCrm({
       brief: baseBrief,
-      templateId: 'informative',
       emailContent: '   ',
       sentByUserId: 'user-1',
     })
     expect(result.success).toBe(false)
     expect(result.error).toMatch(/contenido/i)
-    expect(mockSendEmail).not.toHaveBeenCalled()
-  })
-
-  it('rechaza templateId vacío', async () => {
-    const result = await sendToCrm({
-      brief: baseBrief,
-      templateId: '',
-      emailContent: 'Cuerpo.',
-      sentByUserId: 'user-1',
-    })
-    expect(result.success).toBe(false)
-    expect(result.error).toMatch(/plantilla/i)
-    expect(mockSendEmail).not.toHaveBeenCalled()
-  })
-
-  it('rechaza un templateId que no existe en EMAIL_TEMPLATES', async () => {
-    const result = await sendToCrm({
-      brief: baseBrief,
-      templateId: 'no_existe',
-      emailContent: 'Cuerpo.',
-      sentByUserId: 'user-1',
-    })
-    expect(result.success).toBe(false)
-    expect(result.error).toMatch(/Plantilla no encontrada/i)
     expect(mockSendEmail).not.toHaveBeenCalled()
   })
 })
@@ -225,7 +199,6 @@ describe('sendToCrm — envío', () => {
   it('llama a sendEmail una vez con el destinatario CRM configurado', async () => {
     await sendToCrm({
       brief: baseBrief,
-      templateId: 'informative',
       emailContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
@@ -237,7 +210,6 @@ describe('sendToCrm — envío', () => {
   it('el asunto del email enviado incluye el prefijo de solicitud CRM', async () => {
     await sendToCrm({
       brief: baseBrief,
-      templateId: 'informative',
       emailContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
@@ -248,7 +220,6 @@ describe('sendToCrm — envío', () => {
   it('el email enviado incluye html y texto plano', async () => {
     await sendToCrm({
       brief: baseBrief,
-      templateId: 'informative',
       emailContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
@@ -265,7 +236,6 @@ describe('sendToCrm — persistencia', () => {
     mockSendEmail.mockResolvedValueOnce({ success: false, error: 'SMTP timeout' })
     const result = await sendToCrm({
       brief: baseBrief,
-      templateId: 'informative',
       emailContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
@@ -277,7 +247,6 @@ describe('sendToCrm — persistencia', () => {
   it('llama a updateBriefCrm con crmStatus sent_to_crm tras envío exitoso', async () => {
     await sendToCrm({
       brief: baseBrief,
-      templateId: 'informative',
       emailContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
@@ -287,21 +256,9 @@ describe('sendToCrm — persistencia', () => {
     expect(data.crmStatus).toBe('sent_to_crm')
   })
 
-  it('persiste el templateId seleccionado', async () => {
-    await sendToCrm({
-      brief: baseBrief,
-      templateId: 'informative',
-      emailContent: 'Cuerpo.',
-      sentByUserId: 'user-1',
-    })
-    const [, data] = mockUpdateBriefCrm.mock.calls[0]!
-    expect(data.selectedTemplateId).toBe('informative')
-  })
-
   it('persiste el userId del remitente', async () => {
     await sendToCrm({
       brief: baseBrief,
-      templateId: 'informative',
       emailContent: 'Cuerpo.',
       sentByUserId: 'user-42',
     })
@@ -312,7 +269,6 @@ describe('sendToCrm — persistencia', () => {
   it('persiste las notas CRM cuando se pasan', async () => {
     await sendToCrm({
       brief: baseBrief,
-      templateId: 'informative',
       emailContent: 'Cuerpo.',
       crmNotes: 'Prioridad alta.',
       sentByUserId: 'user-1',
@@ -324,7 +280,6 @@ describe('sendToCrm — persistencia', () => {
   it('persiste null en crmNotes cuando no se pasan notas', async () => {
     await sendToCrm({
       brief: baseBrief,
-      templateId: 'informative',
       emailContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
@@ -335,7 +290,6 @@ describe('sendToCrm — persistencia', () => {
   it('persiste crmSentAt como fecha válida', async () => {
     await sendToCrm({
       brief: baseBrief,
-      templateId: 'informative',
       emailContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
@@ -351,7 +305,6 @@ describe('sendToCrm — resultado', () => {
     mockSendEmail.mockResolvedValueOnce({ success: true, mock: true })
     const result = await sendToCrm({
       brief: baseBrief,
-      templateId: 'informative',
       emailContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
@@ -363,7 +316,6 @@ describe('sendToCrm — resultado', () => {
     mockSendEmail.mockResolvedValueOnce({ success: true, messageId: 'real-abc' })
     const result = await sendToCrm({
       brief: baseBrief,
-      templateId: 'informative',
       emailContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
@@ -375,7 +327,6 @@ describe('sendToCrm — resultado', () => {
     mockSendEmail.mockResolvedValueOnce({ success: false, error: 'Credenciales inválidas' })
     const result = await sendToCrm({
       brief: baseBrief,
-      templateId: 'informative',
       emailContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })

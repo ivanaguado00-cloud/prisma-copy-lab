@@ -70,7 +70,7 @@ export async function autoRefine(messageVersionId: string, brief: Brief) {
     buildInstructionUserPrompt(failingScores, latestRun.summary),
   )
 
-  const userInstruction = rawInstruction.trim()
+  const userInstruction = rawInstruction.body.trim()
 
   return generateMessage(brief, {
     userInstruction,
