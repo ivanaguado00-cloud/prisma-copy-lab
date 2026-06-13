@@ -1,5 +1,11 @@
+import type { GeneratedMessage } from './domain'
+
 export interface GenerationClient {
-  generate(systemPrompt: string, userPrompt: string): Promise<string>
+  generate(
+    systemPrompt: string,
+    userPrompt: string,
+    options?: { jsonOutput?: boolean },
+  ): Promise<GeneratedMessage>
 }
 
 export interface ValidationClient {

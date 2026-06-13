@@ -4,6 +4,7 @@ import {
   type Channel, type Mode, type EmailTemplate, type CreateBriefInput,
 } from '../types/domain'
 
+
 interface FieldError {
   field: string
   message: string
@@ -25,9 +26,7 @@ type RawBriefInput = {
   valueProposition?: string
   cta?: string
   constraints?: string
-  emailSubject?:   string
-  emailPreheader?: string
-  emailTemplate?:  string
+  emailTemplate?: string
 }
 
 export async function createBriefService(input: RawBriefInput, userId: string): Promise<BriefServiceResult> {
@@ -60,12 +59,6 @@ export async function createBriefService(input: RawBriefInput, userId: string): 
   }
 
   if (input.channel === CHANNEL.email) {
-    if (!input.emailSubject?.trim()) {
-      errors.push({ field: 'emailSubject', message: 'El asunto es obligatorio para email' })
-    }
-    if (!input.emailPreheader?.trim()) {
-      errors.push({ field: 'emailPreheader', message: 'El preheader es obligatorio para email' })
-    }
     if (!input.emailTemplate || !Object.values(EMAIL_TEMPLATE).includes(input.emailTemplate as EmailTemplate)) {
       errors.push({ field: 'emailTemplate', message: 'Selecciona una plantilla de email' })
     }
@@ -88,9 +81,7 @@ export async function createBriefService(input: RawBriefInput, userId: string): 
     valueProposition: input.valueProposition!.trim(),
     cta: input.cta!.trim(),
     constraints: input.constraints?.trim() || undefined,
-    emailSubject:   isEmail ? input.emailSubject!.trim()          : undefined,
-    emailPreheader: isEmail ? input.emailPreheader!.trim()        : undefined,
-    emailTemplate:  isEmail ? input.emailTemplate as EmailTemplate : undefined,
+    emailTemplate: isEmail ? input.emailTemplate as EmailTemplate : undefined,
   }
 
   const brief = await createBrief(normalized)

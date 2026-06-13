@@ -17,6 +17,8 @@ function makeVersion(
     userInstruction,
     briefId: 'brief-1',
     content: `Contenido de ${id}`,
+    emailSubject: null,
+    emailPreheader: null,
     llmProvider: 'openai',
     llmModel: 'gpt-4o-mini',
     generationPromptVersion: 'v1.0',

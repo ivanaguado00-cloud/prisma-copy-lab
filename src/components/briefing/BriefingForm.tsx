@@ -205,57 +205,24 @@ export function BriefingForm({ channel }: { channel: Channel }) {
 
       {/* ── Campos específicos de email ─────────────────────────────────────── */}
       {isEmail && (
-        <>
-          {/* emailSubject */}
-          <div className="space-y-1.5">
-            <FormLabel htmlFor="emailSubject">
-              Asunto <span className="text-[#ffb4ab]">*</span>
-            </FormLabel>
-            <Input
-              id="emailSubject"
-              name="emailSubject"
-              placeholder="Subject line del email"
-              disabled={isPending}
-              className={inputCls}
-            />
-            <FieldError state={state} field="emailSubject" />
-          </div>
-
-          {/* emailPreheader */}
-          <div className="space-y-1.5">
-            <FormLabel htmlFor="emailPreheader">
-              Preheader <span className="text-[#ffb4ab]">*</span>
-            </FormLabel>
-            <Input
-              id="emailPreheader"
-              name="emailPreheader"
-              placeholder="Texto de vista previa (40–90 caracteres recomendados)"
-              disabled={isPending}
-              className={inputCls}
-            />
-            <FieldError state={state} field="emailPreheader" />
-          </div>
-
-          {/* emailTemplate */}
-          <div className="space-y-1.5">
-            <FormLabel htmlFor="emailTemplate">
-              Plantilla <span className="text-[#ffb4ab]">*</span>
-            </FormLabel>
-            <Select name="emailTemplate" disabled={isPending}>
-              <SelectTrigger id="emailTemplate" className={selectTriggerCls}>
-                <SelectValue placeholder="Selecciona una plantilla" />
-              </SelectTrigger>
-              <SelectContent className={selectContentCls}>
-                {Object.values(EMAIL_TEMPLATE).map((tpl) => (
-                  <SelectItem key={tpl} value={tpl} className={selectItemCls}>
-                    {EMAIL_TEMPLATE_LABELS[tpl]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FieldError state={state} field="emailTemplate" />
-          </div>
-        </>
+        <div className="space-y-1.5">
+          <FormLabel htmlFor="emailTemplate">
+            Plantilla <span className="text-[#ffb4ab]">*</span>
+          </FormLabel>
+          <Select name="emailTemplate" disabled={isPending}>
+            <SelectTrigger id="emailTemplate" className={selectTriggerCls}>
+              <SelectValue placeholder="Selecciona una plantilla" />
+            </SelectTrigger>
+            <SelectContent className={selectContentCls}>
+              {Object.values(EMAIL_TEMPLATE).map((tpl) => (
+                <SelectItem key={tpl} value={tpl} className={selectItemCls}>
+                  {EMAIL_TEMPLATE_LABELS[tpl]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <FieldError state={state} field="emailTemplate" />
+        </div>
       )}
 
       {/* constraints */}

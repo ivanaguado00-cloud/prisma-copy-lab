@@ -78,9 +78,6 @@ model Brief {
   valueProposition    String
   cta                 String
   constraints         String?
-  // Email-only fields
-  emailSubject        String?
-  emailPreheader      String?
   emailTemplate       String?
   // Review flow
   reviewStatus        String    @default("pending")
@@ -110,6 +107,8 @@ model MessageVersion {
   briefId                 String
   versionNumber           Int
   content                 String
+  emailSubject            String?
+  emailPreheader          String?
   llmProvider             String
   llmModel                String
   generationPromptVersion String

@@ -19,6 +19,7 @@ import {
   buildIterationUserPrompt,
   buildUserPrompt,
   GENERATION_SYSTEM_PROMPT,
+  EMAIL_GENERATION_SYSTEM_PROMPT,
 } from '../../src/services/generationService'
 import {
   listVersionsByBrief,
@@ -51,8 +52,6 @@ const baseBrief: Brief = {
   reviewedAt: null,
   reviewNote: null,
   crmStatus: null,
-  emailSubject: null,
-  emailPreheader: null,
   emailTemplate: null,
   selectedTemplateId: null,
   crmSentAt: null,
@@ -73,7 +72,9 @@ const parentVersion: MessageVersion = {
   id: 'mv-parent',
   briefId: 'brief-1',
   versionNumber: 1,
-  content: 'Asunto: Version previa\n\nContenido anterior.',
+  content: 'Contenido anterior del cuerpo del mensaje.',
+  emailSubject: 'Asunto anterior',
+  emailPreheader: null,
   llmProvider: 'openai',
   llmModel: 'gpt-4o-mini',
   generationPromptVersion: 'v1.0',
@@ -85,7 +86,7 @@ const parentVersion: MessageVersion = {
 beforeEach(() => {
   vi.clearAllMocks()
   mockGetClient.mockReturnValue(mockClient)
-  mockClient.generate.mockResolvedValue('Mensaje generado de prueba')
+  mockClient.generate.mockResolvedValue({ body: 'Mensaje generado de prueba' })
   mockListVersions.mockResolvedValue([])
   mockGetMessageVersion.mockResolvedValue(parentVersion)
   mockCreateVersion.mockResolvedValue({ id: 'mv-1' } as never)
@@ -128,20 +129,27 @@ describe('buildUserPrompt', () => {
 })
 
 describe('generateMessage — llamada al cliente LLM', () => {
-  it('pasa el system prompt y el user prompt al cliente', async () => {
+  it('usa el system prompt de email y el user prompt al cliente cuando canal=email', async () => {
     await generateMessage(baseBrief)
 
     expect(mockClient.generate).toHaveBeenCalledOnce()
     const [systemPrompt, userPrompt] = mockClient.generate.mock.calls[0]!
-    expect(systemPrompt).toBe(GENERATION_SYSTEM_PROMPT)
+    expect(systemPrompt).toBe(EMAIL_GENERATION_SYSTEM_PROMPT)
     expect(userPrompt).toContain('Campaña MBA')
   })
 
+  it('usa el system prompt de whatsapp cuando canal=whatsapp', async () => {
+    await generateMessage({ ...baseBrief, channel: 'whatsapp' })
+
+    const [systemPrompt] = mockClient.generate.mock.calls[0]!
+    expect(systemPrompt).toBe(GENERATION_SYSTEM_PROMPT)
+  })
+
   it('el mock client devuelve la respuesta pregrabada', async () => {
-    mockClient.generate.mockResolvedValue('Respuesta del mock')
+    mockClient.generate.mockResolvedValue({ body: 'Respuesta del mock', emailSubject: 'Asunto mock' })
     await generateMessage(baseBrief)
     expect(mockCreateVersion).toHaveBeenCalledWith(
-      expect.objectContaining({ content: 'Respuesta del mock' }),
+      expect.objectContaining({ content: 'Respuesta del mock', emailSubject: 'Asunto mock' }),
     )
   })
 

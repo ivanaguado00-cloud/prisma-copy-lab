@@ -28,10 +28,8 @@ export async function createBriefAction(
       mode:               formData.get('mode')               as Mode,
       valueProposition:   formData.get('valueProposition')   as string,
       cta:                formData.get('cta')                as string,
-      constraints:        formData.get('constraints')        as string,
-      emailSubject:       formData.get('emailSubject')       as string | null ?? undefined,
-      emailPreheader:     formData.get('emailPreheader')     as string | null ?? undefined,
-      emailTemplate:      formData.get('emailTemplate')      as string | null ?? undefined,
+      constraints:   formData.get('constraints')   as string,
+      emailTemplate: formData.get('emailTemplate') as string | null ?? undefined,
     },
     session.user.id,
   )

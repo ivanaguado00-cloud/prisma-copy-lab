@@ -23,8 +23,12 @@ No envía mensajes reales a destinatarios finales, no gestiona contactos y no au
 ### 2.1 Briefing
 Captura la información mínima para generar un mensaje. El campo "Titulación o programa" es un Select agrupado por escuela (5 escuelas, 23 programas de Universidad Prisma). El campo "CTA" es un Select con 7 opciones predefinidas más la opción "Otro" que despliega un input personalizado. Constantes de opciones en `src/lib/briefingOptions.ts`.
 
+Para briefs de canal email, el usuario selecciona la **Plantilla** (`emailTemplate`: Estándar, Promocional, Informativo/Newsletter, Recordatorio/Seguimiento). El asunto (`emailSubject`) y el preheader (`emailPreheader`) **no son campos del formulario**: los genera la IA como parte del output estructurado de la generación y se persisten en `MessageVersion`.
+
 ### 2.2 Generación
 Convierte un briefing en una propuesta de mensaje mediante una llamada a un proveedor LLM. Cada generación se guarda como una versión vinculada al briefing original.
+
+Para canal **whatsapp** el LLM devuelve texto plano (el cuerpo del mensaje). Para canal **email** el LLM devuelve JSON estructurado `{ body, emailSubject, emailPreheader }` usando `response_format: json_object`; el prompt incluye la plantilla seleccionada en el brief para condicionar tono y estructura. Los tres campos se persisten en `MessageVersion` (`content` = body, más `emailSubject` y `emailPreheader` como columnas propias). El tipo de retorno del cliente LLM es `Promise<GeneratedMessage>` (en `src/types/domain.ts`).
 
 ### 2.3 Validación
 Evalúa una versión de mensaje contra los siete bloques de criterios internos de Prisma y produce un veredicto global. La validación se persiste como un registro independiente con detalle por bloque.
@@ -246,6 +250,21 @@ Lo que está en marcha:
 - `src/app/(app)/briefs/[id]/page.tsx`: `ReviewStatusBadge` visible para todos los usuarios (pending/approved/rejected con nota); `ReviewPanel` montado solo para revisores; revisores acceden a cualquier brief (`getBriefById` sin filtro de userId).
 
 **Restricción activa:** el mismatch label/enum de los estados del sidebar (Pendiente/Rechazada vs valores reales) se deja para una fase posterior.
+
+### En curso: `feature/email-preview-refactor` — Cambio 1 completado
+
+Refactorización de previsualizaciones y generación estructurada de email. El Cambio 1 está completado.
+
+**Cambio 1 — Output estructurado del LLM para email (completado):**
+- `emailSubject` y `emailPreheader` eliminados del modelo `Brief` (migración `20260613120000_move_email_fields_to_message_version`).
+- Añadidos a `MessageVersion` como columnas propias (`emailSubject String?`, `emailPreheader String?`).
+- `GenerationClient.generate()` retorna `Promise<GeneratedMessage>` en vez de `Promise<string>`.
+- Para email: `response_format: json_object`, prompt específico con hint de plantilla, parser de JSON en el cliente.
+- Para whatsapp: retorno envuelto como `{ body: content }`, sin cambio en el prompt.
+- `BriefingForm` ya no muestra inputs de Asunto ni Preheader para email; solo el selector de Plantilla.
+- `briefService` ya no valida emailSubject/emailPreheader como campos obligatorios.
+
+Cambios 2 (previsualizador de plantilla email), 3 (previsualizador WhatsApp push + chat) y 4 (eliminar email preview de texto plano) están pendientes en esta misma rama.
 
 ## 5. Restricciones funcionales
 

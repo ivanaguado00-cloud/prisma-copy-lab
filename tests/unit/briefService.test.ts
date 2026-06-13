@@ -25,8 +25,6 @@ const validInput = {
 const validEmailInput = {
   ...validInput,
   channel: 'email' as const,
-  emailSubject: 'Descubre el Máster MBA que transformará tu carrera',
-  emailPreheader: 'Plazas limitadas para la próxima convocatoria',
   emailTemplate: 'promotional' as const,
 }
 
@@ -94,18 +92,6 @@ describe('createBriefService — valores de enum', () => {
 })
 
 describe('createBriefService — campos obligatorios email', () => {
-  it('devuelve error cuando channel=email y falta emailSubject', async () => {
-    const result = await createBriefService({ ...validEmailInput, emailSubject: '' }, 'user-test-id')
-    expect(result.success).toBe(false)
-    expect(result.errors?.some((e) => e.field === 'emailSubject')).toBe(true)
-  })
-
-  it('devuelve error cuando channel=email y falta emailPreheader', async () => {
-    const result = await createBriefService({ ...validEmailInput, emailPreheader: '' }, 'user-test-id')
-    expect(result.success).toBe(false)
-    expect(result.errors?.some((e) => e.field === 'emailPreheader')).toBe(true)
-  })
-
   it('devuelve error cuando channel=email y emailTemplate no es válido', async () => {
     const result = await createBriefService({ ...validEmailInput, emailTemplate: 'fantasma' as never }, 'user-test-id')
     expect(result.success).toBe(false)
@@ -118,28 +104,22 @@ describe('createBriefService — campos obligatorios email', () => {
     expect(result.errors?.some((e) => e.field === 'emailTemplate')).toBe(true)
   })
 
-  it('NO devuelve errores de email cuando channel=whatsapp y los campos email están ausentes', async () => {
+  it('NO devuelve errores de emailTemplate cuando channel=whatsapp', async () => {
     const result = await createBriefService(validInput, 'user-test-id')
     expect(result.success).toBe(true)
-    expect(result.errors?.some((e) => e.field === 'emailSubject')).toBeFalsy()
-    expect(result.errors?.some((e) => e.field === 'emailPreheader')).toBeFalsy()
     expect(result.errors?.some((e) => e.field === 'emailTemplate')).toBeFalsy()
   })
 
-  it('persiste correctamente un brief de email con todos los campos', async () => {
+  it('persiste correctamente un brief de email con emailTemplate', async () => {
     const result = await createBriefService(validEmailInput, 'user-test-id')
     expect(result.success).toBe(true)
     const calledWith = mockCreateBrief.mock.calls[0]![0]!
-    expect(calledWith.emailSubject).toBe('Descubre el Máster MBA que transformará tu carrera')
-    expect(calledWith.emailPreheader).toBe('Plazas limitadas para la próxima convocatoria')
     expect(calledWith.emailTemplate).toBe('promotional')
   })
 
-  it('los campos email quedan como undefined cuando channel=whatsapp', async () => {
+  it('emailTemplate queda como undefined cuando channel=whatsapp', async () => {
     await createBriefService(validInput, 'user-test-id')
     const calledWith = mockCreateBrief.mock.calls[0]![0]!
-    expect(calledWith.emailSubject).toBeUndefined()
-    expect(calledWith.emailPreheader).toBeUndefined()
     expect(calledWith.emailTemplate).toBeUndefined()
   })
 })
