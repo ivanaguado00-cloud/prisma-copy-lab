@@ -34,7 +34,7 @@ function FormLabel({ htmlFor, children }: { htmlFor: string; children: React.Rea
 const inputCls =
   'bg-transparent border-[#cfc4c5] text-[#1b1c1c] placeholder:text-[#7e7576] focus-visible:ring-0 focus-visible:border-[#1b1c1c]'
 
-export function BriefingForm() {
+export function BriefingForm({ defaultChannel }: { defaultChannel?: string }) {
   const [state, formAction, isPending] = useActionState<BriefActionState | null, FormData>(
     createBriefAction,
     null,
@@ -108,7 +108,7 @@ export function BriefingForm() {
           <FormLabel htmlFor="channel">
             Canal <span className="text-[#ffb4ab]">*</span>
           </FormLabel>
-          <Select name="channel" disabled={isPending}>
+          <Select name="channel" defaultValue={defaultChannel} disabled={isPending}>
             <SelectTrigger id="channel" className="bg-transparent border-[#cfc4c5] text-[#1b1c1c] focus:ring-0 focus:border-[#1b1c1c]">
               <SelectValue placeholder="Selecciona un canal" />
             </SelectTrigger>

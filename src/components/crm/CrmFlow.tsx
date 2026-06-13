@@ -60,28 +60,18 @@ export function CrmFlow({ brief, onClose }: Props) {
   }
 
   return (
-    /* Full-screen overlay */
-    <div
-      className="fixed inset-0 z-50 flex flex-col bg-[#0d0e10]"
-      style={{ borderTop: '1px solid #444933' }}
-    >
+    <div className="fixed inset-0 z-50 flex flex-col bg-surface-bright border-t border-outline-variant">
       {/* Topbar */}
-      <div
-        className="flex items-center justify-between px-6 py-3 shrink-0"
-        style={{ borderBottom: '1px solid #444933', background: '#1b1c1e' }}
-      >
+      <div className="flex items-center justify-between px-6 py-3 shrink-0 bg-surface-container-low border-b border-outline-variant">
         <div className="flex items-center gap-3">
-          <span
-            className="text-xs font-semibold px-2 py-0.5 rounded-full"
-            style={{ background: 'rgba(195,244,0,0.12)', color: '#c3f400', border: '1px solid rgba(195,244,0,0.22)' }}
-          >
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-lime/10 text-brand-lime border border-brand-lime/20">
             Preparar para CRM
           </span>
-          <span className="text-sm text-[#c4c9ac]">{brief.title}</span>
+          <span className="text-sm text-on-surface-variant">{brief.title}</span>
         </div>
         <button
           onClick={onClose}
-          className="text-sm text-[#c4c9ac] hover:text-[#e3e2e5] transition-colors px-3 py-1 rounded hover:bg-[#1f2022]"
+          className="text-sm text-on-surface-variant hover:text-on-surface transition-colors px-3 py-1 rounded hover:bg-surface-container-high"
         >
           ✕ Cerrar
         </button>
@@ -95,11 +85,8 @@ export function CrmFlow({ brief, onClose }: Props) {
 
         {step.type === 'loading_preview' && (
           <div className="flex flex-col items-center justify-center h-full gap-3">
-            <div
-              className="w-8 h-8 rounded-full animate-spin"
-              style={{ border: '2px solid #444933', borderTopColor: '#c3f400' }}
-            />
-            <p className="text-sm text-[#c4c9ac]">Preparando previsualización…</p>
+            <div className="w-8 h-8 rounded-full animate-spin border-2 border-outline-variant border-t-brand-lime" />
+            <p className="text-sm text-on-surface-variant">Preparando previsualización…</p>
           </div>
         )}
 
@@ -119,29 +106,26 @@ export function CrmFlow({ brief, onClose }: Props) {
 
         {step.type === 'sent' && (
           <div className="flex flex-col items-center justify-center h-full gap-5 px-6">
-            <div
-              className="w-14 h-14 rounded-full flex items-center justify-center text-2xl"
-              style={{ background: 'rgba(195,244,0,0.12)', border: '1px solid rgba(195,244,0,0.30)' }}
-            >
+            <div className="w-14 h-14 rounded-full flex items-center justify-center text-2xl bg-brand-lime/10 border border-brand-lime/30">
               ✓
             </div>
             <div className="text-center space-y-2">
-              <p className="text-base font-semibold text-[#e3e2e5]">Propuesta enviada correctamente</p>
+              <p className="text-base font-semibold text-on-surface">Propuesta enviada correctamente</p>
               {step.mock ? (
-                <p className="text-sm text-[#c4c9ac]">
+                <p className="text-sm text-on-surface-variant">
                   Modo mock activo — el email se ha registrado en consola.
                   <br />
-                  Configura <code className="text-[#c3f400]">SMTP_HOST</code> para envío real.
+                  Configura <code className="text-brand-lime">SMTP_HOST</code> para envío real.
                 </p>
               ) : (
-                <p className="text-sm text-[#c4c9ac]">
+                <p className="text-sm text-on-surface-variant">
                   El email ha sido enviado al equipo de CRM. El estado del brief se ha actualizado.
                 </p>
               )}
             </div>
             <button
               onClick={onClose}
-              className="rounded px-6 py-2 text-sm font-semibold text-[#283500] prisma-gradient-bg hover:opacity-90 transition-all"
+              className="rounded px-6 py-2 text-sm font-semibold text-on-brand-lime prisma-gradient-bg hover:opacity-90 transition-all"
             >
               Cerrar
             </button>
@@ -150,26 +134,23 @@ export function CrmFlow({ brief, onClose }: Props) {
 
         {step.type === 'error' && (
           <div className="flex flex-col items-center justify-center h-full gap-5 px-6">
-            <div
-              className="w-14 h-14 rounded-full flex items-center justify-center text-2xl"
-              style={{ background: 'rgba(255,180,171,0.10)', border: '1px solid rgba(255,180,171,0.25)' }}
-            >
+            <div className="w-14 h-14 rounded-full flex items-center justify-center text-2xl bg-error-container/50 border border-error-container">
               ✕
             </div>
             <div className="text-center space-y-2">
-              <p className="text-base font-semibold text-[#e3e2e5]">Error</p>
-              <p className="text-sm text-[#ffb4ab]">{step.message}</p>
+              <p className="text-base font-semibold text-on-surface">Error</p>
+              <p className="text-sm text-on-error-container">{step.message}</p>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={handleBackToSelector}
-                className="rounded px-4 py-2 text-sm font-medium text-[#c3f400] border border-[#c3f400]/40 hover:bg-[#1f2022] transition-all"
+                className="rounded px-4 py-2 text-sm font-medium text-brand-lime border border-brand-lime/40 hover:bg-surface-container-high transition-all"
               >
                 Volver a plantillas
               </button>
               <button
                 onClick={onClose}
-                className="text-sm text-[#c4c9ac] hover:text-[#e3e2e5] transition-colors px-4 py-2"
+                className="text-sm text-on-surface-variant hover:text-on-surface transition-colors px-4 py-2"
               >
                 Cancelar
               </button>

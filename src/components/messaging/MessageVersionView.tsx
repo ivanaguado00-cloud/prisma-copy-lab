@@ -1,4 +1,5 @@
 import type { MessageVersion } from '../../generated/prisma/client'
+import { WhatsAppPreview } from './WhatsAppPreview'
 
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat('es-ES', {
@@ -10,10 +11,10 @@ function formatDate(date: Date): string {
   }).format(new Date(date))
 }
 
-const VERDICT_BADGE: Record<string, { label: string; bg: string; text: string; border: string }> = {
-  aprobada:             { label: 'Aprobada',    bg: '#052e16', text: '#10b981', border: '#065f46' },
-  aprobada_con_ajustes: { label: 'Con ajustes', bg: '#1c1400', text: '#f59e0b', border: '#92400e' },
-  no_aprobada:          { label: 'No aprobada', bg: '#1c0000', text: '#ef4444', border: '#7f1d1d' },
+const VERDICT_BADGE: Record<string, { label: string; cls: string }> = {
+  aprobada:             { label: 'Aprobada',    cls: 'bg-success-container text-on-success-container' },
+  aprobada_con_ajustes: { label: 'Con ajustes', cls: 'bg-warning-container text-on-warning-container' },
+  no_aprobada:          { label: 'No aprobada', cls: 'bg-error-container text-on-error-container' },
 }
 
 type Props = {
@@ -27,54 +28,38 @@ export function MessageVersionView({ version, channel, verdictStatus }: Props) {
   const verdict = verdictStatus ? VERDICT_BADGE[verdictStatus] : null
 
   return (
-    <div className="rounded-lg overflow-hidden bg-[#1b1c1e]" style={{ border: '1px solid #444933' }}>
+    <div className="rounded-lg overflow-hidden bg-surface-container-low border border-outline-variant">
 
       {/* Card header */}
-      <div
-        className="flex items-center justify-between px-4 py-3"
-        style={{
-          borderBottom: '1px solid #444933',
-          background: isWhatsApp ? 'rgba(37,150,119,0.10)' : 'rgba(99,130,201,0.08)',
-        }}
-      >
+      <div className="flex items-center justify-between px-4 py-3 border-b border-outline-variant bg-surface-container-high">
         <div className="flex items-center gap-2.5">
           <span className="text-sm">{isWhatsApp ? '💬' : '✉️'}</span>
-          <span className="text-sm font-semibold text-[#e3e2e5]">
+          <span className="text-sm font-semibold text-on-surface">
             Versión {version.versionNumber}
           </span>
           {verdict && (
-            <span
-              className="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full border"
-              style={{ background: verdict.bg, color: verdict.text, borderColor: verdict.border }}
-            >
+            <span className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full ${verdict.cls}`}>
               {verdict.label}
             </span>
           )}
         </div>
-        <span className="text-xs text-[#c4c9ac]/60">{formatDate(version.createdAt)}</span>
+        <span className="text-xs text-on-surface-variant/60">{formatDate(version.createdAt)}</span>
       </div>
 
       {/* Message body */}
       <div className="px-4 py-4">
         {isWhatsApp ? (
-          <div
-            className="rounded-lg rounded-tl-sm px-4 py-3 max-w-sm ml-0"
-            style={{ background: 'rgba(37,150,119,0.12)', border: '1px solid rgba(37,150,119,0.25)' }}
-          >
-            <p className="text-sm text-[#d1fae5] whitespace-pre-wrap leading-relaxed">
-              {version.content}
-            </p>
-          </div>
+          <WhatsAppPreview content={version.content} />
         ) : (
-          <div className="rounded-lg overflow-hidden" style={{ border: '1px solid #444933' }}>
-            <div className="px-4 py-2.5 bg-[#1f2022]" style={{ borderBottom: '1px solid #444933' }}>
-              <p className="text-xs text-[#c4c9ac]">
-                <span className="font-medium text-[#e3e2e5]">Asunto:</span>{' '}
+          <div className="rounded-lg overflow-hidden border border-outline-variant">
+            <div className="px-4 py-2.5 bg-surface-container-high border-b border-outline-variant">
+              <p className="text-xs text-on-surface-variant">
+                <span className="font-medium text-on-surface">Asunto:</span>{' '}
                 {firstLine(version.content)}
               </p>
             </div>
             <div className="px-4 py-3">
-              <p className="text-sm text-[#e3e2e5] whitespace-pre-wrap leading-relaxed">
+              <p className="text-sm text-on-surface whitespace-pre-wrap leading-relaxed">
                 {version.content}
               </p>
             </div>
@@ -82,30 +67,27 @@ export function MessageVersionView({ version, channel, verdictStatus }: Props) {
         )}
 
         {version.userInstruction && (
-          <div className="mt-3 text-xs rounded px-3 py-2 bg-[#1f2022]" style={{ border: '1px solid #444933' }}>
-            <span className="font-medium text-[#c3f400]">Instrucción aplicada:</span>{' '}
-            <span className="text-[#c4c9ac]">&ldquo;{version.userInstruction}&rdquo;</span>
+          <div className="mt-3 text-xs rounded px-3 py-2 bg-surface-container-high border border-outline-variant">
+            <span className="font-medium text-brand-lime">Instrucción aplicada:</span>{' '}
+            <span className="text-on-surface-variant">&ldquo;{version.userInstruction}&rdquo;</span>
           </div>
         )}
 
         {version.userInstruction && verdictStatus === 'no_aprobada' && (
-          <div className="mt-2 text-xs rounded px-3 py-2" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#fca5a5' }}>
+          <div className="mt-2 text-xs rounded px-3 py-2 bg-error-container/50 border border-error-container text-on-error-container">
             Ajuste aplicado, pero la versión no supera algunos criterios de validación de Universidad Prisma. Consulta el panel derecho para ver los detalles.
           </div>
         )}
 
         {version.userInstruction && verdictStatus === 'aprobada_con_ajustes' && (
-          <div className="mt-2 text-xs rounded px-3 py-2" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', color: '#fcd34d' }}>
+          <div className="mt-2 text-xs rounded px-3 py-2 bg-warning-container border border-warning-container/60 text-on-warning-container">
             Ajuste aplicado. La versión tiene puntos mejorables según los criterios de Universidad Prisma.
           </div>
         )}
       </div>
 
       {/* Footer metadata */}
-      <div
-        className="px-4 py-2 flex gap-4 text-[11px] text-[#c4c9ac]/40 bg-[#0d0e10]"
-        style={{ borderTop: '1px solid #444933' }}
-      >
+      <div className="px-4 py-2 flex gap-4 text-[11px] text-on-surface-variant/40 bg-surface-container-high border-t border-outline-variant">
         <span>Modelo: {version.llmModel}</span>
         <span>Prompt v{version.generationPromptVersion}</span>
       </div>

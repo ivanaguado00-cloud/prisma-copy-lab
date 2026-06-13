@@ -12,16 +12,11 @@ interface Props {
 export function PrepareCrmButton({ brief, isEmailApproved }: Props) {
   const [showFlow, setShowFlow] = useState(false)
 
-  // Solo aplica a briefs de canal email
   if (brief.channel !== 'email') return null
 
-  // Ya enviado
   if (brief.crmStatus === 'sent_to_crm') {
     return (
-      <span
-        className="inline-flex items-center text-xs font-medium px-2.5 py-0.5 rounded-full"
-        style={{ background: 'rgba(195,244,0,0.12)', color: '#c3f400', border: '1px solid rgba(195,244,0,0.22)' }}
-      >
+      <span className="inline-flex items-center text-xs font-medium px-2.5 py-0.5 rounded-full bg-brand-lime/10 text-on-brand-lime border border-brand-lime/20">
         ✓ Enviado a CRM
       </span>
     )
@@ -30,7 +25,7 @@ export function PrepareCrmButton({ brief, isEmailApproved }: Props) {
   if (!isEmailApproved) {
     return (
       <span
-        className="inline-flex items-center text-xs text-[#c4c9ac]/50 px-2.5 py-1"
+        className="inline-flex items-center text-xs text-on-surface-variant/50 px-2.5 py-1"
         title="El email debe estar aprobado para prepararlo para CRM"
       >
         Preparar para CRM (requiere aprobación)
@@ -42,7 +37,7 @@ export function PrepareCrmButton({ brief, isEmailApproved }: Props) {
     <>
       <button
         onClick={() => setShowFlow(true)}
-        className="rounded px-3 py-1.5 text-xs font-semibold text-[#283500] prisma-gradient-bg hover:opacity-90 active:opacity-80 transition-all shadow-sm shadow-[#abd600]/20"
+        className="rounded px-3 py-1.5 text-xs font-semibold text-on-brand-lime prisma-gradient-bg hover:opacity-90 active:opacity-80 transition-all shadow-sm shadow-brand-lime-dim/20"
       >
         Preparar para CRM
       </button>

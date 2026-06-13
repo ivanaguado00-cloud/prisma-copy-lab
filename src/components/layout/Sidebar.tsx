@@ -124,6 +124,7 @@ export function Sidebar() {
   const channel = searchParams.get('channel')
   const verdict = searchParams.get('verdict')
   const { collapsed, toggle } = useSidebar()
+  const newBriefHref = channel ? `/briefs/new?channel=${channel}` : '/briefs/new'
 
   return (
     <aside
@@ -141,7 +142,7 @@ export function Sidebar() {
               </svg>
             </div>
             <Link
-              href="/briefs/new"
+              href={newBriefHref}
               title="Create New Brief"
               className="flex items-center justify-center w-9 h-9 bg-on-surface text-white rounded transition-colors hover:bg-on-surface-variant"
             >
@@ -165,7 +166,7 @@ export function Sidebar() {
             </div>
 
             <Link
-              href="/briefs/new"
+              href={newBriefHref}
               className="flex items-center justify-center gap-2 w-full bg-on-surface text-white py-2.5 px-4 rounded text-sm font-semibold hover:bg-on-surface-variant transition-colors"
             >
               <IconAdd />
