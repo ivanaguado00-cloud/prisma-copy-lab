@@ -41,23 +41,23 @@ export interface EmailTemplate {
   name: string
   description: string
   recommendedUse: string
-  layout: 'informative' | 'commercial' | 'reminder' | 'visual'
+  layout: 'standard' | 'promotional' | 'reminder' | 'newsletter'
 }
 
 export const EMAIL_TEMPLATES: EmailTemplate[] = [
   {
-    templateId: 'informative',
+    templateId: 'standard',
     name: 'Email informativo',
     description: 'Estructura clara orientada a explicar y presentar. Cabecera, cuerpo con bloques de texto y CTA secundaria.',
     recommendedUse: 'Comunicaciones explicativas o de presentación de programa.',
-    layout: 'informative',
+    layout: 'standard',
   },
   {
-    templateId: 'commercial',
+    templateId: 'promotional',
     name: 'Email comercial',
     description: 'Diseño orientado a conversión. Titular de impacto, propuesta de valor destacada y CTA prominente.',
     recommendedUse: 'Campañas de captación, conversión o reactivación.',
-    layout: 'commercial',
+    layout: 'promotional',
   },
   {
     templateId: 'reminder',
@@ -67,11 +67,11 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
     layout: 'reminder',
   },
   {
-    templateId: 'visual',
+    templateId: 'newsletter',
     name: 'Email visual destacado',
     description: 'Bloque principal de gran impacto visual seguido de contenido de soporte y CTA.',
     recommendedUse: 'Campañas con mayor peso visual, banner o bloque principal.',
-    layout: 'visual',
+    layout: 'newsletter',
   },
 ]
 
@@ -106,7 +106,7 @@ export function renderEmailHtml(
       </table>`
     : ''
 
-  const headerBg = template.layout === 'visual'
+  const headerBg = template.layout === 'newsletter'
     ? `background-color:#1a1a1a;`
     : `background-color:${brand.surfaceColor};`
 
@@ -170,7 +170,7 @@ function layout(
     .join('')
 
   switch (template.layout) {
-    case 'commercial':
+    case 'promotional':
       return `
         <tr>
           <td style="padding:32px 40px 8px;">
@@ -192,7 +192,7 @@ function layout(
         <tr><td style="padding:16px 40px 8px;">${bodyText}</td></tr>
         <tr><td style="padding:0 40px 24px;">${ctaButton}</td></tr>`
 
-    case 'visual':
+    case 'newsletter':
       return `
         <tr>
           <td style="padding:40px;background-color:#1a1a1a;text-align:center;">
@@ -203,7 +203,7 @@ function layout(
         </tr>
         <tr><td style="padding:28px 40px 24px;">${bodyText}</td></tr>`
 
-    case 'informative':
+    case 'standard':
     default:
       return `
         <tr>

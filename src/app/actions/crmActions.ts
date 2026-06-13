@@ -51,10 +51,7 @@ async function getApprovedEmailContent(briefId: string): Promise<string | null> 
  * Genera la previsualización del email maquetado para una plantilla dada.
  * No envía nada — solo construye el HTML de preview para confirmación del usuario.
  */
-export async function previewCrmEmailAction(
-  briefId: string,
-  templateId: string,
-): Promise<CrmPreviewResult> {
+export async function previewCrmEmailAction(briefId: string): Promise<CrmPreviewResult> {
   const session = await auth()
   if (!session?.user?.id) return { success: false, error: 'No autenticado' }
 
@@ -73,7 +70,7 @@ export async function previewCrmEmailAction(
   }
 
   try {
-    const preview = buildCrmPreview(brief, templateId, emailContent)
+    const preview = buildCrmPreview(brief, emailContent)
     return {
       success: true,
       html: preview.html,
@@ -91,11 +88,7 @@ export async function previewCrmEmailAction(
  * Envía la propuesta maquetada al equipo de CRM y actualiza el estado del brief.
  * Solo debe llamarse tras confirmación explícita del usuario.
  */
-export async function sendToCrmAction(
-  briefId: string,
-  templateId: string,
-  crmNotes?: string,
-): Promise<CrmActionResult> {
+export async function sendToCrmAction(briefId: string, crmNotes?: string): Promise<CrmActionResult> {
   const session = await auth()
   if (!session?.user?.id) return { success: false, error: 'No autenticado' }
 
@@ -118,7 +111,6 @@ export async function sendToCrmAction(
 
   const result = await sendToCrm({
     brief,
-    templateId,
     emailContent,
     crmNotes,
     sentByUserId: session.user.id,

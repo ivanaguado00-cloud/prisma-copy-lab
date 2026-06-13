@@ -3,7 +3,6 @@ import type { CreateBriefInput } from '../types/domain'
 
 export interface UpdateBriefCrmInput {
   crmStatus: string
-  selectedTemplateId: string
   crmSentAt: Date
   crmSentBy: string
   crmEmailHtml: string

@@ -43,7 +43,6 @@ const baseBrief: Brief = {
   reviewNote: null,
   crmStatus: null,
   emailTemplate: null,
-  selectedTemplateId: null,
   crmSentAt: null,
   crmSentBy: null,
   crmEmailHtml: null,

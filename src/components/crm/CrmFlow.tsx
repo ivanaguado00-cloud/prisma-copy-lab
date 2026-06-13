@@ -1,14 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Brief } from '../../generated/prisma/client'
 import type { EmailTemplate } from '../../lib/emailTemplates'
 import { previewCrmEmailAction, sendToCrmAction } from '../../app/actions/crmActions'
-import { CrmTemplateSelector } from './CrmTemplateSelector'
 import { CrmEmailPreview } from './CrmEmailPreview'
 
 type FlowStep =
-  | { type: 'selecting' }
   | { type: 'loading_preview' }
   | { type: 'previewing'; template: EmailTemplate; html: string; plainText: string; internalSubject: string; recipientEmail: string }
   | { type: 'sent'; mock: boolean }
@@ -20,32 +18,27 @@ interface Props {
 }
 
 export function CrmFlow({ brief, onClose }: Props) {
-  const [step, setStep] = useState<FlowStep>({ type: 'selecting' })
+  const [step, setStep] = useState<FlowStep>({ type: 'loading_preview' })
 
-  async function handleTemplateSelect(template: EmailTemplate) {
-    setStep({ type: 'loading_preview' })
-
-    const result = await previewCrmEmailAction(brief.id, template.templateId)
-
-    if (!result.success || !result.html) {
-      setStep({ type: 'error', message: result.error ?? 'No se pudo generar la previsualización.' })
-      return
-    }
-
-    setStep({
-      type: 'previewing',
-      template,
-      html: result.html,
-      plainText: result.plainText ?? '',
-      internalSubject: result.internalSubject ?? '',
-      recipientEmail: result.recipientEmail ?? '',
+  useEffect(() => {
+    previewCrmEmailAction(brief.id).then((result) => {
+      if (!result.success || !result.html) {
+        setStep({ type: 'error', message: result.error ?? 'No se pudo generar la previsualización.' })
+        return
+      }
+      setStep({
+        type: 'previewing',
+        template: { templateId: brief.emailTemplate ?? 'standard', name: '', description: '', recommendedUse: '', layout: 'standard' },
+        html: result.html,
+        plainText: result.plainText ?? '',
+        internalSubject: result.internalSubject ?? '',
+        recipientEmail: result.recipientEmail ?? '',
+      })
     })
-  }
+  }, [brief.id, brief.emailTemplate])
 
   async function handleApproveAndSend(crmNotes: string) {
-    if (step.type !== 'previewing') return
-
-    const result = await sendToCrmAction(brief.id, step.template.templateId, crmNotes || undefined)
+    const result = await sendToCrmAction(brief.id, crmNotes || undefined)
 
     if (!result.success) {
       setStep({ type: 'error', message: result.error ?? 'No se pudo enviar la propuesta a CRM.' })
@@ -53,10 +46,6 @@ export function CrmFlow({ brief, onClose }: Props) {
     }
 
     setStep({ type: 'sent', mock: result.mock ?? false })
-  }
-
-  function handleBackToSelector() {
-    setStep({ type: 'selecting' })
   }
 
   return (
@@ -79,10 +68,6 @@ export function CrmFlow({ brief, onClose }: Props) {
 
       {/* Content */}
       <div className="flex-1 overflow-hidden">
-        {step.type === 'selecting' && (
-          <CrmTemplateSelector onSelect={handleTemplateSelect} onCancel={onClose} />
-        )}
-
         {step.type === 'loading_preview' && (
           <div className="flex flex-col items-center justify-center h-full gap-3">
             <div className="w-8 h-8 rounded-full animate-spin border-2 border-outline-variant border-t-brand-lime" />
@@ -99,7 +84,6 @@ export function CrmFlow({ brief, onClose }: Props) {
             internalSubject={step.internalSubject}
             recipientEmail={step.recipientEmail}
             onApprove={handleApproveAndSend}
-            onBack={handleBackToSelector}
             onCancel={onClose}
           />
         )}
@@ -141,20 +125,12 @@ export function CrmFlow({ brief, onClose }: Props) {
               <p className="text-base font-semibold text-on-surface">Error</p>
               <p className="text-sm text-on-error-container">{step.message}</p>
             </div>
-            <div className="flex gap-3">
-              <button
-                onClick={handleBackToSelector}
-                className="rounded px-4 py-2 text-sm font-medium text-brand-lime border border-brand-lime/40 hover:bg-surface-container-high transition-all"
-              >
-                Volver a plantillas
-              </button>
-              <button
-                onClick={onClose}
-                className="text-sm text-on-surface-variant hover:text-on-surface transition-colors px-4 py-2"
-              >
-                Cancelar
-              </button>
-            </div>
+            <button
+              onClick={onClose}
+              className="text-sm text-on-surface-variant hover:text-on-surface transition-colors px-4 py-2"
+            >
+              Cancelar
+            </button>
           </div>
         )}
       </div>

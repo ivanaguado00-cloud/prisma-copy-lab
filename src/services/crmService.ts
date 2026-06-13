@@ -31,7 +31,6 @@ export interface CrmPreviewData {
 
 export interface SendToCrmInput {
   brief: Brief
-  templateId: string
   emailContent: string
   crmNotes?: string
   sentByUserId: string
@@ -44,14 +43,13 @@ export interface SendToCrmResult {
 }
 
 /**
- * Construye la previsualización del email maquetado para una plantilla dada.
+ * Construye la previsualización del email maquetado usando la plantilla del brief.
  * No envía nada — solo genera los datos de preview para que el usuario confirme.
  */
-export function buildCrmPreview(brief: Brief, templateId: string, emailBody: string): CrmPreviewData {
-  const template = EMAIL_TEMPLATES.find((t) => t.templateId === templateId)
-  if (!template) {
-    throw new Error(`Plantilla no encontrada: ${templateId}`)
-  }
+export function buildCrmPreview(brief: Brief, emailBody: string): CrmPreviewData {
+  const templateId = brief.emailTemplate ?? 'standard'
+  const template = EMAIL_TEMPLATES.find((t) => t.templateId === templateId) ?? EMAIL_TEMPLATES[0]!
+
 
   const content: EmailContent = {
     subject: buildSubject(brief),
@@ -80,7 +78,7 @@ export function buildCrmPreview(brief: Brief, templateId: string, emailBody: str
  * Solo debe llamarse tras confirmación explícita del usuario.
  */
 export async function sendToCrm(input: SendToCrmInput): Promise<SendToCrmResult> {
-  const { brief, templateId, emailContent, crmNotes, sentByUserId } = input
+  const { brief, emailContent, crmNotes, sentByUserId } = input
 
   // Validaciones de seguridad antes de enviar
   if (brief.channel !== 'email') {
@@ -89,17 +87,13 @@ export async function sendToCrm(input: SendToCrmInput): Promise<SendToCrmResult>
   if (!emailContent?.trim()) {
     return { success: false, error: 'No hay contenido de email generado.' }
   }
-  if (!templateId) {
-    return { success: false, error: 'Debes seleccionar una plantilla antes de enviar.' }
-  }
   if (!CRM_RECIPIENT_EMAIL) {
     return { success: false, error: 'No hay destinatario CRM configurado.' }
   }
 
-  const template = EMAIL_TEMPLATES.find((t) => t.templateId === templateId)
-  if (!template) {
-    return { success: false, error: `Plantilla no encontrada: ${templateId}` }
-  }
+  const templateId = brief.emailTemplate ?? 'standard'
+  const template = EMAIL_TEMPLATES.find((t) => t.templateId === templateId) ?? EMAIL_TEMPLATES[0]!
+
 
   const content: EmailContent = {
     subject: buildSubject(brief),
@@ -129,7 +123,6 @@ export async function sendToCrm(input: SendToCrmInput): Promise<SendToCrmResult>
   // Solo actualizamos el estado si el envío fue exitoso
   await updateBriefCrm(brief.id, {
     crmStatus: CRM_STATUS.sent_to_crm,
-    selectedTemplateId: templateId,
     crmSentAt: new Date(),
     crmSentBy: sentByUserId,
     crmEmailHtml: html,

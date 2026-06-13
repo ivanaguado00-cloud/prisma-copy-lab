@@ -86,7 +86,6 @@ model Brief {
   reviewNote          String?
   // CRM flow
   crmStatus           String?
-  selectedTemplateId  String?
   crmSentAt           DateTime?
   crmSentBy           String?
   crmEmailHtml        String?
