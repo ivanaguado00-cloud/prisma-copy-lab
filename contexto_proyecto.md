@@ -192,6 +192,34 @@ Tokens migrados en esta fase (hex → token): `#fbf9f8`→`surface-bright`, `#cf
 
 Decisiones de diseño: `Navbar` permanece Server Component para conservar `await auth()` en servidor; el estado activo se resuelve en un Client Component hoja (`NavLinks`) que no arrastra lógica de sesión. El colapsado usa un Context de React con `localStorage` (no cookies) porque es una preferencia de UI local sin necesidad de SSR.
 
+### Fase completada: `feature/fase-b-canal-crm-ui`
+
+Diferenciación visual por canal, migración de tema oscuro heredado a Corporate Precision light y filtrado real por canal.
+
+Lo que está en marcha:
+
+**Bloque 1 — Tokens y schema:**
+- `src/app/globals.css`: 7 nuevos tokens en `@theme inline`: `brand-lime` (#c3f400), `brand-lime-dim` (#abd600), `on-brand-lime` (#283500), `success-container` (#e3f5ec), `on-success-container` (#1a6639), `warning-container` (#fef3cd), `on-warning-container` (#7c5c0a). Utility `prisma-gradient-bg` definida con `@utility`.
+- `prisma/schema.prisma`: `channel String @default("whatsapp")`. Migración `add_channel_default` aplicada.
+- `src/lib/channelUtils.ts`: helpers `isWhatsApp(channel)` e `isEmail(channel)` para eliminar comparaciones string dispersas.
+
+**Bloque 2 — CRM components (dark → Corporate Precision light):**
+- `PrepareCrmButton.tsx`, `CrmFlow.tsx`, `CrmTemplateSelector.tsx`, `CrmEmailPreview.tsx`: todos los hex del tema oscuro heredado (`#0d0e10`, `#1b1c1e`, `#1f2022`, `#444933`, `#e3e2e5`, `#c4c9ac` y colores brand lime inline) sustituidos por tokens CP. JS `onMouseEnter/onMouseLeave` en `CrmTemplateSelector` eliminado a favor de clases CSS puras. El `background: '#fff'` del iframe de previsualización de email se preserva como requisito funcional del renderizado HTML.
+
+**Bloque 3 — MessageVersionView + WhatsAppPreview:**
+- `src/components/messaging/WhatsAppPreview.tsx` (nuevo, Server Component): burbuja de chat con topbar, área de chat y burbuja de mensaje. Colores externos de WhatsApp (`#075E54`, `#dcf8c6`, `#111b21`, `#667781`) preservados como literales (no son tokens CP; son marca externa). Contenedor usa tokens CP.
+- `src/components/messaging/MessageVersionView.tsx`: preview WhatsApp reemplazado por `<WhatsAppPreview>`; `VERDICT_BADGE` migrado de inline styles con hex oscuros a clases `success/warning/error-container`; resto de hex tokenizados.
+- `src/app/(app)/briefs/[id]/page.tsx`: `OverallVerdictBadge` y `STATUS_META` migrados a tokens `success/warning-container`; todos los hex del archivo tokenizados.
+
+**Bloque 4 — Filtro de canal real y botón contextual:**
+- `src/dao/briefDao.ts`: `listBriefs(userId, channel?)` acepta canal opcional para filtrar en base de datos.
+- `src/app/(app)/briefs/page.tsx`: lee `searchParams.channel` (Promise en Next.js 15); filtra `displayedBriefs` por canal activo; KPIs globales se calculan siempre sobre `allBriefs`; botón "Nuevo briefing" lleva a `/briefs/new?channel=<canal>` cuando hay filtro activo; todos los hex tokenizados.
+- `src/components/briefing/BriefingForm.tsx`: acepta prop `defaultChannel?: string`; preselecciona el Select de canal con `defaultValue`.
+- `src/app/(app)/briefs/new/page.tsx`: lee `searchParams.channel` y lo pasa a `BriefingForm`; todos los hex tokenizados.
+- `src/components/layout/Sidebar.tsx`: botones "Create New Brief" (collapsed y expanded) contextuales con `newBriefHref = channel ? /briefs/new?channel=<canal> : /briefs/new`.
+
+**PASO 0 (hallazgo):** `/briefs/page.tsx` no filtraba por canal antes de esta fase — mostraba todos los briefs del usuario independientemente del filtro del sidebar. Corregido en este bloque.
+
 ## 5. Restricciones funcionales
 
 - Autenticación básica implementada con NextAuth v5 (credentials). No hay roles ni permisos granulares.
