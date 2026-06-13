@@ -2,7 +2,7 @@ interface Props {
   content: string
 }
 
-export function WhatsAppPreview({ content }: Props) {
+export function WhatsAppChatBubble({ content }: Props) {
   return (
     <div className="rounded-lg overflow-hidden border border-outline-variant">
       {/* WhatsApp topbar — color externo, no se tokeniza */}

@@ -1,5 +1,5 @@
 import type { MessageVersion } from '../../generated/prisma/client'
-import { WhatsAppPreview } from './WhatsAppPreview'
+import { WhatsAppPreviewTabs } from './WhatsAppPreviewTabs'
 
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat('es-ES', {
@@ -21,9 +21,10 @@ type Props = {
   version: MessageVersion
   channel?: string
   verdictStatus?: string | null
+  briefTitle?: string
 }
 
-export function MessageVersionView({ version, channel, verdictStatus }: Props) {
+export function MessageVersionView({ version, channel, verdictStatus, briefTitle }: Props) {
   const isWhatsApp = channel === 'whatsapp'
   const verdict = verdictStatus ? VERDICT_BADGE[verdictStatus] : null
 
@@ -49,7 +50,7 @@ export function MessageVersionView({ version, channel, verdictStatus }: Props) {
       {/* Message body */}
       <div className="px-4 py-4">
         {isWhatsApp ? (
-          <WhatsAppPreview content={version.content} />
+          <WhatsAppPreviewTabs content={version.content} contactName={briefTitle} />
         ) : (
           <div className="rounded-lg overflow-hidden border border-outline-variant">
             <div className="px-4 py-2.5 bg-surface-container-high border-b border-outline-variant">

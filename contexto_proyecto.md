@@ -39,6 +39,8 @@ Lista cronológica de briefings con sus versiones y validaciones. Permite accede
 ### 2.5 Detalle de caso
 Vista que muestra briefing, versiones generadas, validaciones por bloque, veredicto global y metadatos de modelo y fecha. Incluye el botón "Preparar para CRM" cuando el brief es de canal email y la versión más reciente está validada como `aprobada` o `aprobada_con_ajustes`.
 
+Para canal **whatsapp**, la vista previa del mensaje muestra dos vistas alternables mediante tabs: notificación push (tarjeta simulada con icono verde de WhatsApp, nombre del brief y texto truncado) y burbuja de chat (interfaz de conversación WhatsApp con fondo oscuro y burbuja verde).
+
 ### 2.6 Preparar para CRM
 Flujo de preparación de emails aprobados para el equipo de CRM. Solo aplica a briefs de canal email con validación aprobada. El flujo tiene dos pasos: (1) previsualización automática del email maquetado con la plantilla fijada en el brief, (2) aprobación y envío al correo interno de CRM (`CRM_RECIPIENT_EMAIL`). No hay selector de plantilla en este paso: la plantilla se elige al crear el brief (`emailTemplate`) y se usa directamente.
 
@@ -268,7 +270,14 @@ Refactorización de previsualizaciones y generación estructurada de email.
 - `CrmFlow` arranca directamente en `loading_preview` al abrir; ya no tiene paso de selección de plantilla.
 - `CrmTemplateSelector` eliminado.
 
-Cambios 3 (previsualizador WhatsApp push + chat) y 4 (eliminar email preview de texto plano) están pendientes en esta misma rama.
+**Cambio 3 — Previsualización dual WhatsApp: push notification + burbuja de chat (completado):**
+- `WhatsAppPreview.tsx` renombrado a `WhatsAppChatBubble.tsx` (misma UI, nombre explícito).
+- Nuevo `WhatsAppPushNotification.tsx`: simula tarjeta de notificación push Android/iOS con icono verde de WhatsApp, nombre de contacto, texto truncado a 2 líneas y marca "ahora". Usa tokens del sistema para el contenedor exterior; colores de WhatsApp hardcoded en la tarjeta.
+- Nuevo `WhatsAppPreviewTabs.tsx` (Client Component): tabs "Notificación push" / "Burbuja de chat" con chips de marca lima. Recibe `content` y `contactName` opcional.
+- `MessageVersionView.tsx`: usa `WhatsAppPreviewTabs` en lugar de `WhatsAppChatBubble` directamente; acepta nueva prop `briefTitle` que se pasa como `contactName`.
+- `briefs/[id]/page.tsx`: `MessagePreviewCard` actualizado para renderizar `WhatsAppPreviewTabs` en canal whatsapp; recibe `briefTitle={brief.title}` como nombre de contacto en la notificación push.
+
+La rama `feature/email-preview-refactor` contiene los tres cambios completados. Pendiente: apertura de PR hacia `main`.
 
 ## 5. Restricciones funcionales
 
