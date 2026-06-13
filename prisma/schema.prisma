@@ -72,7 +72,7 @@ model Brief {
   programOrTitulation String?
   objective           String
   audience            String
-  channel             String
+  channel             String   @default("whatsapp")
   mode                String
   valueProposition    String
   cta                 String
