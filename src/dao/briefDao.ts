@@ -35,9 +35,9 @@ export async function getBriefById(id: string, userId?: string) {
   })
 }
 
-export async function listBriefs(userId: string) {
+export async function listBriefs(userId: string, channel?: string) {
   return prisma.brief.findMany({
-    where: { userId },
+    where: { userId, ...(channel ? { channel } : {}) },
     orderBy: { createdAt: 'desc' },
   })
 }
