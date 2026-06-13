@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select'
-import { CHANNEL, MODE } from '../../types/domain'
+import { CHANNEL, MODE, EMAIL_TEMPLATE, EMAIL_TEMPLATE_LABELS, type Channel } from '../../types/domain'
 import { PROGRAM_GROUPS, PREDEFINED_CTAS, CTA_CUSTOM_SENTINEL } from '../../lib/briefingOptions'
 
 function FieldError({ state, field }: { state: BriefActionState | null; field: string }) {
@@ -34,7 +34,14 @@ function FormLabel({ htmlFor, children }: { htmlFor: string; children: React.Rea
 const inputCls =
   'bg-transparent border-[#cfc4c5] text-[#1b1c1c] placeholder:text-[#7e7576] focus-visible:ring-0 focus-visible:border-[#1b1c1c]'
 
-export function BriefingForm({ defaultChannel }: { defaultChannel?: string }) {
+const selectTriggerCls =
+  'bg-transparent border-[#cfc4c5] text-[#1b1c1c] focus:ring-0 focus:border-[#1b1c1c]'
+
+const selectContentCls = 'bg-[#ffffff] border-[#cfc4c5]'
+
+const selectItemCls = 'text-[#1b1c1c] focus:bg-[#f5f3f3] focus:text-[#1b1c1c]'
+
+export function BriefingForm({ channel }: { channel: Channel }) {
   const [state, formAction, isPending] = useActionState<BriefActionState | null, FormData>(
     createBriefAction,
     null,
@@ -43,18 +50,28 @@ export function BriefingForm({ defaultChannel }: { defaultChannel?: string }) {
   const [ctaSelection, setCtaSelection] = useState<string>('')
   const [ctaCustom, setCtaCustom] = useState<string>('')
 
+  const isEmail = channel === CHANNEL.email
   const isCustomCta = ctaSelection === CTA_CUSTOM_SENTINEL
   const finalCta = isCustomCta ? ctaCustom : ctaSelection
 
   return (
     <form action={formAction} className="space-y-6">
 
+      {/* canal — campo oculto, determinado por la ruta */}
+      <input type="hidden" name="channel" value={channel} />
+
       {/* title */}
       <div className="space-y-1.5">
         <FormLabel htmlFor="title">
           Título <span className="text-[#ffb4ab]">*</span>
         </FormLabel>
-        <Input id="title" name="title" placeholder="Nombre o título de campaña" disabled={isPending} className={inputCls} />
+        <Input
+          id="title"
+          name="title"
+          placeholder="Nombre o título de campaña"
+          disabled={isPending}
+          className={inputCls}
+        />
         <FieldError state={state} field="title" />
       </div>
 
@@ -62,19 +79,15 @@ export function BriefingForm({ defaultChannel }: { defaultChannel?: string }) {
       <div className="space-y-1.5">
         <FormLabel htmlFor="programOrTitulation">Titulación o programa</FormLabel>
         <Select name="programOrTitulation" disabled={isPending}>
-          <SelectTrigger id="programOrTitulation" className="bg-transparent border-[#cfc4c5] text-[#1b1c1c] focus:ring-0 focus:border-[#1b1c1c]">
+          <SelectTrigger id="programOrTitulation" className={selectTriggerCls}>
             <SelectValue placeholder="Selecciona un programa (opcional)" />
           </SelectTrigger>
-          <SelectContent className="bg-[#ffffff] border-[#cfc4c5] max-h-72 overflow-y-auto">
+          <SelectContent className={`${selectContentCls} max-h-72 overflow-y-auto`}>
             {PROGRAM_GROUPS.map((group) => (
               <SelectGroup key={group.school}>
                 <SelectLabel className="text-[#4c4546] text-xs px-2 py-1.5">{group.school}</SelectLabel>
                 {group.programs.map((program) => (
-                  <SelectItem
-                    key={program}
-                    value={program}
-                    className="text-[#1b1c1c] focus:bg-[#f5f3f3] focus:text-[#1b1c1c] pl-4"
-                  >
+                  <SelectItem key={program} value={program} className={`${selectItemCls} pl-4`}>
                     {program}
                   </SelectItem>
                 ))}
@@ -89,7 +102,14 @@ export function BriefingForm({ defaultChannel }: { defaultChannel?: string }) {
         <FormLabel htmlFor="objective">
           Objetivo <span className="text-[#ffb4ab]">*</span>
         </FormLabel>
-        <Textarea id="objective" name="objective" placeholder="Objetivo único de la pieza" rows={3} disabled={isPending} className={`${inputCls} resize-none`} />
+        <Textarea
+          id="objective"
+          name="objective"
+          placeholder="Objetivo único de la pieza"
+          rows={3}
+          disabled={isPending}
+          className={`${inputCls} resize-none`}
+        />
         <FieldError state={state} field="objective" />
       </div>
 
@@ -98,43 +118,32 @@ export function BriefingForm({ defaultChannel }: { defaultChannel?: string }) {
         <FormLabel htmlFor="audience">
           Audiencia <span className="text-[#ffb4ab]">*</span>
         </FormLabel>
-        <Textarea id="audience" name="audience" placeholder="Descripción del público objetivo" rows={3} disabled={isPending} className={`${inputCls} resize-none`} />
+        <Textarea
+          id="audience"
+          name="audience"
+          placeholder="Descripción del público objetivo"
+          rows={3}
+          disabled={isPending}
+          className={`${inputCls} resize-none`}
+        />
         <FieldError state={state} field="audience" />
       </div>
 
-      {/* channel + mode row */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <FormLabel htmlFor="channel">
-            Canal <span className="text-[#ffb4ab]">*</span>
-          </FormLabel>
-          <Select name="channel" defaultValue={defaultChannel} disabled={isPending}>
-            <SelectTrigger id="channel" className="bg-transparent border-[#cfc4c5] text-[#1b1c1c] focus:ring-0 focus:border-[#1b1c1c]">
-              <SelectValue placeholder="Selecciona un canal" />
-            </SelectTrigger>
-            <SelectContent className="bg-[#ffffff] border-[#cfc4c5]">
-              <SelectItem value={CHANNEL.whatsapp} className="text-[#1b1c1c] focus:bg-[#f5f3f3]">WhatsApp</SelectItem>
-              <SelectItem value={CHANNEL.email} className="text-[#1b1c1c] focus:bg-[#f5f3f3]">Email</SelectItem>
-            </SelectContent>
-          </Select>
-          <FieldError state={state} field="channel" />
-        </div>
-
-        <div className="space-y-1.5">
-          <FormLabel htmlFor="mode">
-            Modo <span className="text-[#ffb4ab]">*</span>
-          </FormLabel>
-          <Select name="mode" disabled={isPending}>
-            <SelectTrigger id="mode" className="bg-transparent border-[#cfc4c5] text-[#1b1c1c] focus:ring-0 focus:border-[#1b1c1c]">
-              <SelectValue placeholder="Selecciona un modo" />
-            </SelectTrigger>
-            <SelectContent className="bg-[#ffffff] border-[#cfc4c5]">
-              <SelectItem value={MODE.produccion} className="text-[#1b1c1c] focus:bg-[#f5f3f3]">Producción</SelectItem>
-              <SelectItem value={MODE.exploracion} className="text-[#1b1c1c] focus:bg-[#f5f3f3]">Exploración</SelectItem>
-            </SelectContent>
-          </Select>
-          <FieldError state={state} field="mode" />
-        </div>
+      {/* mode */}
+      <div className="space-y-1.5">
+        <FormLabel htmlFor="mode">
+          Modo <span className="text-[#ffb4ab]">*</span>
+        </FormLabel>
+        <Select name="mode" disabled={isPending}>
+          <SelectTrigger id="mode" className={selectTriggerCls}>
+            <SelectValue placeholder="Selecciona un modo" />
+          </SelectTrigger>
+          <SelectContent className={selectContentCls}>
+            <SelectItem value={MODE.produccion} className={selectItemCls}>Producción</SelectItem>
+            <SelectItem value={MODE.exploracion} className={selectItemCls}>Exploración</SelectItem>
+          </SelectContent>
+        </Select>
+        <FieldError state={state} field="mode" />
       </div>
 
       {/* valueProposition */}
@@ -142,11 +151,18 @@ export function BriefingForm({ defaultChannel }: { defaultChannel?: string }) {
         <FormLabel htmlFor="valueProposition">
           Propuesta de valor <span className="text-[#ffb4ab]">*</span>
         </FormLabel>
-        <Textarea id="valueProposition" name="valueProposition" placeholder="Palanca o propuesta de valor principal" rows={3} disabled={isPending} className={`${inputCls} resize-none`} />
+        <Textarea
+          id="valueProposition"
+          name="valueProposition"
+          placeholder="Palanca o propuesta de valor principal"
+          rows={3}
+          disabled={isPending}
+          className={`${inputCls} resize-none`}
+        />
         <FieldError state={state} field="valueProposition" />
       </div>
 
-      {/* cta — hidden field carries the final value; select + optional custom input drive the state */}
+      {/* cta */}
       <input type="hidden" name="cta" value={finalCta} />
       <div className="space-y-1.5">
         <FormLabel htmlFor="cta-select">
@@ -157,12 +173,12 @@ export function BriefingForm({ defaultChannel }: { defaultChannel?: string }) {
           onValueChange={(v) => setCtaSelection(v ?? '')}
           disabled={isPending}
         >
-          <SelectTrigger id="cta-select" className="bg-transparent border-[#cfc4c5] text-[#1b1c1c] focus:ring-0 focus:border-[#1b1c1c]">
+          <SelectTrigger id="cta-select" className={selectTriggerCls}>
             <SelectValue placeholder="Selecciona una llamada a la acción" />
           </SelectTrigger>
-          <SelectContent className="bg-[#ffffff] border-[#cfc4c5]">
+          <SelectContent className={selectContentCls}>
             {PREDEFINED_CTAS.map((cta) => (
-              <SelectItem key={cta} value={cta} className="text-[#1b1c1c] focus:bg-[#f5f3f3]">
+              <SelectItem key={cta} value={cta} className={selectItemCls}>
                 {cta}
               </SelectItem>
             ))}
@@ -187,16 +203,78 @@ export function BriefingForm({ defaultChannel }: { defaultChannel?: string }) {
         <FieldError state={state} field="cta" />
       </div>
 
+      {/* ── Campos específicos de email ─────────────────────────────────────── */}
+      {isEmail && (
+        <>
+          {/* emailSubject */}
+          <div className="space-y-1.5">
+            <FormLabel htmlFor="emailSubject">
+              Asunto <span className="text-[#ffb4ab]">*</span>
+            </FormLabel>
+            <Input
+              id="emailSubject"
+              name="emailSubject"
+              placeholder="Subject line del email"
+              disabled={isPending}
+              className={inputCls}
+            />
+            <FieldError state={state} field="emailSubject" />
+          </div>
+
+          {/* emailPreheader */}
+          <div className="space-y-1.5">
+            <FormLabel htmlFor="emailPreheader">
+              Preheader <span className="text-[#ffb4ab]">*</span>
+            </FormLabel>
+            <Input
+              id="emailPreheader"
+              name="emailPreheader"
+              placeholder="Texto de vista previa (40–90 caracteres recomendados)"
+              disabled={isPending}
+              className={inputCls}
+            />
+            <FieldError state={state} field="emailPreheader" />
+          </div>
+
+          {/* emailTemplate */}
+          <div className="space-y-1.5">
+            <FormLabel htmlFor="emailTemplate">
+              Plantilla <span className="text-[#ffb4ab]">*</span>
+            </FormLabel>
+            <Select name="emailTemplate" disabled={isPending}>
+              <SelectTrigger id="emailTemplate" className={selectTriggerCls}>
+                <SelectValue placeholder="Selecciona una plantilla" />
+              </SelectTrigger>
+              <SelectContent className={selectContentCls}>
+                {Object.values(EMAIL_TEMPLATE).map((tpl) => (
+                  <SelectItem key={tpl} value={tpl} className={selectItemCls}>
+                    {EMAIL_TEMPLATE_LABELS[tpl]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FieldError state={state} field="emailTemplate" />
+          </div>
+        </>
+      )}
+
       {/* constraints */}
       <div className="space-y-1.5">
         <FormLabel htmlFor="constraints">Restricciones</FormLabel>
-        <Textarea id="constraints" name="constraints" placeholder="Restricciones, tono específico, exclusiones (opcional)" rows={3} disabled={isPending} className={`${inputCls} resize-none`} />
+        <Textarea
+          id="constraints"
+          name="constraints"
+          placeholder="Restricciones, tono específico, exclusiones (opcional)"
+          rows={3}
+          disabled={isPending}
+          className={`${inputCls} resize-none`}
+        />
       </div>
 
       <button
         type="submit"
         disabled={isPending}
-        className="rounded px-8 py-3 text-sm font-semibold bg-[#1b1c1c] text-white hover:bg-[#4c4546] transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+        className="rounded px-8 py-3 text-sm font-semibold prisma-gradient-bg text-on-brand-lime hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
       >
         {isPending ? 'Guardando…' : 'Crear briefing'}
       </button>

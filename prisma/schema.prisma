@@ -78,6 +78,10 @@ model Brief {
   valueProposition    String
   cta                 String
   constraints         String?
+  // Email-only fields
+  emailSubject        String?
+  emailPreheader      String?
+  emailTemplate       String?
   // Review flow
   reviewStatus        String    @default("pending")
   reviewedBy          String?

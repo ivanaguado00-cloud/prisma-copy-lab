@@ -1,7 +1,9 @@
+import { Suspense } from 'react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { auth } from '../../../auth'
 import { listBriefs } from '../../../dao/briefDao'
+import { BriefsFilterBar } from '../../../components/briefs/BriefsFilterBar'
 
 export const metadata = {
   title: 'Briefings — PRISMA Copy Lab',
@@ -29,18 +31,20 @@ function formatBriefNumber(briefNumber: number): string {
   return `BR-${briefNumber.toString().padStart(3, '0')}`
 }
 
-type Props = { searchParams: Promise<{ channel?: string }> }
+type Props = { searchParams: Promise<{ channel?: string; status?: string }> }
 
 export default async function BriefsListPage({ searchParams }: Props) {
   const session = await auth()
   if (!session?.user?.id) redirect('/login')
 
-  const { channel: activeChannel } = await searchParams
+  const { channel: activeChannel, status: activeStatus } = await searchParams
 
   const allBriefs = await listBriefs(session.user.id)
-  const displayedBriefs = activeChannel
-    ? allBriefs.filter((b) => b.channel === activeChannel)
-    : allBriefs
+  const displayedBriefs = allBriefs.filter((b) => {
+    const channelMatch = !activeChannel || b.channel === activeChannel
+    const statusMatch  = !activeStatus  || b.reviewStatus === activeStatus
+    return channelMatch && statusMatch
+  })
 
   const totalBriefs = allBriefs.length
   const whatsappCount = allBriefs.filter((b) => b.channel === 'whatsapp').length
@@ -63,32 +67,32 @@ export default async function BriefsListPage({ searchParams }: Props) {
     <div className="px-6 md:px-10 py-8 max-w-5xl mx-auto">
 
       {/* Page header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h1
             className="text-2xl font-bold text-on-surface"
             style={{ fontFamily: 'var(--font-heading)' }}
           >
             Briefings
-            {activeChannel && (
-              <span className="ml-2 text-base font-normal text-on-surface-variant">
-                — {CHANNEL_LABELS[activeChannel] ?? activeChannel}
-              </span>
-            )}
           </h1>
           <p className="text-sm text-on-surface-variant mt-0.5">
             {displayedBriefs.length === 0
               ? 'Crea tu primer briefing para empezar'
-              : `${displayedBriefs.length} briefing${displayedBriefs.length !== 1 ? 's' : ''}${activeChannel ? ` en ${CHANNEL_LABELS[activeChannel] ?? activeChannel}` : ' en total'}`}
+              : `${displayedBriefs.length} briefing${displayedBriefs.length !== 1 ? 's' : ''} encontrado${displayedBriefs.length !== 1 ? 's' : ''}`}
           </p>
         </div>
         <Link
           href={newBriefHref}
-          className="rounded px-4 py-2 text-sm font-semibold bg-on-surface text-white hover:bg-on-surface-variant transition-colors"
+          className="rounded px-4 py-2 text-sm font-semibold prisma-gradient-bg text-on-brand-lime hover:opacity-90 transition-opacity shadow-sm"
         >
           + Nuevo briefing
         </Link>
       </div>
+
+      {/* Filter bar */}
+      <Suspense fallback={<div className="h-10 mb-2" />}>
+        <BriefsFilterBar />
+      </Suspense>
 
       {/* KPI strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
@@ -112,7 +116,7 @@ export default async function BriefsListPage({ searchParams }: Props) {
           </p>
           <Link
             href={newBriefHref}
-            className="inline-block rounded px-5 py-2 text-sm font-semibold bg-on-surface text-white hover:bg-on-surface-variant transition-colors mt-2"
+            className="inline-block rounded px-5 py-2 text-sm font-semibold prisma-gradient-bg text-on-brand-lime hover:opacity-90 transition-opacity mt-2"
           >
             Crear briefing
           </Link>

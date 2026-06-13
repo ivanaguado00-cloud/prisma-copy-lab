@@ -7,7 +7,7 @@ import { listValidationRunsByMessage } from '../../../../dao/validationRunDao'
 import { generateMessageAction, refineMessageAction } from '../../../actions/messageActions'
 import { PrepareCrmButton } from '../../../../components/crm/PrepareCrmButton'
 import { ReviewPanel } from '../../../../components/review/ReviewPanel'
-import { OVERALL_VERDICT, USER_ROLE, REVIEW_STATUS } from '../../../../types/domain'
+import { OVERALL_VERDICT, USER_ROLE, REVIEW_STATUS, EMAIL_TEMPLATE_LABELS } from '../../../../types/domain'
 import type { ValidationRun, ValidationScore, MessageVersion } from '../../../../generated/prisma/client'
 
 type ValidationRunWithScores = ValidationRun & { scores: ValidationScore[] }
@@ -451,6 +451,32 @@ export default async function BriefDetailPage({ params }: Props) {
                   <div className="p-4 border border-outline-variant rounded-lg hover:border-on-surface transition-colors">
                     <p className="text-xs font-bold text-on-surface mb-1">CTA</p>
                     <p className="text-xs text-on-surface-variant leading-relaxed">{brief.cta}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Email-specific context cards */}
+            {brief.channel === 'email' && (brief.emailSubject || brief.emailPreheader || brief.emailTemplate) && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+                {brief.emailSubject && (
+                  <div className="p-4 border border-outline-variant rounded-lg hover:border-on-surface transition-colors">
+                    <p className="text-xs font-bold text-on-surface mb-1">Asunto</p>
+                    <p className="text-xs text-on-surface-variant leading-relaxed">{brief.emailSubject}</p>
+                  </div>
+                )}
+                {brief.emailPreheader && (
+                  <div className="p-4 border border-outline-variant rounded-lg hover:border-on-surface transition-colors">
+                    <p className="text-xs font-bold text-on-surface mb-1">Preheader</p>
+                    <p className="text-xs text-on-surface-variant leading-relaxed">{brief.emailPreheader}</p>
+                  </div>
+                )}
+                {brief.emailTemplate && (
+                  <div className="p-4 border border-outline-variant rounded-lg hover:border-on-surface transition-colors">
+                    <p className="text-xs font-bold text-on-surface mb-1">Plantilla</p>
+                    <p className="text-xs text-on-surface-variant leading-relaxed">
+                      {EMAIL_TEMPLATE_LABELS[brief.emailTemplate] ?? brief.emailTemplate}
+                    </p>
                   </div>
                 )}
               </div>

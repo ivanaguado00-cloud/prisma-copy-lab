@@ -25,6 +25,21 @@ export const REVIEW_STATUS = {
 } as const
 export type ReviewStatus = (typeof REVIEW_STATUS)[keyof typeof REVIEW_STATUS]
 
+export const EMAIL_TEMPLATE = {
+  standard:    'standard',
+  promotional: 'promotional',
+  newsletter:  'newsletter',
+  reminder:    'reminder',
+} as const
+export type EmailTemplate = (typeof EMAIL_TEMPLATE)[keyof typeof EMAIL_TEMPLATE]
+
+export const EMAIL_TEMPLATE_LABELS: Record<string, string> = {
+  standard:    'Estándar',
+  promotional: 'Promocional',
+  newsletter:  'Informativo / Newsletter',
+  reminder:    'Recordatorio / Seguimiento',
+}
+
 export const CRM_STATUS = {
   ready_for_crm: 'ready_for_crm',
   sent_to_crm: 'sent_to_crm',
@@ -69,6 +84,9 @@ export interface CreateBriefInput {
   valueProposition: string
   cta: string
   constraints?: string
+  emailSubject?:   string
+  emailPreheader?: string
+  emailTemplate?:  EmailTemplate
 }
 
 export interface CreateMessageVersionInput {
