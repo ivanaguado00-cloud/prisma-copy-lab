@@ -6,7 +6,8 @@ import { listVersionsByBrief } from '../../../../dao/messageVersionDao'
 import { listValidationRunsByMessage } from '../../../../dao/validationRunDao'
 import { generateMessageAction, refineMessageAction } from '../../../actions/messageActions'
 import { PrepareCrmButton } from '../../../../components/crm/PrepareCrmButton'
-import { OVERALL_VERDICT } from '../../../../types/domain'
+import { ReviewPanel } from '../../../../components/review/ReviewPanel'
+import { OVERALL_VERDICT, USER_ROLE, REVIEW_STATUS } from '../../../../types/domain'
 import type { ValidationRun, ValidationScore, MessageVersion } from '../../../../generated/prisma/client'
 
 type ValidationRunWithScores = ValidationRun & { scores: ValidationScore[] }
@@ -56,6 +57,26 @@ function OverallVerdictBadge({ verdict }: { verdict: string }) {
       <span className="w-1.5 h-1.5 rounded-full bg-current" />
       {m.label}
     </span>
+  )
+}
+
+function ReviewStatusBadge({ status, note }: { status: string; note?: string | null }) {
+  const meta: Record<string, { label: string; cls: string }> = {
+    pending:  { label: 'Pendiente de revisión', cls: 'bg-secondary-container text-on-secondary-container' },
+    approved: { label: 'Aprobado',              cls: 'bg-success-container text-on-success-container' },
+    rejected: { label: 'Rechazado',             cls: 'bg-error-container text-on-error-container' },
+  }
+  const m = meta[status] ?? { label: status, cls: 'bg-secondary-container text-on-secondary-container' }
+  return (
+    <div className="flex flex-col gap-1">
+      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold w-fit ${m.cls}`}>
+        <span className="w-1.5 h-1.5 rounded-full bg-current" />
+        {m.label}
+      </span>
+      {note && (
+        <p className="text-xs text-on-surface-variant pl-1 max-w-xs leading-relaxed">{note}</p>
+      )}
+    </div>
   )
 }
 
@@ -186,8 +207,11 @@ export default async function BriefDetailPage({ params }: Props) {
   const session = await auth()
   if (!session?.user?.id) redirect('/login')
 
+  const isReviewer = session.user.role === USER_ROLE.reviewer
+
   const [brief, versions] = await Promise.all([
-    getBriefById(id, session.user.id),
+    // Revisores pueden ver cualquier brief; autores solo los suyos
+    getBriefById(id, isReviewer ? undefined : session.user.id),
     listVersionsByBrief(id),
   ])
   if (!brief) notFound()
@@ -252,6 +276,10 @@ export default async function BriefDetailPage({ params }: Props) {
             {latestValidationRun && (
               <OverallVerdictBadge verdict={latestValidationRun.overallVerdict} />
             )}
+            <ReviewStatusBadge
+              status={brief.reviewStatus ?? REVIEW_STATUS.pending}
+              note={brief.reviewNote}
+            />
             <div className="flex items-center gap-3 text-xs text-on-surface-variant">
               <span className="font-semibold">{CHANNEL_LABELS[brief.channel] ?? brief.channel}</span>
               <span>·</span>
@@ -297,6 +325,15 @@ export default async function BriefDetailPage({ params }: Props) {
 
           {/* ── Left column (4/12) ──────────────────────────────────────── */}
           <div className="lg:col-span-4 flex flex-col gap-6">
+
+            {/* Review panel — solo visible para revisores */}
+            {isReviewer && (
+              <ReviewPanel
+                briefId={brief.id}
+                currentStatus={brief.reviewStatus ?? REVIEW_STATUS.pending}
+                currentNote={brief.reviewNote}
+              />
+            )}
 
             {/* Version History */}
             <div className="bg-surface-container-lowest border border-outline-variant p-5 rounded-lg">
