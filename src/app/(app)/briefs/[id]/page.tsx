@@ -46,8 +46,8 @@ function computeScore(scores: ValidationScore[]): number | null {
 
 function OverallVerdictBadge({ verdict }: { verdict: string }) {
   const meta: Record<string, { label: string; cls: string }> = {
-    aprobada:             { label: 'Aprobada',     cls: 'bg-[#e3f5ec] text-[#1a6639]' },
-    aprobada_con_ajustes: { label: 'Con ajustes',  cls: 'bg-[#fef3cd] text-[#7c5c0a]' },
+    aprobada:             { label: 'Aprobada',     cls: 'bg-success-container text-on-success-container' },
+    aprobada_con_ajustes: { label: 'Con ajustes',  cls: 'bg-warning-container text-on-warning-container' },
     no_aprobada:          { label: 'No aprobada',  cls: 'bg-error-container text-on-error-container' },
   }
   const m = meta[verdict] ?? { label: verdict, cls: 'bg-secondary-container text-on-secondary-container' }
@@ -61,7 +61,7 @@ function OverallVerdictBadge({ verdict }: { verdict: string }) {
 
 const STATUS_META: Record<string, { label: string; cls: string; critical?: boolean }> = {
   bien:      { label: 'Correcto',  cls: 'bg-secondary-fixed-dim text-on-surface' },
-  mejorable: { label: 'Mejorable', cls: 'bg-[#fef3cd] text-[#7c5c0a]' },
+  mejorable: { label: 'Mejorable', cls: 'bg-warning-container text-on-warning-container' },
   critico:   { label: 'Revisar',   cls: 'bg-error-container text-on-error-container', critical: true },
 }
 
@@ -71,20 +71,20 @@ function CriterionCard({ score, index }: { score: ValidationScore; index: number
     <div
       className={`bg-surface-container-lowest border border-outline-variant p-4 rounded-lg transition-colors ${
         meta.critical
-          ? 'border-l-4 border-l-[#ba1a1a]'
-          : 'hover:border-[#1b1c1c]'
+          ? 'border-l-4 border-l-error-cp'
+          : 'hover:border-on-surface'
       }`}
     >
       <div className="flex justify-between items-start mb-2 gap-3">
         <div className="flex items-center gap-3">
           <div
             className={`w-9 h-9 rounded flex items-center justify-center font-bold text-xs shrink-0 ${
-              meta.critical ? 'bg-error-container text-on-error-container' : 'bg-surface-container-high text-[#1b1c1c]'
+              meta.critical ? 'bg-error-container text-on-error-container' : 'bg-surface-container-high text-on-surface'
             }`}
           >
             {String(index + 1).padStart(2, '0')}
           </div>
-          <h4 className="font-semibold text-sm text-[#1b1c1c] leading-snug">{score.criterionName}</h4>
+          <h4 className="font-semibold text-sm text-on-surface leading-snug">{score.criterionName}</h4>
         </div>
         <span className={`text-xs font-semibold px-2 py-1 rounded shrink-0 ${meta.cls}`}>
           {meta.label}
@@ -123,11 +123,11 @@ function VersionHistoryTimeline({
             <div
               className={`absolute left-[4px] top-1 w-4 h-4 rounded-full border-2 z-10 ${
                 isCurrent
-                  ? 'bg-secondary-fixed-dim border-[#1b1c1c]'
+                  ? 'bg-secondary-fixed-dim border-on-surface'
                   : 'bg-surface-container-highest border-outline-variant'
               }`}
             />
-            <p className={`text-xs font-bold ${isCurrent ? 'text-[#1b1c1c]' : 'text-on-surface'}`}>
+            <p className={`text-xs font-bold ${isCurrent ? 'text-on-surface' : 'text-on-surface'}`}>
               {isCurrent ? `Versión actual (v${v.versionNumber})` : `Versión v${v.versionNumber}`}
             </p>
             {v.userInstruction ? (
@@ -153,7 +153,7 @@ function VersionHistoryTimeline({
 function MessagePreviewCard({ version, channel }: { version: MessageVersion; channel: string }) {
   const isWA = channel === 'whatsapp'
   return (
-    <div className="bg-[#1b1c1c] text-white p-5 rounded-lg flex flex-col gap-4 overflow-hidden relative">
+    <div className="bg-on-surface text-white p-5 rounded-lg flex flex-col gap-4 overflow-hidden relative">
       <div className="absolute -right-6 -bottom-6 opacity-10 pointer-events-none">
         <svg width="80" height="80" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
@@ -162,7 +162,7 @@ function MessagePreviewCard({ version, channel }: { version: MessageVersion; cha
       <h3 className="text-xs font-bold flex items-center gap-2 tracking-wider uppercase opacity-70">
         <span>{isWA ? '💬' : '✉️'}</span> Vista previa del mensaje
       </h3>
-      <div className="bg-white text-[#1b1c1c] p-4 rounded shadow-sm border-l-4 border-secondary-fixed-dim relative z-10">
+      <div className="bg-white text-on-surface p-4 rounded shadow-sm border-l-4 border-secondary-fixed-dim relative z-10">
         <p className="text-sm leading-relaxed whitespace-pre-wrap line-clamp-6">{version.content}</p>
       </div>
     </div>
@@ -227,7 +227,7 @@ export default async function BriefDetailPage({ params }: Props) {
       <section className="mb-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-on-surface-variant mb-4 text-xs">
-          <Link href="/briefs" className="hover:text-[#1b1c1c] transition-colors">
+          <Link href="/briefs" className="hover:text-on-surface transition-colors">
             Briefs
           </Link>
           <span>›</span>
@@ -237,7 +237,7 @@ export default async function BriefDetailPage({ params }: Props) {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
           <div>
             <h1
-              className="text-4xl font-bold text-[#1b1c1c] leading-tight mb-2 tracking-tight"
+              className="text-4xl font-bold text-on-surface leading-tight mb-2 tracking-tight"
               style={{ fontFamily: 'var(--font-heading)' }}
             >
               {brief.title}
@@ -267,7 +267,7 @@ export default async function BriefDetailPage({ params }: Props) {
           <form action={generateWithId}>
             <button
               type="submit"
-              className="bg-[#1b1c1c] text-white px-5 py-2.5 rounded text-sm font-semibold hover:bg-[#4c4546] transition-all flex items-center gap-2"
+              className="bg-on-surface text-white px-5 py-2.5 rounded text-sm font-semibold hover:bg-on-surface-variant transition-all flex items-center gap-2"
             >
               {versions.length === 0 ? 'Generar mensaje' : '+ Nueva versión'}
             </button>
@@ -276,7 +276,7 @@ export default async function BriefDetailPage({ params }: Props) {
           <a
             href={`/api/export/${brief.id}`}
             download
-            className="px-4 py-2.5 text-sm border border-outline-variant text-on-surface-variant hover:text-[#1b1c1c] hover:border-[#1b1c1c] rounded transition-all"
+            className="px-4 py-2.5 text-sm border border-outline-variant text-on-surface-variant hover:text-on-surface hover:border-on-surface rounded transition-all"
           >
             ↓ Exportar
           </a>
@@ -286,7 +286,7 @@ export default async function BriefDetailPage({ params }: Props) {
       {/* ── No messages empty state ──────────────────────────────────────── */}
       {versions.length === 0 ? (
         <div className="bg-surface-container-lowest border border-dashed border-outline-variant rounded-xl px-6 py-16 text-center">
-          <p className="text-base font-semibold text-[#1b1c1c] mb-2">Sin mensajes todavía</p>
+          <p className="text-base font-semibold text-on-surface mb-2">Sin mensajes todavía</p>
           <p className="text-sm text-on-surface-variant">
             Pulsa &ldquo;Generar mensaje&rdquo; para crear la primera versión.
           </p>
@@ -300,7 +300,7 @@ export default async function BriefDetailPage({ params }: Props) {
 
             {/* Version History */}
             <div className="bg-surface-container-lowest border border-outline-variant p-5 rounded-lg">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#1b1c1c] mb-5 flex items-center gap-2">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface mb-5 flex items-center gap-2">
                 Historial de versiones
               </h3>
               <VersionHistoryTimeline
@@ -317,7 +317,7 @@ export default async function BriefDetailPage({ params }: Props) {
             {/* Refine form */}
             {latestVersion && (
               <div className="bg-surface-container-lowest border border-outline-variant p-5 rounded-lg">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#1b1c1c] mb-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface mb-3">
                   Refinar mensaje
                 </h3>
                 <form
@@ -328,11 +328,11 @@ export default async function BriefDetailPage({ params }: Props) {
                     name="userInstruction"
                     placeholder='Ej. "hazlo más directo", "reduce el tono promocional"…'
                     rows={3}
-                    className="w-full text-sm rounded border border-outline-variant bg-[#fbf9f8] px-3 py-2 text-[#1b1c1c] resize-none focus:outline-none focus:border-[#1b1c1c] placeholder:text-on-surface-variant/50 transition-all"
+                    className="w-full text-sm rounded border border-outline-variant bg-surface-bright px-3 py-2 text-on-surface resize-none focus:outline-none focus:border-on-surface placeholder:text-on-surface-variant/50 transition-all"
                   />
                   <button
                     type="submit"
-                    className="self-end bg-[#1b1c1c] text-white px-5 py-2 rounded text-sm font-semibold hover:bg-[#4c4546] transition-all"
+                    className="self-end bg-on-surface text-white px-5 py-2 rounded text-sm font-semibold hover:bg-on-surface-variant transition-all"
                   >
                     Refinar
                   </button>
@@ -348,7 +348,7 @@ export default async function BriefDetailPage({ params }: Props) {
             {latestValidationRun ? (
               <div className="bg-surface-container-lowest border border-outline-variant p-5 rounded-lg flex justify-between items-start gap-4">
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-3xl font-bold text-[#1b1c1c]">
+                  <h3 className="text-3xl font-bold text-on-surface">
                     {overallScore !== null ? `${overallScore}/100` : '—'}
                   </h3>
                   <p className="text-xs text-on-surface-variant mt-1">Puntuación global de cumplimiento</p>
@@ -376,11 +376,11 @@ export default async function BriefDetailPage({ params }: Props) {
 
             {/* Suggested rewrite */}
             {latestValidationRun?.suggestedRewrite && (
-              <div className="bg-[#fef3cd] border border-[#e8d68a] p-4 rounded-lg">
-                <p className="text-xs font-bold uppercase tracking-wider text-[#7c5c0a] mb-2">
+              <div className="bg-warning-container border border-warning-container/60 p-4 rounded-lg">
+                <p className="text-xs font-bold uppercase tracking-wider text-on-warning-container mb-2">
                   Reescritura sugerida
                 </p>
-                <p className="text-sm text-[#5c3d00] whitespace-pre-wrap leading-relaxed">
+                <p className="text-sm text-on-warning-container whitespace-pre-wrap leading-relaxed">
                   {latestValidationRun.suggestedRewrite}
                 </p>
               </div>
@@ -399,20 +399,20 @@ export default async function BriefDetailPage({ params }: Props) {
             {(brief.audience || brief.valueProposition || brief.cta) && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
                 {brief.audience && (
-                  <div className="p-4 border border-outline-variant rounded-lg hover:border-[#1b1c1c] transition-colors">
-                    <p className="text-xs font-bold text-[#1b1c1c] mb-1">Audiencia</p>
+                  <div className="p-4 border border-outline-variant rounded-lg hover:border-on-surface transition-colors">
+                    <p className="text-xs font-bold text-on-surface mb-1">Audiencia</p>
                     <p className="text-xs text-on-surface-variant leading-relaxed">{brief.audience}</p>
                   </div>
                 )}
                 {brief.valueProposition && (
-                  <div className="p-4 border border-outline-variant rounded-lg hover:border-[#1b1c1c] transition-colors">
-                    <p className="text-xs font-bold text-[#1b1c1c] mb-1">Propuesta de valor</p>
+                  <div className="p-4 border border-outline-variant rounded-lg hover:border-on-surface transition-colors">
+                    <p className="text-xs font-bold text-on-surface mb-1">Propuesta de valor</p>
                     <p className="text-xs text-on-surface-variant leading-relaxed">{brief.valueProposition}</p>
                   </div>
                 )}
                 {brief.cta && (
-                  <div className="p-4 border border-outline-variant rounded-lg hover:border-[#1b1c1c] transition-colors">
-                    <p className="text-xs font-bold text-[#1b1c1c] mb-1">CTA</p>
+                  <div className="p-4 border border-outline-variant rounded-lg hover:border-on-surface transition-colors">
+                    <p className="text-xs font-bold text-on-surface mb-1">CTA</p>
                     <p className="text-xs text-on-surface-variant leading-relaxed">{brief.cta}</p>
                   </div>
                 )}
