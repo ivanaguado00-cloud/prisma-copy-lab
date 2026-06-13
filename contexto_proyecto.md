@@ -220,6 +220,33 @@ Lo que está en marcha:
 
 **PASO 0 (hallazgo):** `/briefs/page.tsx` no filtraba por canal antes de esta fase — mostraba todos los briefs del usuario independientemente del filtro del sidebar. Corregido en este bloque.
 
+### Fase completada: `feature/fase-c-revision-flow`
+
+Flujo de revisión humana sobre briefs: roles de usuario, estado de revisión, panel de acción para revisores y notificación al autor.
+
+Lo que está en marcha:
+
+**Bloque 1 — Schema + tipos:**
+- `prisma/schema.prisma`: `role String @default("author")` en `User`; `reviewStatus String @default("pending")`, `reviewedBy String?`, `reviewedAt DateTime?`, `reviewNote String?` en `Brief`. Migración `add_review_fields` aplicada.
+- `src/types/domain.ts`: enums `USER_ROLE` (`author`, `reviewer`) y `REVIEW_STATUS` (`pending`, `approved`, `rejected`).
+- `src/types/next-auth.d.ts`: augmentación de tipos para exponer `role` en `JWT`, `User` y `Session`.
+- `prisma/seed.ts`: `admin@prisma.es` creado/actualizado con `role: 'reviewer'`.
+
+**Bloque 2 — Auth:**
+- `src/auth.ts`: `authorize` devuelve `role` junto a `id`/`email`/`name`; callbacks `jwt` y `session` propagan `role` al token JWT y a `session.user.role`.
+
+**Bloque 3 — DAO + servicio + acciones:**
+- `src/dao/briefDao.ts`: `updateBriefReview(id, data)` para actualizar los 4 campos de revisión.
+- `src/dao/userDao.ts` (nuevo): `getUserById(id)` para lookup de email del autor.
+- `src/services/reviewService.ts` (nuevo): `setReviewStatus` valida rol, actualiza Brief vía DAO y notifica al autor vía `emailService` (mock por defecto, SMTP real si configurado).
+- `src/app/actions/reviewActions.ts` (nuevo): Server Actions `approveBriefAction` y `rejectBriefAction`; verifican sesión, delegan en `reviewService`, revalidan la ruta.
+
+**Bloque 4 — UI:**
+- `src/components/review/ReviewPanel.tsx` (nuevo, Client Component): formulario con nota opcional, botones Aprobar/Rechazar, deshabilita el estado ya activo, muestra error inline.
+- `src/app/(app)/briefs/[id]/page.tsx`: `ReviewStatusBadge` visible para todos los usuarios (pending/approved/rejected con nota); `ReviewPanel` montado solo para revisores; revisores acceden a cualquier brief (`getBriefById` sin filtro de userId).
+
+**Restricción activa:** el mismatch label/enum de los estados del sidebar (Pendiente/Rechazada vs valores reales) se deja para una fase posterior.
+
 ## 5. Restricciones funcionales
 
 - Autenticación básica implementada con NextAuth v5 (credentials). No hay roles ni permisos granulares.

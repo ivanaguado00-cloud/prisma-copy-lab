@@ -12,6 +12,19 @@ export const MODE = {
 } as const
 export type Mode = (typeof MODE)[keyof typeof MODE]
 
+export const USER_ROLE = {
+  author:   'author',
+  reviewer: 'reviewer',
+} as const
+export type UserRole = (typeof USER_ROLE)[keyof typeof USER_ROLE]
+
+export const REVIEW_STATUS = {
+  pending:  'pending',
+  approved: 'approved',
+  rejected: 'rejected',
+} as const
+export type ReviewStatus = (typeof REVIEW_STATUS)[keyof typeof REVIEW_STATUS]
+
 export const CRM_STATUS = {
   ready_for_crm: 'ready_for_crm',
   sent_to_crm: 'sent_to_crm',

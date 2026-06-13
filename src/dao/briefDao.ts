@@ -42,6 +42,20 @@ export async function listBriefs(userId: string, channel?: string) {
   })
 }
 
+export interface UpdateBriefReviewInput {
+  reviewStatus: string
+  reviewedBy: string
+  reviewedAt: Date
+  reviewNote: string | null
+}
+
+export async function updateBriefReview(id: string, data: UpdateBriefReviewInput) {
+  return prisma.brief.update({
+    where: { id },
+    data,
+  })
+}
+
 export async function updateBriefCrm(id: string, data: UpdateBriefCrmInput) {
   return prisma.brief.update({
     where: { id },
