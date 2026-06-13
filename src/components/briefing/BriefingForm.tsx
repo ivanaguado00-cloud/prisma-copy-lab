@@ -41,24 +41,111 @@ const selectContentCls = 'bg-[#ffffff] border-[#cfc4c5]'
 
 const selectItemCls = 'text-[#1b1c1c] focus:bg-[#f5f3f3] focus:text-[#1b1c1c]'
 
+// ── Demo fixtures ─────────────────────────────────────────────────────────────
+
+interface DemoFixture {
+  title: string
+  programOrTitulation: string
+  objective: string
+  audience: string
+  mode: string
+  valueProposition: string
+  cta: string
+  emailTemplate?: string
+  constraints: string
+}
+
+const DEMO_WHATSAPP: DemoFixture = {
+  title: 'Campaña MBA — Captación Q3',
+  programOrTitulation: 'MBA',
+  objective:
+    'Captar leads cualificados interesados en el MBA entre profesionales con experiencia que buscan dar un salto directivo',
+  audience:
+    'Profesionales de entre 28 y 42 años con al menos 3 años de experiencia laboral, que trabajan en empresa privada y valoran la flexibilidad para estudiar sin dejar de trabajar',
+  mode: MODE.produccion,
+  valueProposition:
+    'Formación 100 % online compatible con la jornada laboral, con red de alumni consolidada y salidas directivas reales',
+  cta: '¿Quieres que te comparta los detalles del programa?',
+  constraints: 'Tono cercano pero profesional. No mencionar precios ni plazos de matrícula.',
+}
+
+const DEMO_EMAIL: DemoFixture = {
+  title: 'Email captación Máster IA — Campaña newsletter',
+  programOrTitulation: 'Máster en Inteligencia Artificial Aplicada',
+  objective:
+    'Presentar el Máster en IA como la opción de referencia para perfiles técnicos que quieren liderar proyectos de IA en empresa',
+  audience:
+    'Ingenieros y desarrolladores de 25 a 38 años con perfil técnico, interesados en IA y machine learning, que buscan especialización sin pausar su carrera',
+  mode: MODE.produccion,
+  valueProposition:
+    'Programa diseñado con empresas líderes del sector tech; prácticas garantizadas y bolsa de empleo activa',
+  cta: 'Solicita información',
+  emailTemplate: EMAIL_TEMPLATE.newsletter,
+  constraints: 'Evitar tecnicismos excesivos. Priorizar empleabilidad y casos de uso reales.',
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
+
 export function BriefingForm({ channel }: { channel: Channel }) {
   const [state, formAction, isPending] = useActionState<BriefActionState | null, FormData>(
     createBriefAction,
     null,
   )
 
-  const [ctaSelection, setCtaSelection] = useState<string>('')
-  const [ctaCustom, setCtaCustom] = useState<string>('')
+  // Controlled state for all fields (enables autofill)
+  const [title, setTitle] = useState('')
+  const [programOrTitulation, setProgramOrTitulation] = useState('')
+  const [objective, setObjective] = useState('')
+  const [audience, setAudience] = useState('')
+  const [mode, setMode] = useState('')
+  const [valueProposition, setValueProposition] = useState('')
+  const [emailTemplate, setEmailTemplate] = useState('')
+  const [constraints, setConstraints] = useState('')
+  const [ctaSelection, setCtaSelection] = useState('')
+  const [ctaCustom, setCtaCustom] = useState('')
 
   const isEmail = channel === CHANNEL.email
   const isCustomCta = ctaSelection === CTA_CUSTOM_SENTINEL
   const finalCta = isCustomCta ? ctaCustom : ctaSelection
+
+  function fillWithDemo() {
+    const demo = isEmail ? DEMO_EMAIL : DEMO_WHATSAPP
+    setTitle(demo.title)
+    setProgramOrTitulation(demo.programOrTitulation)
+    setObjective(demo.objective)
+    setAudience(demo.audience)
+    setMode(demo.mode)
+    setValueProposition(demo.valueProposition)
+    setConstraints(demo.constraints)
+    setEmailTemplate(demo.emailTemplate ?? '')
+    // CTA: pick the predefined option if it exists
+    const isPredefined = (PREDEFINED_CTAS as readonly string[]).includes(demo.cta)
+    if (isPredefined) {
+      setCtaSelection(demo.cta)
+      setCtaCustom('')
+    } else {
+      setCtaSelection(CTA_CUSTOM_SENTINEL)
+      setCtaCustom(demo.cta)
+    }
+  }
 
   return (
     <form action={formAction} className="space-y-6">
 
       {/* canal — campo oculto, determinado por la ruta */}
       <input type="hidden" name="channel" value={channel} />
+
+      {/* Botón de demo — discreto, solo para pruebas internas */}
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={fillWithDemo}
+          disabled={isPending}
+          className="text-xs text-on-surface-variant/50 hover:text-on-surface-variant transition-colors underline underline-offset-2 decoration-dotted disabled:opacity-30"
+        >
+          Rellenar con ejemplo
+        </button>
+      </div>
 
       {/* title */}
       <div className="space-y-1.5">
@@ -68,6 +155,8 @@ export function BriefingForm({ channel }: { channel: Channel }) {
         <Input
           id="title"
           name="title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
           placeholder="Nombre o título de campaña"
           disabled={isPending}
           className={inputCls}
@@ -78,7 +167,12 @@ export function BriefingForm({ channel }: { channel: Channel }) {
       {/* programOrTitulation */}
       <div className="space-y-1.5">
         <FormLabel htmlFor="programOrTitulation">Titulación o programa</FormLabel>
-        <Select name="programOrTitulation" disabled={isPending}>
+        <Select
+          name="programOrTitulation"
+          value={programOrTitulation}
+          onValueChange={(v) => setProgramOrTitulation(v ?? '')}
+          disabled={isPending}
+        >
           <SelectTrigger id="programOrTitulation" className={selectTriggerCls}>
             <SelectValue placeholder="Selecciona un programa (opcional)" />
           </SelectTrigger>
@@ -105,6 +199,8 @@ export function BriefingForm({ channel }: { channel: Channel }) {
         <Textarea
           id="objective"
           name="objective"
+          value={objective}
+          onChange={(e) => setObjective(e.target.value)}
           placeholder="Objetivo único de la pieza"
           rows={3}
           disabled={isPending}
@@ -121,6 +217,8 @@ export function BriefingForm({ channel }: { channel: Channel }) {
         <Textarea
           id="audience"
           name="audience"
+          value={audience}
+          onChange={(e) => setAudience(e.target.value)}
           placeholder="Descripción del público objetivo"
           rows={3}
           disabled={isPending}
@@ -134,7 +232,12 @@ export function BriefingForm({ channel }: { channel: Channel }) {
         <FormLabel htmlFor="mode">
           Modo <span className="text-[#ffb4ab]">*</span>
         </FormLabel>
-        <Select name="mode" disabled={isPending}>
+        <Select
+          name="mode"
+          value={mode}
+          onValueChange={(v) => setMode(v ?? '')}
+          disabled={isPending}
+        >
           <SelectTrigger id="mode" className={selectTriggerCls}>
             <SelectValue placeholder="Selecciona un modo" />
           </SelectTrigger>
@@ -154,6 +257,8 @@ export function BriefingForm({ channel }: { channel: Channel }) {
         <Textarea
           id="valueProposition"
           name="valueProposition"
+          value={valueProposition}
+          onChange={(e) => setValueProposition(e.target.value)}
           placeholder="Palanca o propuesta de valor principal"
           rows={3}
           disabled={isPending}
@@ -209,7 +314,12 @@ export function BriefingForm({ channel }: { channel: Channel }) {
           <FormLabel htmlFor="emailTemplate">
             Plantilla <span className="text-[#ffb4ab]">*</span>
           </FormLabel>
-          <Select name="emailTemplate" disabled={isPending}>
+          <Select
+            name="emailTemplate"
+            value={emailTemplate}
+            onValueChange={(v) => setEmailTemplate(v ?? '')}
+            disabled={isPending}
+          >
             <SelectTrigger id="emailTemplate" className={selectTriggerCls}>
               <SelectValue placeholder="Selecciona una plantilla" />
             </SelectTrigger>
@@ -231,6 +341,8 @@ export function BriefingForm({ channel }: { channel: Channel }) {
         <Textarea
           id="constraints"
           name="constraints"
+          value={constraints}
+          onChange={(e) => setConstraints(e.target.value)}
           placeholder="Restricciones, tono específico, exclusiones (opcional)"
           rows={3}
           disabled={isPending}
