@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Program" ADD COLUMN "isActive" BOOLEAN NOT NULL DEFAULT 1;
