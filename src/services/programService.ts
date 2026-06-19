@@ -162,6 +162,32 @@ export async function updateProgramRecord(
 
 export { getProgramById, listPrograms, listProgramsBySchool, deleteProgramById }
 
+// ── Descuento ─────────────────────────────────────────────────────────────────
+
+export interface UpdateDiscountInput {
+  activeDiscount: number | null
+  discountValidFrom: Date | null
+}
+
+/**
+ * Actualiza únicamente el descuento activo y su fecha de inicio de vigencia.
+ * El resto de los campos del título no se modifican.
+ */
+export async function updateProgramDiscount(
+  id: string,
+  input: UpdateDiscountInput,
+): Promise<{ success: true } | { success: false; error: string }> {
+  try {
+    await updateProgram(id, {
+      activeDiscount: input.activeDiscount ?? undefined,
+      discountValidFrom: input.discountValidFrom ?? undefined,
+    })
+    return { success: true }
+  } catch {
+    return { success: false, error: 'Error al guardar el descuento.' }
+  }
+}
+
 // ── Parse helpers ─────────────────────────────────────────────────────────────
 
 function parseOptionalFloat(value: string | undefined): number | undefined {

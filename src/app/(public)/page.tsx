@@ -3,10 +3,12 @@ import { redirect } from 'next/navigation'
 import {
   ArrowRight,
   BarChart3,
+  CheckCircle,
   Download,
   FileText,
   Lightbulb,
   ListChecks,
+  Percent,
   Plus,
   Sparkles,
   Trophy,
@@ -33,20 +35,50 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
     period: activePeriod,
   })
 
-  const quickActions = [
-    { label: 'Crear nuevo briefing', href: '/briefs/new', icon: Plus },
-    { label: 'Ver briefings pendientes', href: '/briefs', icon: ListChecks },
-    { label: 'Ir a análisis', href: home.canOpenAnalytics ? '/analisis' : '/dashboard', icon: BarChart3 },
-    { label: 'Ver títulos', href: '/titulos', icon: FileText },
-    { label: 'Revisar casos de éxito', href: '/analisis', icon: Trophy },
-    { label: 'Exportar informe', href: '/analisis', icon: Download },
-  ]
+  const role = session.user.role
+
+  // ── Accesos rápidos según rol ─────────────────────────────────────────────
+  const quickActions =
+    role === 'redactor'
+      ? [
+          { label: 'Crear nuevo briefing', href: '/briefs/new', icon: Plus },
+          { label: 'Ver mis briefings', href: '/briefs', icon: ListChecks },
+          { label: 'Continuar borrador', href: '/briefs?status=pending', icon: FileText },
+          { label: 'Ver pendientes de corrección', href: '/briefs?status=rejected', icon: CheckCircle },
+        ]
+      : role === 'pm'
+      ? [
+          { label: 'Revisiones pendientes', href: '/briefs?status=submitted', icon: CheckCircle },
+          { label: 'Ver todos los briefings', href: '/briefs', icon: ListChecks },
+          { label: 'Ver títulos', href: '/titulos', icon: FileText },
+          { label: 'Ir a análisis', href: '/analisis', icon: BarChart3 },
+          { label: 'Editar descuentos', href: '/titulos', icon: Percent },
+          { label: 'Revisar casos de éxito', href: '/analisis', icon: Trophy },
+        ]
+      : [
+          { label: 'Crear nuevo briefing', href: '/briefs/new', icon: Plus },
+          { label: 'Ver briefings pendientes', href: '/briefs', icon: ListChecks },
+          { label: 'Ir a análisis', href: home.canOpenAnalytics ? '/analisis' : '/dashboard', icon: BarChart3 },
+          { label: 'Ver títulos', href: '/titulos', icon: FileText },
+          { label: 'Revisar casos de éxito', href: '/analisis', icon: Trophy },
+          { label: 'Exportar informe', href: '/analisis', icon: Download },
+        ]
+
+  // ── Subtítulo según rol ────────────────────────────────────────────────────
+  const roleSubtitle =
+    role === 'redactor'
+      ? 'Crea, continúa y envía tus briefings de captación.'
+      : role === 'pm'
+      ? 'Revisiones pendientes, gestión de títulos y análisis de rendimiento.'
+      : 'Estado general de Prisma Copy Lab y accesos rápidos a los módulos principales.'
 
   return (
     <main className="mx-auto w-full max-w-[1280px] px-6 py-8 md:px-16 space-y-6">
       <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-outline">Control operativo</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-outline">
+            {role === 'redactor' ? 'Mis briefings' : role === 'pm' ? 'Product Manager' : 'Control operativo'}
+          </p>
           <h1
             className="mt-2 text-3xl font-bold text-on-surface"
             style={{ fontFamily: 'var(--font-heading)' }}
@@ -54,7 +86,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
             Inicio
           </h1>
           <p className="mt-1 text-sm text-on-surface-variant">
-            Estado general de Prisma Copy Lab y accesos rápidos a los módulos principales.
+            {roleSubtitle}
           </p>
         </div>
 

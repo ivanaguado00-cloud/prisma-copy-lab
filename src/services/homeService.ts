@@ -119,7 +119,7 @@ export async function getHomeData(params: {
     chartSeries,
     alerts,
     insight: buildInsight(periodSends),
-    canOpenAnalytics: params.role === 'coordinador' || params.role === 'admin',
+    canOpenAnalytics: params.role === 'pm' || params.role === 'coordinador' || params.role === 'admin',
   }
 }
 

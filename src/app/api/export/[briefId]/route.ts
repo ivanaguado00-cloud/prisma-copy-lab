@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '../../../../auth'
 import { buildExportText } from '../../../../services/exportService'
+import { canSeeAllBriefs } from '../../../../types/domain'
 
 export async function GET(
   _request: Request,
@@ -15,7 +16,8 @@ export async function GET(
   let text: string
 
   try {
-    text = await buildExportText(briefId, session.user.id)
+    const userIdFilter = canSeeAllBriefs(session.user.role) ? undefined : session.user.id
+    text = await buildExportText(briefId, userIdFilter)
   } catch (error) {
     if (error instanceof Error && error.message.startsWith('Briefing no encontrado')) {
       return NextResponse.json({ error: 'Briefing no encontrado' }, { status: 404 })

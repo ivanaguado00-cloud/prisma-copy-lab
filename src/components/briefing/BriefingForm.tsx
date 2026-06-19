@@ -310,15 +310,15 @@ interface DemoFixture {
 const DEMO_BY_TYPE: Record<string, DemoFixture[]> = {
   whatsapp: [
     {
-      title: 'WA Reactivación MBA — Leads fríos',
+      title: 'Reactivación MBA — interés no continuado',
       objective: 'Reactivación de interés',
-      programSelection: [{ type: 'program', id: 'master-mba' }],
+      programSelection: [{ type: 'program', id: 'mba' }],
       cta: 'Solicita información sin compromiso',
       context: 'Leads que dejaron datos hace más de 3 meses sin actividad. Primer contacto directo por WhatsApp. Mensaje corto y personal.',
       waButtons: ['Sí, me interesa', 'No me interesa'],
     },
     {
-      title: 'WA Captación Máster IA — Perfil técnico',
+      title: 'Captación Máster Inteligencia Artificial — perfiles técnicos',
       objective: 'Captación de nuevos leads',
       programSelection: [{ type: 'program', id: 'master-ia' }],
       cta: 'Descubre el programa',
@@ -326,9 +326,9 @@ const DEMO_BY_TYPE: Record<string, DemoFixture[]> = {
       waButtons: ['Sí, me interesa', 'Quiero que me llamen', 'No me interesa'],
     },
     {
-      title: 'WA Recordatorio matrícula — Cierre convocatoria',
+      title: 'Cierre de convocatoria — últimas plazas disponibles',
       objective: 'Conversión a matrícula',
-      programSelection: [{ type: 'vertical', id: 'business-direction' }],
+      programSelection: [{ type: 'program', id: 'master-direccion' }],
       cta: 'Reserva tu plaza ahora',
       context: 'Leads cualificados que han preguntado por el programa pero no han completado la matrícula. Urgencia real por cierre de plazo.',
       waButtons: ['Sí, me interesa', 'Quiero que me llamen'],
@@ -336,15 +336,15 @@ const DEMO_BY_TYPE: Record<string, DemoFixture[]> = {
   ],
   standard: [
     {
-      title: 'Presentación MBA — Captación Q3',
+      title: 'Presentación MBA — captación nuevos contactos',
       objective: 'Captación de nuevos leads',
-      programSelection: [{ type: 'program', id: 'master-mba' }],
+      programSelection: [{ type: 'program', id: 'mba' }],
       cta: 'Solicita información sin compromiso',
       context: 'Leads que visitaron la web del MBA pero no dejaron datos. Enfoque profesional.',
       variant: 'A — Titular + cuerpo + CTA',
     },
     {
-      title: 'Máster IA — Captación perfiles técnicos',
+      title: 'Máster Inteligencia Artificial — captación técnica',
       objective: 'Captación de nuevos leads',
       programSelection: [{ type: 'program', id: 'master-ia' }],
       cta: 'Descubre el programa',
@@ -352,7 +352,7 @@ const DEMO_BY_TYPE: Record<string, DemoFixture[]> = {
       variant: 'B — Pregunta de apertura',
     },
     {
-      title: 'Grado Informática — Presentación septiembre',
+      title: 'Grado Ingeniería Informática — presentación de septiembre',
       objective: 'Seguimiento de interés previo',
       programSelection: [{ type: 'program', id: 'grado-informatica' }],
       cta: '¿Te interesa conocer el plan de estudios?',
@@ -362,9 +362,9 @@ const DEMO_BY_TYPE: Record<string, DemoFixture[]> = {
   ],
   palancas: [
     {
-      title: 'Email palancas MBA — Red alumni',
+      title: 'MBA — red de alumni como argumento principal',
       objective: 'Reactivación de interés',
-      programSelection: [{ type: 'program', id: 'master-mba' }],
+      programSelection: [{ type: 'program', id: 'mba' }],
       cta: 'Consulta aquí los detalles',
       context: 'Leads que dejaron datos hace más de 6 meses. Priorizar red de contactos y salidas reales.',
       palancaPrincipal: 'Red de alumni consolidada',
@@ -372,7 +372,7 @@ const DEMO_BY_TYPE: Record<string, DemoFixture[]> = {
       variant: 'B — Triple palanca',
     },
     {
-      title: 'Email palancas Máster Data — Empleabilidad',
+      title: 'Máster Ciencia de Datos — empleabilidad como palanca',
       objective: 'Captación de nuevos leads',
       programSelection: [{ type: 'program', id: 'master-datascience' }],
       cta: '¿Quieres que revisemos si encaja contigo?',
@@ -382,9 +382,9 @@ const DEMO_BY_TYPE: Record<string, DemoFixture[]> = {
       variant: 'A — Palanca única desarrollada',
     },
     {
-      title: 'Email palancas Marketing — Flexibilidad online',
+      title: 'Máster Marketing Digital — compatibilidad con trabajo',
       objective: 'Reactivación de interés',
-      programSelection: [{ type: 'vertical', id: 'business-marketing' }],
+      programSelection: [{ type: 'program', id: 'master-marketing' }],
       cta: 'Solicita información sin compromiso',
       context: 'Profesionales con poco tiempo. El argumento central es que se puede compaginar con trabajo a jornada completa.',
       palancaPrincipal: 'Flexibilidad horaria y compatibilidad con trabajo',
@@ -394,9 +394,9 @@ const DEMO_BY_TYPE: Record<string, DemoFixture[]> = {
   ],
   descuentos: [
     {
-      title: 'Beca MBA — Cierre junio',
+      title: 'MBA — beca de excelencia para cierre de matrícula',
       objective: 'Conversión a matrícula',
-      programSelection: [{ type: 'program', id: 'master-mba' }],
+      programSelection: [{ type: 'program', id: 'mba' }],
       cta: 'Reserva tu plaza ahora',
       context: 'Leads cualificados que han preguntado por precio. Urgencia real: plazas limitadas.',
       offerType: 'Beca de excelencia académica',
@@ -405,7 +405,7 @@ const DEMO_BY_TYPE: Record<string, DemoFixture[]> = {
       variant: 'A — Oferta directa',
     },
     {
-      title: 'Descuento matrícula Máster IA — Alumni',
+      title: 'Máster Inteligencia Artificial — descuento exclusivo alumni',
       objective: 'Cierre de matrícula',
       programSelection: [{ type: 'program', id: 'master-ia' }],
       cta: 'Aprovecha la oferta antes de que expire',
@@ -416,7 +416,7 @@ const DEMO_BY_TYPE: Record<string, DemoFixture[]> = {
       variant: 'B — Urgencia de plazo',
     },
     {
-      title: 'Financiación sin intereses — Máster Marketing',
+      title: 'Máster Marketing Digital — financiación sin intereses',
       objective: 'Conversión a matrícula',
       programSelection: [{ type: 'program', id: 'master-marketing' }],
       cta: 'Reserva tu plaza ahora',
@@ -429,16 +429,16 @@ const DEMO_BY_TYPE: Record<string, DemoFixture[]> = {
   ],
   reminder: [
     {
-      title: 'Recordatorio preinscripción MBA — 72h',
+      title: 'MBA — recordatorio de preinscripción',
       objective: 'Seguimiento de interés previo',
-      programSelection: [{ type: 'program', id: 'master-mba' }],
+      programSelection: [{ type: 'program', id: 'mba' }],
       cta: 'Reserva tu plaza ahora',
       context: 'Leads que iniciaron el proceso pero no lo finalizaron. Tono de recordatorio amable.',
       reminderAction: 'Fecha límite de preinscripción: 30 de junio a las 23:59h',
       variant: 'C — Reactivación personal',
     },
     {
-      title: 'Aviso webinar Máster Data — 24h',
+      title: 'Máster Ciencia de Datos — aviso de webinar informativo',
       objective: 'Seguimiento de interés previo',
       programSelection: [{ type: 'program', id: 'master-datascience' }],
       cta: 'Confirma tu asistencia',
@@ -447,9 +447,9 @@ const DEMO_BY_TYPE: Record<string, DemoFixture[]> = {
       variant: 'A — Aviso directo',
     },
     {
-      title: 'Reactivación leads fríos — Fin de convocatoria',
+      title: 'Máster en Dirección General — cierre de convocatoria',
       objective: 'Reactivación de interés',
-      programSelection: [{ type: 'vertical', id: 'business-direction' }],
+      programSelection: [{ type: 'program', id: 'master-direccion' }],
       cta: '¿Quieres que revisemos si encaja contigo?',
       context: 'Leads sin actividad desde hace más de 3 meses. Cierre de convocatoria como palanca de reactivación.',
       reminderAction: 'Cierre de la convocatoria actual: 15 de septiembre',
@@ -458,9 +458,9 @@ const DEMO_BY_TYPE: Record<string, DemoFixture[]> = {
   ],
   newsletter: [
     {
-      title: 'Newsletter tech — Tendencias IA junio 2025',
+      title: 'Tendencias en Inteligencia Artificial para el sector empresarial',
       objective: 'Nutrición de lead (lead nurturing)',
-      programSelection: [{ type: 'vertical', id: 'tech-data' }],
+      programSelection: [{ type: 'program', id: 'master-ia' }],
       cta: 'Descubre el programa',
       context: 'Audiencia técnica con interés en IA. Evitar tecnicismos, priorizar casos de uso empresarial.',
       sector: 'Inteligencia Artificial y Automatización',
@@ -468,9 +468,9 @@ const DEMO_BY_TYPE: Record<string, DemoFixture[]> = {
       variant: 'B — Resumen de tendencias',
     },
     {
-      title: 'Newsletter RRHH — Mercado laboral y talento',
+      title: 'Mercado laboral y gestión del talento en 2025',
       objective: 'Nutrición de lead (lead nurturing)',
-      programSelection: [{ type: 'vertical', id: 'business-people' }],
+      programSelection: [{ type: 'program', id: 'master-people' }],
       cta: '¿Te interesa conocer el plan de estudios?',
       context: 'Directores y técnicos de personas interesados en tendencias de gestión del talento y cultura organizacional.',
       sector: 'Mercado Laboral y Empleo',
@@ -478,12 +478,12 @@ const DEMO_BY_TYPE: Record<string, DemoFixture[]> = {
       variant: 'A — Noticia principal + 2 breves',
     },
     {
-      title: 'Newsletter Salud Digital — ESG y bienestar',
+      title: 'Innovación y transformación digital en el sector industrial',
       objective: 'Nutrición de lead (lead nurturing)',
-      programSelection: [{ type: 'faculty', id: 'health' }],
+      programSelection: [{ type: 'program', id: 'master-industria' }],
       cta: 'Solicita información sin compromiso',
-      context: 'Profesionales de salud interesados en digitalización y sostenibilidad. Tono experto pero accesible.',
-      sector: 'Salud Digital y Bienestar',
+      context: 'Ingenieros y técnicos industriales interesados en digitalización. Tono experto pero accesible.',
+      sector: 'Industria 4.0 y Manufactura',
       editorialAngle: 'Innovación o tecnología emergente',
       variant: 'C — Noticia + opinión de la universidad',
     },
@@ -685,7 +685,20 @@ export function BriefingForm({
     setDemoIndex((i) => i + 1)
     setTitle(demo.title)
     setObjective(demo.objective)
-    setProgramSelection(demo.programSelection)
+
+    // Programa: selecciona exactamente un programa — nunca mezcla ni concatena.
+    if (useDbPrograms && programs.length > 0) {
+      // Con DB programs, usa siempre el primer programa disponible.
+      const first = programs[0]!
+      setSelectedProgramId(first.id)
+      setSelectedProgramName(first.name)
+      setSelectedProgramProfile(first.targetProfile ?? null)
+    } else {
+      // Sin DB programs, garantiza exactamente una entrada de tipo 'program'.
+      const singleProgram = demo.programSelection.find((s) => s.type === 'program')
+      setProgramSelection(singleProgram ? [singleProgram] : demo.programSelection.slice(0, 1))
+    }
+
     setContext(demo.context)
     if (demo.variant) setVariant(demo.variant)
     if (demo.palancaPrincipal) setPalancaPrincipal(demo.palancaPrincipal)

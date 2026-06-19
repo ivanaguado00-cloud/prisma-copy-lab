@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { auth } from '../../../../auth'
-import { canViewPrograms, canManagePrograms } from '../../../../types/domain'
+import { canViewPrograms, canManagePrograms, canEditDiscount } from '../../../../types/domain'
 import { getProgramById } from '../../../../dao/programDao'
 import { ProgramDetail } from '../../../../components/titulos/ProgramDetail'
 
@@ -21,13 +21,24 @@ export default async function ProgramDetailPage({ params }: Props) {
   if (!program) notFound()
 
   const canEdit = canManagePrograms(session.user.role)
+  const showDiscountEdit = !canEdit && canEditDiscount(session.user.role)
 
   return (
     <div className="px-6 md:px-10 py-8 max-w-3xl mx-auto">
-      <p className="text-xs text-[#7e7576] mb-4">
-        <Link href="/titulos" className="hover:underline">Títulos</Link>
-        {' › '}{program.name}
-      </p>
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <p className="text-xs text-[#7e7576]">
+          <Link href="/titulos" className="hover:underline">Títulos</Link>
+          {' › '}{program.name}
+        </p>
+        {showDiscountEdit && (
+          <Link
+            href={`/titulos/${id}/descuento`}
+            className="shrink-0 rounded px-3 py-1.5 text-xs font-semibold bg-[#1b1c1c] text-white hover:bg-[#4c4546] transition-colors"
+          >
+            Editar descuento
+          </Link>
+        )}
+      </div>
       <ProgramDetail program={program} canEdit={canEdit} />
     </div>
   )

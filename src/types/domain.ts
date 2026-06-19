@@ -59,7 +59,12 @@ export function canSendToCrm(role: string | undefined | null): boolean {
 
 /** Puede acceder al módulo de análisis y rendimiento comercial. */
 export function canAccessAnalytics(role: string | undefined | null): boolean {
-  return role === USER_ROLE.coordinador || isAdmin(role)
+  return role === USER_ROLE.pm || role === USER_ROLE.coordinador || isAdmin(role)
+}
+
+/** Puede modificar el descuento y su fecha de inicio de vigencia en un título. */
+export function canEditDiscount(role: string | undefined | null): boolean {
+  return role === USER_ROLE.pm || isAdmin(role)
 }
 
 // ── Analytics ─────────────────────────────────────────────────────────────────

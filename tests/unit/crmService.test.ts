@@ -243,7 +243,7 @@ describe('sendToCrm — envío', () => {
     expect(payload.to).toBe('ivan.aguado00@gmail.com')
     expect(payload.subject).toContain('WhatsApp aprobado')
     expect(payload.text).toContain('Hola Marta 👋')
-    expect(payload.text).toContain('Canal: WhatsApp')
+    expect(payload.text).toContain('Canal:      WhatsApp')
   })
 
   it('no aplica una plantilla de email a las propuestas de WhatsApp', async () => {

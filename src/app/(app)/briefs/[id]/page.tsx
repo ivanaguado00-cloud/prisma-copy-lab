@@ -678,11 +678,19 @@ export default async function BriefDetailPage({ params }: Props) {
                 </button>
               </form>
             )}
-            {brief.channel === 'email' && brief.crmStatus === 'sent_to_crm' && (
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-[#e9e8e7] text-[#1b1c1c] border border-[#cfc4c5]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#1b1c1c]" />
-                Enviado a CRM
-              </span>
+            {brief.crmStatus === 'sent_to_crm' && (
+              <>
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-[#ddf4ff] text-[#0550ae] border border-[#54aeff]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#0550ae]" />
+                  Enviado
+                </span>
+                <Link
+                  href={`/analisis?briefIds=${brief.id}`}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded border border-outline-variant text-on-surface-variant hover:border-on-surface hover:text-on-surface transition-colors"
+                >
+                  Ver en Análisis →
+                </Link>
+              </>
             )}
             <a
               href={`/api/export/${brief.id}`}

@@ -3,10 +3,11 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { auth } from '../../auth'
-import { canManagePrograms } from '../../types/domain'
+import { canManagePrograms, canEditDiscount } from '../../types/domain'
 import {
   createProgramRecord,
   updateProgramRecord,
+  updateProgramDiscount,
   deleteProgramById,
 } from '../../services/programService'
 
@@ -83,6 +84,40 @@ export async function updateProgramAction(
   const result = await updateProgramRecord(id, extractRawFields(formData))
 
   if (!result.success) return { errors: result.errors }
+
+  revalidatePath(`/titulos/${id}`)
+  revalidatePath('/titulos')
+  redirect(`/titulos/${id}`)
+}
+
+export interface DiscountActionState {
+  errors?: { _form?: string }
+  success?: boolean
+}
+
+/**
+ * Permite al PM actualizar únicamente el descuento y su fecha de inicio de vigencia.
+ * El coordinador y el admin pueden usar esta acción además del updateProgramAction completo.
+ */
+export async function updateDiscountAction(
+  id: string,
+  _prev: DiscountActionState,
+  formData: FormData,
+): Promise<DiscountActionState> {
+  const session = await auth()
+  if (!session?.user?.id || !canEditDiscount(session.user.role)) {
+    return { errors: { _form: 'Sin permisos para editar el descuento.' } }
+  }
+
+  const activeDiscount = formData.get('activeDiscount') as string | null
+  const discountValidFrom = formData.get('discountValidFrom') as string | null
+
+  const result = await updateProgramDiscount(id, {
+    activeDiscount: activeDiscount ? parseFloat(activeDiscount) : null,
+    discountValidFrom: discountValidFrom ? new Date(discountValidFrom) : null,
+  })
+
+  if (!result.success) return { errors: { _form: result.error } }
 
   revalidatePath(`/titulos/${id}`)
   revalidatePath('/titulos')

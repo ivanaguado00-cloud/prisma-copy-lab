@@ -36,7 +36,7 @@ async function main() {
     },
   })
 
-  await prisma.user.upsert({
+  const redactor = await prisma.user.upsert({
     where: { email: 'redactor@prisma.es' },
     update: { role: 'redactor', passwordHash: await bcrypt.hash('redactorprisma', 10) },
     create: {
@@ -1300,15 +1300,341 @@ async function main() {
     },
   })
 
+  // ── Brief 6: Redactor — WhatsApp captación (pending / borrador) ──────────────
+  // Garantiza que el redactor no vea pantalla vacía en /briefs.
+  const brief6 = await prisma.brief.upsert({
+    where: { userId_briefNumber: { userId: redactor.id, briefNumber: 1 } },
+    update: {},
+    create: {
+      userId:              redactor.id,
+      briefNumber:         1,
+      title:               'Captación Máster en Marketing Digital — Leads Nuevos',
+      programOrTitulation: 'Máster en Marketing Digital',
+      objective:           'Conseguir que el lead solicite información sobre el máster',
+      audience:            'Graduados en Comunicación o ADE, 24-32 años, con experiencia laboral de 1-2 años',
+      channel:             CHANNEL.whatsapp,
+      mode:                MODE.produccion,
+      valueProposition:    'Único máster con prácticas garantizadas en agencia Google partner',
+      cta:                 'Solicitar plaza para la sesión informativa',
+      constraints:         'Tono cercano. Sin mencionar precio. Máximo 160 palabras.',
+    },
+  })
+
+  const mv6 = await prisma.messageVersion.upsert({
+    where: { briefId_versionNumber: { briefId: brief6.id, versionNumber: 1 } },
+    update: {},
+    create: {
+      briefId:                 brief6.id,
+      versionNumber:           1,
+      content:
+        'Hola [Nombre], soy María del equipo de Universidad Prisma.\n\n' +
+        'Si llevas tiempo pensando en dar el salto al marketing digital, el Máster en Marketing Digital de Prisma tiene algo que lo diferencia: ' +
+        'prácticas garantizadas en una agencia partner oficial de Google.\n\n' +
+        'No un convenio genérico — proyectos reales con clientes reales desde el primer trimestre.\n\n' +
+        'La próxima sesión informativa es este mes. Son 45 minutos donde puedes hablar directamente con el director del programa.\n\n' +
+        '¿Te apunto?',
+      llmProvider:             'openai',
+      llmModel:                'gpt-4o-mini',
+      generationPromptVersion: 'v1.0',
+    },
+  })
+
+  const existingRun6 = await prisma.validationRun.findFirst({ where: { messageVersionId: mv6.id } })
+  if (!existingRun6) {
+    const run6 = await prisma.validationRun.create({
+      data: {
+        messageVersionId:      mv6.id,
+        overallVerdict:        OVERALL_VERDICT.aprobada_con_ajustes,
+        summary:
+          'La pieza funciona bien en tono y estructura. La propuesta de valor podría ser algo más específica sobre las agencias partner. ' +
+          'Ajustes menores recomendados antes de enviar a revisión.',
+        validatorModel:        'gpt-4o-mini',
+        validatorPromptVersion: 'v1.0',
+        criteriaVersion:       'v1.0',
+      },
+    })
+    await prisma.validationScore.createMany({
+      data: [
+        { validationRunId: run6.id, criterionKey: CRITERION_KEY.alineacion_estrategica,  criterionName: 'Alineación estratégica',                  status: SCORE_STATUS.bien,      comment: 'Objetivo de captación claro y momento del funnel adecuado.' },
+        { validationRunId: run6.id, criterionKey: CRITERION_KEY.claridad_estructura,     criterionName: 'Claridad y estructura',                   status: SCORE_STATUS.bien,      comment: 'Estructura clara con cierre que conduce a la CTA.' },
+        { validationRunId: run6.id, criterionKey: CRITERION_KEY.tono_coherencia_marca,   criterionName: 'Tono y coherencia de marca',               status: SCORE_STATUS.bien,      comment: 'Tono cercano y coherente con la identidad de Universidad Prisma.' },
+        { validationRunId: run6.id, criterionKey: CRITERION_KEY.calidad_argumental,      criterionName: 'Calidad argumental y propuesta de valor',  status: SCORE_STATUS.mejorable, comment: 'La propuesta de valor está presente pero podría concretar el nombre de alguna agencia partner para añadir credibilidad.', suggestedFix: 'Añadir referencia a una agencia partner concreta para reforzar la propuesta.' },
+        { validationRunId: run6.id, criterionKey: CRITERION_KEY.adaptacion_canal,        criterionName: 'Adaptación al canal',                      status: SCORE_STATUS.bien,      comment: 'Longitud y estructura adecuadas para WhatsApp.' },
+        { validationRunId: run6.id, criterionKey: CRITERION_KEY.precision_fiabilidad,    criterionName: 'Precisión y fiabilidad del contenido',     status: SCORE_STATUS.bien,      comment: 'Sin afirmaciones sin respaldo.' },
+        { validationRunId: run6.id, criterionKey: CRITERION_KEY.calidad_ejecucion,       criterionName: 'Calidad final de ejecución',               status: SCORE_STATUS.bien,      comment: 'Sin errores. Texto fluido y natural.' },
+      ],
+    })
+  }
+
+  // ── Brief 7: Redactor — WhatsApp submitted (pendiente de revisión del PM) ──
+  // Este brief aparece como "En revisión" para el PM en /briefs y puede aprobarse/rechazarse.
+  // Tiene ValidationRun con veredicto 'aprobada' para que el flujo de aprobación del PM funcione.
+  const brief7 = await prisma.brief.upsert({
+    where: { userId_briefNumber: { userId: redactor.id, briefNumber: 2 } },
+    update: {},
+    create: {
+      userId:              redactor.id,
+      briefNumber:         2,
+      title:               'Reactivación MBA Executive — Leads Templados',
+      programOrTitulation: 'MBA Executive',
+      objective:           'Reactivar leads que consultaron hace 2-4 meses y no continuaron el proceso',
+      audience:            'Directivos y mandos intermedios, 34-48 años, empresa privada +50 empleados',
+      channel:             CHANNEL.whatsapp,
+      mode:                MODE.produccion,
+      valueProposition:    'MBA con casos reales de empresas del IBEX 35 y network directivo',
+      cta:                 'Hablar con un orientador sobre cómo encaja el MBA en su trayectoria',
+      constraints:         'Tono ejecutivo. Sin presión. Máximo 150 palabras.',
+      reviewStatus:        'submitted',
+    },
+  })
+
+  const mv7 = await prisma.messageVersion.upsert({
+    where: { briefId_versionNumber: { briefId: brief7.id, versionNumber: 1 } },
+    update: {},
+    create: {
+      briefId:                 brief7.id,
+      versionNumber:           1,
+      content:
+        'Buenos días [Nombre],\n\n' +
+        'Hace unos meses nos contactaste interesado en el MBA Executive de Universidad Prisma.\n\n' +
+        'Los perfiles que más aprovechan el programa son exactamente como el tuyo: experiencia sólida, ambición de crecer y el momento adecuado para dar el salto directivo.\n\n' +
+        'Si quieres, podemos tener una conversación de 20 minutos sin compromiso para ver cómo encaja el MBA en tu trayectoria específica.\n\n' +
+        '¿Te viene bien esta semana?',
+      llmProvider:             'openai',
+      llmModel:                'gpt-4o-mini',
+      generationPromptVersion: 'v1.0',
+    },
+  })
+
+  const existingRun7 = await prisma.validationRun.findFirst({ where: { messageVersionId: mv7.id } })
+  if (!existingRun7) {
+    const run7 = await prisma.validationRun.create({
+      data: {
+        messageVersionId:      mv7.id,
+        overallVerdict:        OVERALL_VERDICT.aprobada,
+        summary:
+          'Pieza sólida y lista para envío. Tono ejecutivo sin presión, CTA conversacional natural y estructura eficaz para leads templados en WhatsApp. Sin observaciones.',
+        validatorModel:        'gpt-4o-mini',
+        validatorPromptVersion: 'v1.0',
+        criteriaVersion:       'v1.0',
+      },
+    })
+    await prisma.validationScore.createMany({
+      data: [
+        { validationRunId: run7.id, criterionKey: CRITERION_KEY.alineacion_estrategica,  criterionName: 'Alineación estratégica',                  status: SCORE_STATUS.bien, comment: 'Objetivo de reactivación claro. Timing adecuado para leads templados.' },
+        { validationRunId: run7.id, criterionKey: CRITERION_KEY.claridad_estructura,     criterionName: 'Claridad y estructura',                   status: SCORE_STATUS.bien, comment: 'Estructura limpia: contexto → propuesta de valor → CTA conversacional.' },
+        { validationRunId: run7.id, criterionKey: CRITERION_KEY.tono_coherencia_marca,   criterionName: 'Tono y coherencia de marca',               status: SCORE_STATUS.bien, comment: 'Tono ejecutivo, sin presión. Coherente con la identidad de Prisma para perfiles directivos.' },
+        { validationRunId: run7.id, criterionKey: CRITERION_KEY.calidad_argumental,      criterionName: 'Calidad argumental y propuesta de valor',  status: SCORE_STATUS.bien, comment: 'Enfoque en fit personal más que en características del programa. Efectivo para reactivación.' },
+        { validationRunId: run7.id, criterionKey: CRITERION_KEY.adaptacion_canal,        criterionName: 'Adaptación al canal',                      status: SCORE_STATUS.bien, comment: 'Longitud idónea para WhatsApp. CTA conversacional y natural.' },
+        { validationRunId: run7.id, criterionKey: CRITERION_KEY.precision_fiabilidad,    criterionName: 'Precisión y fiabilidad del contenido',     status: SCORE_STATUS.bien, comment: 'Sin afirmaciones sin respaldo. Referencia al IBEX 35 consistente con materiales del programa.' },
+        { validationRunId: run7.id, criterionKey: CRITERION_KEY.calidad_ejecucion,       criterionName: 'Calidad final de ejecución',               status: SCORE_STATUS.bien, comment: 'Sin errores ortográficos ni gramaticales. Texto fluido y profesional, publicable directamente.' },
+      ],
+    })
+  }
+
+  // ── Brief 8: Redactor — brief rechazado ─────────────────────────────────────
+  // Garantiza que el redactor pueda ver briefs rechazados en /briefs?status=rejected.
+  const brief8 = await prisma.brief.upsert({
+    where: { userId_briefNumber: { userId: redactor.id, briefNumber: 3 } },
+    update: {},
+    create: {
+      userId:              redactor.id,
+      briefNumber:         3,
+      title:               'Captación Máster Ciencia de Datos — Leads sin actividad',
+      programOrTitulation: 'Máster en Ciencia de Datos',
+      objective:           'Reactivar leads que consultaron el máster hace 4-6 meses sin actividad posterior',
+      audience:            'Ingenieros y analistas, 26-38 años, con experiencia en Python o SQL',
+      channel:             CHANNEL.email,
+      mode:                MODE.produccion,
+      valueProposition:    'El único máster en España con dataset real de empresa desde el primer mes',
+      cta:                 'Ver el plan de estudios actualizado',
+      constraints:         'Tono técnico y directo. Sin mencionar precio. Máximo 180 palabras.',
+      reviewStatus:        'rejected',
+    },
+  })
+
+  const mv8 = await prisma.messageVersion.upsert({
+    where: { briefId_versionNumber: { briefId: brief8.id, versionNumber: 1 } },
+    update: {},
+    create: {
+      briefId:                 brief8.id,
+      versionNumber:           1,
+      content:
+        'Asunto: ¿Sigues pensando en el Máster de Data Science?\n\n' +
+        'Hola [Nombre],\n\n' +
+        'El mercado de datos no espera. Cada mes que pasa, las empresas que buscan Data Scientists sube su lista de requisitos.\n\n' +
+        'El Máster en Ciencia de Datos de Universidad Prisma sigue siendo la forma más directa de entrar en este mercado: ' +
+        'trabajarás con un dataset real de empresa desde el primer mes, no con datos de Kaggle.\n\n' +
+        'El plan de estudios 2026 tiene dos módulos nuevos que no teníamos cuando te informaste.\n\n' +
+        '→ Ver el plan de estudios actualizado\n\n' +
+        'Equipo Académico — Universidad Prisma',
+      llmProvider:             'openai',
+      llmModel:                'gpt-4o-mini',
+      generationPromptVersion: 'v1.0',
+    },
+  })
+
+  const existingRun8 = await prisma.validationRun.findFirst({ where: { messageVersionId: mv8.id } })
+  if (!existingRun8) {
+    const run8 = await prisma.validationRun.create({
+      data: {
+        messageVersionId:      mv8.id,
+        overallVerdict:        OVERALL_VERDICT.aprobada_con_ajustes,
+        summary:
+          'La pieza es funcional pero la apertura del asunto es demasiado interrogativa y débil para una reactivación. ' +
+          'El cuerpo tiene buen ritmo pero la propuesta de valor tarda en aparecer. Ajustes recomendados antes de enviar a revisión.',
+        validatorModel:        'gpt-4o-mini',
+        validatorPromptVersion: 'v1.0',
+        criteriaVersion:       'v1.0',
+      },
+    })
+    await prisma.validationScore.createMany({
+      data: [
+        { validationRunId: run8.id, criterionKey: CRITERION_KEY.alineacion_estrategica,  criterionName: 'Alineación estratégica',                  status: SCORE_STATUS.bien,      comment: 'El objetivo de reactivación está claro y el momento del funnel es el adecuado.' },
+        { validationRunId: run8.id, criterionKey: CRITERION_KEY.claridad_estructura,     criterionName: 'Claridad y estructura',                   status: SCORE_STATUS.bien,      comment: 'Estructura clara con CTA directa al final.' },
+        { validationRunId: run8.id, criterionKey: CRITERION_KEY.tono_coherencia_marca,   criterionName: 'Tono y coherencia de marca',               status: SCORE_STATUS.bien,      comment: 'Tono técnico y profesional. Coherente con la identidad de Prisma para perfiles técnicos.' },
+        { validationRunId: run8.id, criterionKey: CRITERION_KEY.calidad_argumental,      criterionName: 'Calidad argumental y propuesta de valor',  status: SCORE_STATUS.mejorable, comment: 'La propuesta de valor (dataset real desde el mes 1) aparece demasiado tarde en el cuerpo.', suggestedFix: 'Mover la propuesta de valor al segundo párrafo para que el lector la vea antes del punto de abandono.' },
+        { validationRunId: run8.id, criterionKey: CRITERION_KEY.adaptacion_canal,        criterionName: 'Adaptación al canal',                      status: SCORE_STATUS.bien,      comment: 'Longitud correcta para email de reactivación. Estructura escaneable.' },
+        { validationRunId: run8.id, criterionKey: CRITERION_KEY.precision_fiabilidad,    criterionName: 'Precisión y fiabilidad del contenido',     status: SCORE_STATUS.bien,      comment: 'Sin afirmaciones sin respaldo.' },
+        { validationRunId: run8.id, criterionKey: CRITERION_KEY.calidad_ejecucion,       criterionName: 'Calidad final de ejecución',               status: SCORE_STATUS.bien,      comment: 'Sin errores ortográficos. Redacción fluida.' },
+      ],
+    })
+  }
+
+  // ── Brief 9: Redactor — email en revisión (segundo brief pendiente para PM) ──
+  // Garantiza que el PM tenga más de un brief en estado 'submitted' para aprobar/rechazar.
+  const brief9 = await prisma.brief.upsert({
+    where: { userId_briefNumber: { userId: redactor.id, briefNumber: 4 } },
+    update: {},
+    create: {
+      userId:              redactor.id,
+      briefNumber:         4,
+      title:               'Máster Dirección RRHH — Captación perfiles HR',
+      programOrTitulation: 'Máster en Dirección de RRHH',
+      objective:           'Conseguir que el lead solicite información sobre el máster',
+      audience:            'HR Business Partners y técnicos de personas, 28-40 años',
+      channel:             CHANNEL.email,
+      mode:                MODE.produccion,
+      valueProposition:    'Única formación en RRHH con HR Analytics integrado y proyecto real de plan de personas',
+      cta:                 'Solicitar información sobre el máster',
+      constraints:         'Tono profesional y empático. Sin mencionar precio. Máximo 200 palabras.',
+      reviewStatus:        'submitted',
+    },
+  })
+
+  const mv9 = await prisma.messageVersion.upsert({
+    where: { briefId_versionNumber: { briefId: brief9.id, versionNumber: 1 } },
+    update: {},
+    create: {
+      briefId:                 brief9.id,
+      versionNumber:           1,
+      content:
+        'Asunto: El máster de RRHH que integra datos en cada decisión\n\n' +
+        'Hola [Nombre],\n\n' +
+        'La gestión del talento ha cambiado. Las empresas que lideran hoy no toman decisiones de personas sin datos. ' +
+        'Y los profesionales de RRHH que trabajan con HR Analytics tienen un perfil que el mercado está demandando con urgencia.\n\n' +
+        'El Máster en Dirección de RRHH de Universidad Prisma integra HR Analytics desde el primer módulo. No como un extra, ' +
+        'sino como la columna vertebral de todo el programa.\n\n' +
+        'El proyecto final es un plan de personas real para una empresa cliente. No un ejercicio académico.\n\n' +
+        'Si quieres saber cómo encaja con tu perfil actual, te enviamos toda la información sin compromiso.\n\n' +
+        '→ Solicitar información sobre el máster\n\n' +
+        'Equipo de Admisiones — Universidad Prisma',
+      llmProvider:             'openai',
+      llmModel:                'gpt-4o-mini',
+      generationPromptVersion: 'v1.0',
+    },
+  })
+
+  const existingRun9 = await prisma.validationRun.findFirst({ where: { messageVersionId: mv9.id } })
+  if (!existingRun9) {
+    const run9 = await prisma.validationRun.create({
+      data: {
+        messageVersionId:      mv9.id,
+        overallVerdict:        OVERALL_VERDICT.aprobada,
+        summary:               'Pieza sólida y lista para envío. Propuesta de valor diferenciadora bien integrada, tono profesional sin artificialidad y CTA directa. Sin observaciones.',
+        validatorModel:        'gpt-4o-mini',
+        validatorPromptVersion: 'v1.0',
+        criteriaVersion:       'v1.0',
+      },
+    })
+    await prisma.validationScore.createMany({
+      data: [
+        { validationRunId: run9.id, criterionKey: CRITERION_KEY.alineacion_estrategica,  criterionName: 'Alineación estratégica',                  status: SCORE_STATUS.bien, comment: 'Objetivo de captación claro y momento del funnel adecuado.' },
+        { validationRunId: run9.id, criterionKey: CRITERION_KEY.claridad_estructura,     criterionName: 'Claridad y estructura',                   status: SCORE_STATUS.bien, comment: 'Estructura clara: problema → solución → diferenciador → CTA.' },
+        { validationRunId: run9.id, criterionKey: CRITERION_KEY.tono_coherencia_marca,   criterionName: 'Tono y coherencia de marca',               status: SCORE_STATUS.bien, comment: 'Tono profesional y empático. Coherente con la identidad de Prisma.' },
+        { validationRunId: run9.id, criterionKey: CRITERION_KEY.calidad_argumental,      criterionName: 'Calidad argumental y propuesta de valor',  status: SCORE_STATUS.bien, comment: 'HR Analytics como diferenciador está priorizado y bien comunicado.' },
+        { validationRunId: run9.id, criterionKey: CRITERION_KEY.adaptacion_canal,        criterionName: 'Adaptación al canal',                      status: SCORE_STATUS.bien, comment: 'Longitud adecuada. Párrafos cortos y estructura escaneable para email.' },
+        { validationRunId: run9.id, criterionKey: CRITERION_KEY.precision_fiabilidad,    criterionName: 'Precisión y fiabilidad del contenido',     status: SCORE_STATUS.bien, comment: 'Sin afirmaciones sin respaldo. La propuesta de valor es verificable.' },
+        { validationRunId: run9.id, criterionKey: CRITERION_KEY.calidad_ejecucion,       criterionName: 'Calidad final de ejecución',               status: SCORE_STATUS.bien, comment: 'Sin errores. Redacción fluida y profesional, publicable directamente.' },
+      ],
+    })
+  }
+
+  // ── Brief 10: Admin — aprobado pero no enviado a CRM ─────────────────────────
+  // Muestra el estado "Aprobado" (distinto de "Enviado") en la lista de briefings.
+  const brief10 = await prisma.brief.upsert({
+    where: { userId_briefNumber: { userId: admin.id, briefNumber: 6 } },
+    update: {},
+    create: {
+      userId:              admin.id,
+      briefNumber:         6,
+      title:               'Máster en Diseño UX/UI — Captación nuevos perfiles creativos',
+      programOrTitulation: 'Máster en Diseño UX/UI',
+      objective:           'Generar solicitudes de información de perfiles creativos con experiencia digital',
+      audience:            'Diseñadores gráficos y frontend developers, 24-35 años, con portfolio',
+      channel:             CHANNEL.email,
+      mode:                MODE.produccion,
+      valueProposition:    'Portfolio real de 3+ proyectos y mentoría con designers de empresas top',
+      cta:                 'Solicitar información y ver el portfolio de proyectos anteriores',
+      constraints:         'Tono creativo pero profesional. Mostrar ejemplos concretos. Máximo 200 palabras.',
+      reviewStatus:        'approved',
+      // crmStatus no definido → null (estado "Aprobado", no "Enviado")
+    },
+  })
+
+  await prisma.messageVersion.upsert({
+    where: { briefId_versionNumber: { briefId: brief10.id, versionNumber: 1 } },
+    update: {},
+    create: {
+      briefId:                 brief10.id,
+      versionNumber:           1,
+      content:
+        'Asunto: Diseña la experiencia que los usuarios recuerdan — Máster UX/UI\n\n' +
+        'Hola [Nombre],\n\n' +
+        'El mejor UX no es invisible. El mejor UX es el que el usuario recuerda como "esto funcionó exactamente como esperaba".\n\n' +
+        'El Máster en Diseño UX/UI de Universidad Prisma está construido alrededor de proyectos reales. ' +
+        'Al terminar, tu portfolio tiene 3 proyectos completos de empresas reales — no mockups de ejercicios académicos.\n\n' +
+        'Además, cada alumno tiene sesiones de mentoría 1:1 con designers en activo de empresas como Cabify, Typeform y Glovo.\n\n' +
+        'Si quieres ver los proyectos de la última promoción, te los enviamos junto con el plan de estudios.\n\n' +
+        '→ Solicitar información y ver el portfolio\n\n' +
+        'Equipo Académico — Universidad Prisma',
+      llmProvider:             'openai',
+      llmModel:                'gpt-4o-mini',
+      generationPromptVersion: 'v1.0',
+    },
+  })
+
+  // ── SendMetrics adicionales para Análisis — variedad de rendimiento ───────────
+  // Brief 10 aprobado pero no enviado no tiene métricas aún.
+  // Añadir una métrica de bajo rendimiento en brief3 (rechazado, para comparativa histórica).
+  // No: brief3 está rechazado, no tiene SendMetrics coherentes.
+  // En cambio, añadir métricas a un brief de admin hipotético para el análisis comparativo
+  // sin añadir nuevos briefs. El brief 10 puede tener métricas de una campaña anterior similar.
+
   console.log('✓ Seed completado:')
   console.log('  Usuarios: ivan.aguado00@gmail.com (admin), redactor@prisma.es, coordinador@prisma.es, pm@prisma.es, demo@prisma.local')
   console.log('  Contraseña local de desarrollo: prisma2024')
-  console.log(`  Brief 1: ${brief1.title}`)
-  console.log(`  Brief 2: ${brief2.title}`)
-  console.log(`  Brief 3: ${brief3.title}`)
-  console.log(`  Brief 4: ${brief4.title}`)
-  console.log(`  Brief 5: ${brief5.title}`)
-  console.log('  SendMetrics: 4 registros de análisis creados')
+  console.log(`  Brief 1 (admin, pending+metrics):          ${brief1.title}`)
+  console.log(`  Brief 2 (admin, pending+metrics):          ${brief2.title}`)
+  console.log(`  Brief 3 (admin, pending, no_aprobada):     ${brief3.title}`)
+  console.log(`  Brief 4 (admin, sent_to_crm+metrics):      ${brief4.title}`)
+  console.log(`  Brief 5 (admin, sent_to_crm+metrics):      ${brief5.title}`)
+  console.log(`  Brief 6 (redactor, pending):               ${brief6.title}`)
+  console.log(`  Brief 7 (redactor, submitted):             ${brief7.title}`)
+  console.log(`  Brief 8 (redactor, rejected):              ${brief8.title}`)
+  console.log(`  Brief 9 (redactor, submitted):             ${brief9.title}`)
+  console.log(`  Brief 10 (admin, approved not sent):       ${brief10.title}`)
+  console.log('  SendMetrics: 4 registros de análisis (briefs 1,2,4,5)')
 }
 
 main()

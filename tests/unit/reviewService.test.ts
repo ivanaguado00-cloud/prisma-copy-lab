@@ -12,7 +12,7 @@ vi.mock('../../src/services/emailService', () => ({
   sendEmail: vi.fn(),
 }))
 
-import { submitBriefForReview, setReviewStatus } from '../../src/services/reviewService'
+import { submitBriefForReview, setReviewStatus, notifyBriefApproval } from '../../src/services/reviewService'
 import { getBriefById, updateBriefReview } from '../../src/dao/briefDao'
 import { getUserById, getUsersByRole } from '../../src/dao/userDao'
 import { sendEmail } from '../../src/services/emailService'
@@ -198,5 +198,126 @@ describe('setReviewStatus — permisos', () => {
       BRIEF_ID,
       expect.objectContaining({ reviewNote: 'Cambiar el CTA' }),
     )
+  })
+})
+
+// ── setReviewStatus — aprobación duplicada ────────────────────────────────────
+
+describe('setReviewStatus — aprobación duplicada', () => {
+  it('rechaza aprobar un brief que ya está aprobado', async () => {
+    mockGetBrief.mockResolvedValue({ ...baseBrief, reviewStatus: 'approved' } as never)
+
+    const result = await setReviewStatus(BRIEF_ID, 'reviewer-id', USER_ROLE.pm, 'approved')
+
+    expect(result.success).toBe(false)
+    expect(result.error).toBeTruthy()
+  })
+
+  it('no llama a updateBriefReview en un segundo intento de aprobación', async () => {
+    mockGetBrief.mockResolvedValue({ ...baseBrief, reviewStatus: 'approved' } as never)
+
+    await setReviewStatus(BRIEF_ID, 'reviewer-id', USER_ROLE.pm, 'approved')
+
+    expect(mockUpdateBrief).not.toHaveBeenCalled()
+  })
+
+  it('no envía notificación en un segundo intento de aprobación', async () => {
+    mockGetBrief.mockResolvedValue({ ...baseBrief, reviewStatus: 'approved' } as never)
+
+    await setReviewStatus(BRIEF_ID, 'reviewer-id', USER_ROLE.pm, 'approved')
+
+    expect(mockSendEmail).not.toHaveBeenCalled()
+  })
+
+  it('el error del segundo intento no modifica reviewedAt ni reviewedBy del registro original', async () => {
+    const originalDate = new Date('2024-01-01T10:00:00Z')
+    mockGetBrief.mockResolvedValue({
+      ...baseBrief,
+      reviewStatus: 'approved',
+      reviewedAt: originalDate,
+      reviewedBy: 'primer-revisor',
+    } as never)
+
+    await setReviewStatus(BRIEF_ID, 'nuevo-revisor', USER_ROLE.pm, 'approved')
+
+    // updateBriefReview no debe llamarse, garantizando que los campos no cambian
+    expect(mockUpdateBrief).not.toHaveBeenCalled()
+  })
+
+  it('sí puede rechazar un brief que ya fue aprobado (cambio de estado válido)', async () => {
+    mockGetBrief.mockResolvedValue({ ...baseBrief, reviewStatus: 'approved' } as never)
+
+    const result = await setReviewStatus(BRIEF_ID, 'reviewer-id', USER_ROLE.pm, 'rejected', 'Error detectado')
+
+    expect(result.success).toBe(true)
+    expect(mockUpdateBrief).toHaveBeenCalledOnce()
+  })
+})
+
+// ── setReviewStatus — notificaciones ─────────────────────────────────────────
+
+describe('setReviewStatus — notificaciones', () => {
+  it('no envía email al aprobar (la notificación la gestiona el flujo de acción via notifyBriefApproval)', async () => {
+    const result = await setReviewStatus(BRIEF_ID, 'reviewer-id', USER_ROLE.pm, 'approved')
+
+    expect(result.success).toBe(true)
+    expect(mockSendEmail).not.toHaveBeenCalled()
+  })
+
+  it('sí envía email al rechazar', async () => {
+    await setReviewStatus(BRIEF_ID, 'reviewer-id', USER_ROLE.pm, 'rejected', 'Revisar el tono')
+
+    expect(mockSendEmail).toHaveBeenCalledOnce()
+    expect(mockSendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: 'autor@test.com' }))
+  })
+})
+
+// ── notifyBriefApproval ───────────────────────────────────────────────────────
+
+describe('notifyBriefApproval — envío al autor', () => {
+  it('envía email al autor cuando existe dirección de correo', async () => {
+    await notifyBriefApproval(OWNER_ID, 'Brief de prueba', BRIEF_ID, true)
+
+    expect(mockSendEmail).toHaveBeenCalledOnce()
+    expect(mockSendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: 'autor@test.com' }))
+  })
+
+  it('no envía email si el autor no tiene dirección registrada', async () => {
+    mockGetUser.mockResolvedValue({ id: OWNER_ID, email: null, name: 'Autor', role: 'redactor' } as never)
+
+    await notifyBriefApproval(OWNER_ID, 'Brief de prueba', BRIEF_ID, true)
+
+    expect(mockSendEmail).not.toHaveBeenCalled()
+  })
+
+  it('el email indica envío CRM exitoso cuando crmSent es true', async () => {
+    await notifyBriefApproval(OWNER_ID, 'Brief de prueba', BRIEF_ID, true)
+
+    const [payload] = mockSendEmail.mock.calls[0]!
+    expect(payload.text).toContain('enviado al equipo de CRM')
+    expect(payload.html).toContain('Enviado al equipo de CRM')
+  })
+
+  it('el email NO afirma envío CRM cuando crmSent es false', async () => {
+    await notifyBriefApproval(OWNER_ID, 'Brief de prueba', BRIEF_ID, false)
+
+    const [payload] = mockSendEmail.mock.calls[0]!
+    expect(payload.text).not.toMatch(/enviado al equipo de CRM/i)
+    expect(payload.html).not.toContain('✓ Enviado al equipo de CRM')
+  })
+
+  it('el email refleja el estado pendiente CRM cuando crmSent es false', async () => {
+    await notifyBriefApproval(OWNER_ID, 'Brief de prueba', BRIEF_ID, false)
+
+    const [payload] = mockSendEmail.mock.calls[0]!
+    expect(payload.html).toContain('Pendiente de envío al equipo de CRM')
+  })
+
+  it('incluye la nota del revisor cuando se pasa', async () => {
+    await notifyBriefApproval(OWNER_ID, 'Brief de prueba', BRIEF_ID, true, 'Nota importante')
+
+    const [payload] = mockSendEmail.mock.calls[0]!
+    expect(payload.text).toContain('Nota importante')
+    expect(payload.html).toContain('Nota importante')
   })
 })
