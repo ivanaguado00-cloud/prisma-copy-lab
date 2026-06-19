@@ -17,12 +17,16 @@ const DEFAULT_MOCK: GeneratedMessage = {
 }
 
 export class MockGenerationClient implements GenerationClient {
-  async generate(_systemPrompt: string, userPrompt: string): Promise<GeneratedMessage> {
+  async generate(
+    _systemPrompt: string,
+    userPrompt: string,
+    options?: { jsonOutput?: boolean },
+  ): Promise<GeneratedMessage> {
+    if (options?.jsonOutput || userPrompt.includes('canal: email')) {
+      return MOCK_RESPONSES.email!
+    }
     if (userPrompt.includes('canal: whatsapp')) {
       return MOCK_RESPONSES.whatsapp!
-    }
-    if (userPrompt.includes('canal: email')) {
-      return MOCK_RESPONSES.email!
     }
     return DEFAULT_MOCK
   }

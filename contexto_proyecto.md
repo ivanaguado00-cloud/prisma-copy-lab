@@ -258,6 +258,7 @@ Refactorización de previsualizaciones y generación estructurada de email.
 - `emailSubject` y `emailPreheader` eliminados del modelo `Brief` (migración `20260613120000_move_email_fields_to_message_version`).
 - Añadidos a `MessageVersion` como columnas propias (`emailSubject String?`, `emailPreheader String?`).
 - `GenerationClient.generate()` retorna `Promise<GeneratedMessage>` en vez de `Promise<string>`.
+- El cliente mock reconoce la generación de email mediante la opción estructurada `jsonOutput`, por lo que las demos con `LLM_MOCK=true` conservan cuerpo, asunto y preheader sin depender del texto del prompt.
 - Para email: `response_format: json_object`, prompt específico con hint de plantilla, parser de JSON en el cliente.
 - Para whatsapp: retorno envuelto como `{ body: content }`, sin cambio en el prompt.
 - `BriefingForm` ya no muestra inputs de Asunto ni Preheader para email; solo el selector de Plantilla.
