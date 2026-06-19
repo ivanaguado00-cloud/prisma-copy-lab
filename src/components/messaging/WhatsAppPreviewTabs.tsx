@@ -22,8 +22,8 @@ export function WhatsAppPreviewTabs({ content, contactName }: Props) {
           onClick={() => setActiveTab('push')}
           className={`text-xs font-medium px-3 py-1 rounded-full border transition-colors ${
             activeTab === 'push'
-              ? 'bg-brand-lime text-on-brand-lime border-brand-lime'
-              : 'text-on-surface-variant border-outline-variant hover:border-brand-lime/40 hover:text-on-surface'
+              ? 'bg-[#1b1c1c] text-white border-[#1b1c1c]'
+              : 'text-on-surface-variant border-outline-variant hover:border-[#4c4546] hover:text-on-surface'
           }`}
         >
           Notificación push
@@ -32,8 +32,8 @@ export function WhatsAppPreviewTabs({ content, contactName }: Props) {
           onClick={() => setActiveTab('chat')}
           className={`text-xs font-medium px-3 py-1 rounded-full border transition-colors ${
             activeTab === 'chat'
-              ? 'bg-brand-lime text-on-brand-lime border-brand-lime'
-              : 'text-on-surface-variant border-outline-variant hover:border-brand-lime/40 hover:text-on-surface'
+              ? 'bg-[#1b1c1c] text-white border-[#1b1c1c]'
+              : 'text-on-surface-variant border-outline-variant hover:border-[#4c4546] hover:text-on-surface'
           }`}
         >
           Burbuja de chat

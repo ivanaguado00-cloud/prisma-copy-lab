@@ -52,6 +52,11 @@ Variables necesarias (ver `.env.example` para la plantilla completa):
 npm run dev
 ```
 
+El comando de desarrollo usa Webpack, vigilancia por sondeo y un límite de
+2 GB para el heap de Node. La raíz de trabajo de Next.js está fijada al
+repositorio para impedir que un `package-lock.json` situado en una carpeta
+superior haga que Next vigile archivos ajenos al proyecto.
+
 Abre [http://localhost:3000](http://localhost:3000) en el navegador.
 
 ### Modo desarrollo con LLM mock (sin llamadas a OpenAI)
@@ -64,6 +69,21 @@ En Windows (PowerShell):
 
 ```powershell
 $env:LLM_MOCK="true"; npm run dev
+```
+
+### Recuperar el entorno de desarrollo
+
+Si el servidor empieza a consumir memoria de forma anormal, detén el proceso y
+regenera la caché de Next.js:
+
+```bash
+npm run app:reset
+```
+
+Turbopack queda disponible únicamente para pruebas explícitas:
+
+```bash
+npm run dev:turbopack
 ```
 
 ### Build de producción

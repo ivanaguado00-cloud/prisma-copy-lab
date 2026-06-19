@@ -10,10 +10,11 @@ const CHANNEL_FILTERS = [
 ]
 
 const STATUS_FILTERS = [
-  { label: 'Todos',     value: '' },
-  { label: 'Aprobado',  value: 'approved' },
-  { label: 'Pendiente', value: 'pending' },
-  { label: 'Rechazado', value: 'rejected' },
+  { label: 'Todos',        value: '' },
+  { label: 'Borrador',     value: 'pending' },
+  { label: 'En revisión',  value: 'submitted' },
+  { label: 'Aprobados',    value: 'approved' },
+  { label: 'Rechazados',   value: 'rejected' },
 ]
 
 function buildHref(searchParams: URLSearchParams, key: 'channel' | 'status', value: string): string {
@@ -31,26 +32,37 @@ function FilterPill({
   href,
   label,
   active,
+  badge,
 }: {
   href: string
   label: string
   active: boolean
+  badge?: number
 }) {
   return (
     <Link
       href={href}
-      className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm transition-colors whitespace-nowrap ${
+      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-colors whitespace-nowrap ${
         active
           ? 'bg-secondary-container text-on-surface font-semibold'
           : 'text-on-surface-variant hover:bg-surface-container-high border border-outline-variant'
       }`}
     >
       {label}
+      {badge !== undefined && badge > 0 && (
+        <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-error-container text-on-error-container text-[10px] font-bold">
+          {badge}
+        </span>
+      )}
     </Link>
   )
 }
 
-export function BriefsFilterBar() {
+interface BriefsFilterBarProps {
+  rejectedCount?: number
+}
+
+export function BriefsFilterBar({ rejectedCount = 0 }: BriefsFilterBarProps) {
   const searchParams = useSearchParams()
   const activeChannel = searchParams.get('channel') ?? ''
   const activeStatus  = searchParams.get('status')  ?? ''
@@ -77,6 +89,7 @@ export function BriefsFilterBar() {
             href={buildHref(searchParams, 'status', f.value)}
             label={f.label}
             active={activeStatus === f.value}
+            badge={f.value === 'rejected' ? rejectedCount : undefined}
           />
         ))}
       </div>

@@ -159,7 +159,7 @@ SQLite no usa enums nativos; los valores de dominio se modelan como `String` y s
 - `agentService.ts`: genera instrucciones de mejora a partir de validaciones no aprobadas y crea una nueva versión.
 - `orchestrationService.ts`: coordina generación y validación en un único intento visible por petición de usuario.
 - `emailService.ts`: abstracción de envío de email. En modo mock (sin `SMTP_HOST`) registra el envío en consola. Con `SMTP_HOST` configurado usa nodemailer (dependencia opcional).
-- `crmService.ts`: `buildCrmPreview` y `sendToCrm`. Construye el HTML y texto plano del email maquetado usando `emailTemplates.ts`, compone el correo interno para CRM, delega el envío en `emailService` y actualiza el estado del brief.
+- `crmService.ts`: `buildCrmPreview` y `sendToCrm`. Mantiene la previsualización maquetada para email y compone el correo interno para CRM de propuestas aprobadas tanto de email como de WhatsApp. Delega el envío en `emailService` y actualiza el estado del brief.
 - `services/llm/client.ts`: clientes OpenAI reales para generación y validación.
 - `services/llm/mockClient.ts`: clientes mock activables con `LLM_MOCK=true`.
 - `services/llm/factory.ts`: selección de cliente real o mock.
@@ -203,7 +203,7 @@ En el repo actual no existe `src/lib/corpus.ts`; por tanto, cualquier carga o in
 
 ## 16. Flujo CRM
 
-El flujo "Preparar para CRM" es exclusivo de briefs de canal email con validación aprobada:
+El flujo manual "Preparar para CRM" es exclusivo de briefs de canal email con validación aprobada:
 
 1. `PrepareCrmButton` (Client Component) comprueba las condiciones en render y abre el modal `CrmFlow`.
 2. `CrmFlow` gestiona los pasos del flujo con estado local: selección → preview → enviando → éxito/error.
@@ -212,6 +212,12 @@ El flujo "Preparar para CRM" es exclusivo de briefs de canal email con validaci�
 5. `CrmEmailPreview` renderiza el HTML en un iframe y muestra el panel de brief. El usuario puede añadir notas.
 6. Al confirmar, `sendToCrmAction` (Server Action) llama a `crmService.sendToCrm`: genera el HTML final, construye el correo interno, delega en `emailService`, actualiza el brief en BD.
 7. Tras envío exitoso, el brief queda con `crmStatus = 'sent_to_crm'`.
+
+Además, cuando un PM aprueba un brief, `approveBriefAction` envía automáticamente
+la última versión validada al destinatario CRM para ambos canales:
+
+- **Email:** conserva la maquetación, asunto y preheader de la propuesta.
+- **WhatsApp:** envía el texto aprobado en una presentación interna sin aplicarle una plantilla de email.
 
 Separación en `src/lib/emailTemplates.ts`:
 - `PRISMA_BRAND_KIT`: colores, logo, tipografía, footer. Cambiar aquí afecta todos los emails.

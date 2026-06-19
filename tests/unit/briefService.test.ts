@@ -25,7 +25,7 @@ const validInput = {
 const validEmailInput = {
   ...validInput,
   channel: 'email' as const,
-  emailTemplate: 'promotional' as const,
+  emailTemplate: 'standard' as const,
 }
 
 beforeEach(() => {
@@ -114,7 +114,7 @@ describe('createBriefService — campos obligatorios email', () => {
     const result = await createBriefService(validEmailInput, 'user-test-id')
     expect(result.success).toBe(true)
     const calledWith = mockCreateBrief.mock.calls[0]![0]!
-    expect(calledWith.emailTemplate).toBe('promotional')
+    expect(calledWith.emailTemplate).toBe('standard')
   })
 
   it('emailTemplate queda como undefined cuando channel=whatsapp', async () => {

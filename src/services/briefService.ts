@@ -1,7 +1,7 @@
 import { createBrief } from '../dao/briefDao'
 import {
-  CHANNEL, MODE, EMAIL_TEMPLATE,
-  type Channel, type Mode, type EmailTemplate, type CreateBriefInput,
+  CHANNEL, MODE, EMAIL_TEMPLATE, GENERATION_MODE,
+  type Channel, type Mode, type EmailTemplate, type GenerationMode, type CreateBriefInput,
 } from '../types/domain'
 
 
@@ -19,10 +19,12 @@ export interface BriefServiceResult {
 type RawBriefInput = {
   title?: string
   programOrTitulation?: string
+  programId?: string
   objective?: string
   audience?: string
   channel?: string
   mode?: string
+  generationMode?: string
   valueProposition?: string
   cta?: string
   constraints?: string
@@ -38,9 +40,7 @@ export async function createBriefService(input: RawBriefInput, userId: string): 
   if (!input.objective?.trim()) {
     errors.push({ field: 'objective', message: 'El objetivo es obligatorio' })
   }
-  if (!input.audience?.trim()) {
-    errors.push({ field: 'audience', message: 'La audiencia es obligatoria' })
-  }
+
   if (!input.channel) {
     errors.push({ field: 'channel', message: 'El canal es obligatorio' })
   } else if (!Object.values(CHANNEL).includes(input.channel as Channel)) {
@@ -50,6 +50,10 @@ export async function createBriefService(input: RawBriefInput, userId: string): 
     errors.push({ field: 'mode', message: 'El modo es obligatorio' })
   } else if (!Object.values(MODE).includes(input.mode as Mode)) {
     errors.push({ field: 'mode', message: `Modo no válido. Valores permitidos: ${Object.values(MODE).join(', ')}` })
+  }
+
+  if (!input.audience?.trim()) {
+    errors.push({ field: 'audience', message: 'La audiencia es obligatoria' })
   }
   if (!input.valueProposition?.trim()) {
     errors.push({ field: 'valueProposition', message: 'La propuesta de valor es obligatoria' })
@@ -70,14 +74,22 @@ export async function createBriefService(input: RawBriefInput, userId: string): 
 
   const isEmail = input.channel === CHANNEL.email
 
+  const rawGenMode = input.generationMode
+  const generationMode: GenerationMode =
+    rawGenMode && Object.values(GENERATION_MODE).includes(rawGenMode as GenerationMode)
+      ? (rawGenMode as GenerationMode)
+      : GENERATION_MODE.standard
+
   const normalized: CreateBriefInput = {
     userId,
     title: input.title!.trim(),
     programOrTitulation: input.programOrTitulation?.trim() || undefined,
+    programId: input.programId?.trim() || undefined,
     objective: input.objective!.trim(),
     audience: input.audience!.trim(),
     channel: input.channel as Channel,
     mode: input.mode as Mode,
+    generationMode,
     valueProposition: input.valueProposition!.trim(),
     cta: input.cta!.trim(),
     constraints: input.constraints?.trim() || undefined,

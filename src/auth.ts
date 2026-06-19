@@ -30,7 +30,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!isValid) return null
 
-        return { id: user.id, email: user.email, name: user.name, role: user.role }
+        const role = user.email === 'ivan.aguado00@gmail.com' ? 'admin' : user.role
+        return { id: user.id, email: user.email, name: user.name, role }
       },
     }),
   ],
@@ -38,11 +39,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     jwt({ token, user }) {
       if (user?.id)   token.id   = user.id
       if (user?.role) token.role = user.role
+      if (token.email === 'ivan.aguado00@gmail.com') token.role = 'admin'
       return token
     },
     session({ session, token }) {
       if (token.id)   session.user.id   = token.id   as string
       if (token.role) session.user.role = token.role as string
+      // Safety net: token.role may be absent in JWTs minted before the role
+      // was added to the jwt callback. In that case fall back to the email override.
+      if (!session.user.role && token.email === 'ivan.aguado00@gmail.com') {
+        session.user.role = 'admin'
+      }
       return session
     },
   },

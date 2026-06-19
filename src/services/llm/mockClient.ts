@@ -3,11 +3,11 @@ import type { GeneratedMessage } from '../../types/domain'
 
 const MOCK_RESPONSES: Record<string, GeneratedMessage> = {
   whatsapp: {
-    body: 'Hola, ¿sabías que puedes especializarte sin pausar tu carrera? En Prisma lo hacemos posible. ¿Hablamos? 👉 prisma.edu/info',
+    body: 'Hola {{nombre}}, ¿sabías que puedes especializarte en {{titulacion}} sin pausar tu carrera? En Prisma lo hacemos posible. 👉 {{cta_url}}',
   },
   email: {
-    body: 'Hola,\n\nSabemos que compaginar trabajo y formación no siempre es fácil. Por eso en Universidad Prisma diseñamos programas 100% online que se adaptan a tu ritmo.\n\nAccede a contenido actualizado, tutores especializados y una red de alumni que ya están transformando su carrera.\n\n¿Listo para dar el siguiente paso? Solicita información sin compromiso.\n\nUn saludo,\nEl equipo de Universidad Prisma',
-    emailSubject: 'Tu próximo paso profesional empieza aquí',
+    body: 'Hola {{nombre}},\n\nSabemos que compaginar trabajo y formación no siempre es fácil. Por eso en Universidad Prisma hemos diseñado {{titulacion}}, un programa 100% online que se adapta a tu ritmo.\n\nAccede a contenido actualizado, tutores especializados y una red de alumni que ya están transformando su carrera.\n\n¿Listo para dar el siguiente paso? Solicita información sin compromiso en {{cta_url}}.\n\nUn saludo,\nEl equipo de Universidad Prisma',
+    emailSubject: 'Tu próximo paso en {{titulacion}} empieza aquí',
     emailPreheader: 'Formación online que se adapta a ti, sin pausar tu carrera.',
   },
 }

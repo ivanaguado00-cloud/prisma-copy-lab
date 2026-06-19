@@ -1,0 +1,224 @@
+{"kind":"deck","id":"pr/zw000k","name":"Deck"}
+{"kind":"layout","layoutId":"164b3989-e712-42e8-ac83-3c0be2ba74da","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"c94874fe-6e99-4245-8463-a912c2281f3b","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/xp3j1d","slide":1,"title":"PRISMA Copy Lab","textShapes":10}
+{"kind":"shape","id":"sh/m94fu18j","slide":1,"bbox":[0,0,1280,16]}
+{"kind":"textbox","id":"sh/x0nuxc3y","slide":1,"text":"PRISMA Copy Lab","textPreview":"PRISMA Copy Lab","textChars":15,"textLines":1,"bbox":[72,96,680,72]}
+{"kind":"textbox","id":"sh/4fu18jqh","slide":1,"text":"Defensa final del proyecto","textPreview":"Defensa final del proyecto","textChars":26,"textLines":1,"bbox":[72,178,520,42]}
+{"kind":"textbox","id":"sh/fil0rqd4","slide":1,"text":"Producto funcional para generar, validar y trazar comunicaciones comerciales de Universidad Prisma.","textPreview":"Producto funcional para generar, validar y trazar comunicaciones comerciales de Universidad Prisma.","textChars":99,"textLines":1,"bbox":[72,256,680,90]}
+{"kind":"shape","id":"sh/qxs72x4n","slide":1,"bbox":[812,90,326,440]}
+{"kind":"textbox","id":"sh/xobm58z2","slide":1,"text":"La defensa debe demostrar","textPreview":"La defensa debe demostrar","textChars":25,"textLines":1,"bbox":[842,124,260,30]}
+{"kind":"shape","id":"sh/83itgfml","slide":1,"bbox":[842,188,246,34]}
+{"kind":"textbox","id":"sh/fepkzupw","slide":1,"text":"Producto funcionando","textPreview":"Producto funcionando","textChars":20,"textLines":1,"bbox":[856,195,218,20]}
+{"kind":"shape","id":"sh/mtwra5gb","slide":1,"bbox":[842,270,246,34]}
+{"kind":"textbox","id":"sh/oj2t83it","slide":1,"text":"Valor defendible","textPreview":"Valor defendible","textChars":16,"textLines":1,"bbox":[856,277,218,20]}
+{"kind":"shape","id":"sh/d4vmtwra","slide":1,"bbox":[842,352,246,34]}
+{"kind":"textbox","id":"sh/6dcbulwv","slide":1,"text":"Dominio de datos, límites y resultados","textPreview":"Dominio de datos, límites y resultados","textChars":38,"textLines":1,"bbox":[856,359,218,20]}
+{"kind":"textbox","id":"sh/vy90je9c","slide":1,"text":"Salida: deck editable + guion en notas del orador","textPreview":"Salida: deck editable + guion en notas del orador","textChars":49,"textLines":1,"bbox":[842,472,252,36]}
+{"kind":"textbox","id":"sh/o7qpg3ex","slide":1,"text":"PRISMA Copy Lab - defensa final","textPreview":"PRISMA Copy Lab - defensa final","textChars":31,"textLines":1,"bbox":[72,680,420,18]}
+{"kind":"textbox","id":"sh/dsji5sne","slide":1,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[1158,676,50,22]}
+{"kind":"notes","id":"nt/xp3j1d","slide":1,"text":"Abrir con el objetivo de la defensa: no explicar código línea a línea, sino enseñar producto, utilidad y criterio.\nFrase de entrada: PRISMA Copy Lab convierte un proceso manual de copy comercial en un flujo trazable de briefing, generación, validación y revisión humana."}
+{"kind":"slide","id":"sl/mu1ymr","slide":2,"title":"PROBLEMA","textShapes":11}
+{"kind":"shape","id":"sh/3ex0nuxc","slide":2,"bbox":[72,58,180,34]}
+{"kind":"textbox","id":"sh/szqtcj6t","slide":2,"text":"PROBLEMA","textPreview":"PROBLEMA","textChars":8,"textLines":1,"bbox":[86,65,152,20]}
+{"kind":"textbox","id":"sh/lkjm1cfa","slide":2,"text":"El proceso manual no escala ni deja trazabilidad","textPreview":"El proceso manual no escala ni deja trazabilidad","textChars":48,"textLines":1,"bbox":[72,112,800,96]}
+{"kind":"textbox","id":"sh/ahoza1gv","slide":2,"text":"El equipo crea, revisa e itera mensajes para WhatsApp y email con criterios que no siempre quedan registrados.","textPreview":"El equipo crea, revisa e itera mensajes para WhatsApp y email con criterios que no siempre quedan registrados.","textChars":110,"textLines":1,"bbox":[72,200,760,48]}
+{"kind":"textbox","id":"sh/32lszqtc","slide":2,"text":"PRISMA Copy Lab - defensa final","textPreview":"PRISMA Copy Lab - defensa final","textChars":31,"textLines":1,"bbox":[72,680,420,18]}
+{"kind":"textbox","id":"sh/sneloj2t","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1158,676,50,22]}
+{"kind":"shape","id":"sh/l87ed8ba","slide":2,"bbox":[88,300,322,182]}
+{"kind":"textbox","id":"sh/e9cvixcz","slide":2,"text":"Tiempo","textPreview":"Tiempo","textChars":6,"textLines":1,"bbox":[112,326,250,32]}
+{"kind":"textbox","id":"sh/3q5o7qpg","slide":2,"text":"Demasiado esfuerzo en adaptar textos por canal.","textPreview":"Demasiado esfuerzo en adaptar textos por canal.","textChars":47,"textLines":1,"bbox":[112,374,250,68]}
+{"kind":"shape","id":"sh/neloj2t8","slide":2,"bbox":[468,300,322,182]}
+{"kind":"textbox","id":"sh/ytsvu9kn","slide":2,"text":"Consistencia","textPreview":"Consistencia","textChars":12,"textLines":1,"bbox":[492,326,250,32]}
+{"kind":"textbox","id":"sh/5kb6xkf6","slide":2,"text":"Riesgo de tono desigual o mensajes poco alineados.","textPreview":"Riesgo de tono desigual o mensajes poco alineados.","textChars":50,"textLines":1,"bbox":[492,374,250,68]}
+{"kind":"shape","id":"sh/czed8v6p","slide":2,"bbox":[848,300,322,182]}
+{"kind":"textbox","id":"sh/nqxs72x4","slide":2,"text":"Trazabilidad","textPreview":"Trazabilidad","textChars":12,"textLines":1,"bbox":[872,326,250,32]}
+{"kind":"textbox","id":"sh/u54zidon","slide":2,"text":"No queda claro qué versión se aprobó, con qué criterio y por qué.","textPreview":"No queda claro qué versión se aprobó, con qué criterio y por qué.","textChars":65,"textLines":1,"bbox":[872,374,250,68]}
+{"kind":"notes","id":"nt/mu1ymr","slide":2,"text":"Problema exacto: crear y validar piezas comerciales con demasiada dependencia de revisión manual y poca evidencia posterior.\nConectar con la guía: explicar para quién importa y por qué merece existir."}
+{"kind":"slide","id":"sl/o1rqel","slide":3,"title":"USUARIO Y VALOR","textShapes":16}
+{"kind":"shape","id":"sh/6xkf6dcb","slide":3,"bbox":[72,58,180,34]}
+{"kind":"textbox","id":"sh/hk3q5o7q","slide":3,"text":"USUARIO Y VALOR","textPreview":"USUARIO Y VALOR","textChars":15,"textLines":1,"bbox":[86,65,152,20]}
+{"kind":"textbox","id":"sh/oza1gvy9","slide":3,"text":"Ayuda al equipo de marketing a decidir si un mensaje puede avanzar","textPreview":"Ayuda al equipo de marketing a decidir si un mensaje puede avanzar","textChars":66,"textLines":1,"bbox":[72,112,800,96]}
+{"kind":"textbox","id":"sh/zqtcj6to","slide":3,"text":"No reemplaza al equipo: estructura el trabajo y deja una base verificable para revisión humana.","textPreview":"No reemplaza al equipo: estructura el trabajo y deja una base verificable para revisión humana.","textChars":95,"textLines":1,"bbox":[72,200,760,48]}
+{"kind":"textbox","id":"sh/65wjudg7","slide":3,"text":"PRISMA Copy Lab - defensa final","textPreview":"PRISMA Copy Lab - defensa final","textChars":31,"textLines":1,"bbox":[72,680,420,18]}
+{"kind":"textbox","id":"sh/hwfyxobm","slide":3,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[1158,676,50,22]}
+{"kind":"shape","id":"sh/obm58z25","slide":3,"bbox":[98,254,500,78]}
+{"kind":"textbox","id":"sh/zupwb2hw","slide":3,"text":"Usuario","textPreview":"Usuario","textChars":7,"textLines":1,"bbox":[124,272,130,24]}
+{"kind":"textbox","id":"sh/a9w3m94f","slide":3,"text":"Marketing y comunicación comercial","textPreview":"Marketing y comunicación comercial","textChars":34,"textLines":1,"bbox":[270,272,290,28]}
+{"kind":"shape","id":"sh/8bat47y1","slide":3,"bbox":[98,362,500,78]}
+{"kind":"textbox","id":"sh/1w7mp0bi","slide":3,"text":"Decisión","textPreview":"Decisión","textChars":8,"textLines":1,"bbox":[124,380,130,24]}
+{"kind":"textbox","id":"sh/q5o7qpg3","slide":3,"text":"Usar, ajustar o rehacer una pieza","textPreview":"Usar, ajustar o rehacer una pieza","textChars":33,"textLines":1,"bbox":[270,380,290,28]}
+{"kind":"shape","id":"sh/jqh0fepk","slide":3,"bbox":[98,470,500,78]}
+{"kind":"textbox","id":"sh/8nqxs72x","slide":3,"text":"Beneficio","textPreview":"Beneficio","textChars":9,"textLines":1,"bbox":[124,488,130,24]}
+{"kind":"textbox","id":"sh/18jqh0fe","slide":3,"text":"Menos fricción, más consistencia y trazabilidad","textPreview":"Menos fricción, más consistencia y trazabilidad","textChars":47,"textLines":1,"bbox":[270,488,290,28]}
+{"kind":"shape","id":"sh/qh0fepkz","slide":3,"bbox":[700,250,396,292]}
+{"kind":"textbox","id":"sh/j2t83itg","slide":3,"text":"Mejora frente al proceso actual","textPreview":"Mejora frente al proceso actual","textChars":31,"textLines":1,"bbox":[730,282,300,30]}
+{"kind":"textbox","id":"sh/crmhk3q5","slide":3,"text":"• briefing estructurado","textPreview":"• briefing estructurado","textChars":23,"textLines":1,"bbox":[734,344,320,42]}
+{"kind":"textbox","id":"sh/1cfa9w3m","slide":3,"text":"• generación con prompt trazable","textPreview":"• generación con prompt trazable","textChars":32,"textLines":1,"bbox":[734,389,320,42]}
+{"kind":"textbox","id":"sh/5wjudg7a","slide":3,"text":"• validación en siete bloques","textPreview":"• validación en siete bloques","textChars":29,"textLines":1,"bbox":[734,434,320,42]}
+{"kind":"textbox","id":"sh/gbq1oryt","slide":3,"text":"• histórico consultable","textPreview":"• histórico consultable","textChars":23,"textLines":1,"bbox":[734,479,320,42]}
+{"kind":"notes","id":"nt/o1rqel","slide":3,"text":"Responder a dos preguntas probables: quién lo usa y qué acción facilita.\nEl valor no es solo generar texto: es generar, validar e interpretar con un historial."}
+{"kind":"slide","id":"sl/bymfl6","slide":4,"title":"DEMO FUNCIONAL","textShapes":20}
+{"kind":"shape","id":"sh/itgfmlkj","slide":4,"bbox":[72,58,180,34]}
+{"kind":"textbox","id":"sh/pkzupwb2","slide":4,"text":"DEMO FUNCIONAL","textPreview":"DEMO FUNCIONAL","textChars":14,"textLines":1,"bbox":[86,65,152,20]}
+{"kind":"textbox","id":"sh/0z61032l","slide":4,"text":"Flujo que debe verse en directo","textPreview":"Flujo que debe verse en directo","textChars":31,"textLines":1,"bbox":[72,112,800,96]}
+{"kind":"textbox","id":"sh/72x4nap4","slide":4,"text":"Entrada real o representativa, proceso visible y salida interpretable.","textPreview":"Entrada real o representativa, proceso visible y salida interpretable.","textChars":70,"textLines":1,"bbox":[72,200,760,48]}
+{"kind":"textbox","id":"sh/ih4byhgn","slide":4,"text":"PRISMA Copy Lab - defensa final","textPreview":"PRISMA Copy Lab - defensa final","textChars":31,"textLines":1,"bbox":[72,680,420,18]}
+{"kind":"textbox","id":"sh/p8nqxs72","slide":4,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[1158,676,50,22]}
+{"kind":"shape","id":"sh/0nuxc3yl","slide":4,"bbox":[82,266,235,210]}
+{"kind":"textbox","id":"sh/7y1kre1w","slide":4,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[102,288,42,42]}
+{"kind":"textbox","id":"sh/ed8v6psf","slide":4,"text":"Briefing","textPreview":"Briefing","textChars":8,"textLines":1,"bbox":[154,296,130,28]}
+{"kind":"textbox","id":"sh/8v6psfil","slide":4,"text":"campaña, programa, objetivo, público, canal, CTA","textPreview":"campaña, programa, objetivo, público, canal, CTA","textChars":48,"textLines":1,"bbox":[104,360,188,72]}
+{"kind":"textbox","id":"sh/xczed8v6","slide":4,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[328,348,32,38]}
+{"kind":"shape","id":"sh/qpg3ex0n","slide":4,"bbox":[367,266,235,210]}
+{"kind":"textbox","id":"sh/fa9w3m94","slide":4,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[387,288,42,42]}
+{"kind":"textbox","id":"sh/8jqh0fep","slide":4,"text":"Generación","textPreview":"Generación","textChars":10,"textLines":1,"bbox":[439,296,130,28]}
+{"kind":"textbox","id":"sh/x4nap4r6","slide":4,"text":"mensaje WhatsApp o email con IA","textPreview":"mensaje WhatsApp o email con IA","textChars":31,"textLines":1,"bbox":[389,360,188,72]}
+{"kind":"textbox","id":"sh/qd4vmtwr","slide":4,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[613,348,32,38]}
+{"kind":"shape","id":"sh/fyxobm58","slide":4,"bbox":[652,266,235,210]}
+{"kind":"textbox","id":"sh/87ed8bat","slide":4,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[672,288,42,42]}
+{"kind":"textbox","id":"sh/xs72x4na","slide":4,"text":"Validación","textPreview":"Validación","textChars":10,"textLines":1,"bbox":[724,296,130,28]}
+{"kind":"textbox","id":"sh/lwval87e","slide":4,"text":"siete bloques + veredicto global","textPreview":"siete bloques + veredicto global","textChars":32,"textLines":1,"bbox":[674,360,188,72]}
+{"kind":"textbox","id":"sh/wb2hwfyx","slide":4,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[898,348,32,38]}
+{"kind":"shape","id":"sh/3q5o7qpg","slide":4,"bbox":[937,266,235,210]}
+{"kind":"textbox","id":"sh/e9cvixcz","slide":4,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[957,288,42,42]}
+{"kind":"textbox","id":"sh/loj2t83i","slide":4,"text":"Histórico","textPreview":"Histórico","textChars":9,"textLines":1,"bbox":[1009,296,130,28]}
+{"kind":"textbox","id":"sh/w3m94fu1","slide":4,"text":"caso completo con metadatos y versiones","textPreview":"caso completo con metadatos y versiones","textChars":39,"textLines":1,"bbox":[959,360,188,72]}
+{"kind":"notes","id":"nt/bymfl6","slide":4,"text":"Durante la demo, no leer esta slide: usarla como mapa mental.\nOrden recomendado: crear o abrir briefing, generar mensaje, validar, entrar en histórico/detalle, explicar veredicto."}
+{"kind":"slide","id":"sl/i7haqd","slide":5,"title":"DATOS","textShapes":5}
+{"kind":"shape","id":"sh/orytsvu9","slide":5,"bbox":[72,58,180,34]}
+{"kind":"textbox","id":"sh/z61032ls","slide":5,"text":"DATOS","textPreview":"DATOS","textChars":5,"textLines":1,"bbox":[86,65,152,20]}
+{"kind":"textbox","id":"sh/al87ed8b","slide":5,"text":"Qué datos necesita y cómo se tratan","textPreview":"Qué datos necesita y cómo se tratan","textChars":35,"textLines":1,"bbox":[72,112,800,96]}
+{"kind":"textbox","id":"sh/h0fepkzu","slide":5,"text":"El producto trabaja con datos estructurados de briefing, versiones de mensaje, validaciones y scores.","textPreview":"El producto trabaja con datos estructurados de briefing, versiones de mensaje, validaciones y scores.","textChars":101,"textLines":1,"bbox":[72,200,760,48]}
+{"kind":"textbox","id":"sh/sfil0rqd","slide":5,"text":"PRISMA Copy Lab - defensa final","textPreview":"PRISMA Copy Lab - defensa final","textChars":31,"textLines":1,"bbox":[72,680,420,18]}
+{"kind":"textbox","id":"sh/zupwb2hw","slide":5,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1158,676,50,22]}
+{"kind":"table","id":"tb/vu9knih4","slide":5,"name":"","rows":5,"cols":3,"preview":"Dato | Origen | Tratamiento","bbox":[86,248,1080,260]}
+{"kind":"notes","id":"nt/i7haqd","slide":5,"text":"Explicar que los datos no salen de contactos reales ni de campañas reales: son datos de briefing y resultado dentro del entorno académico.\nPunto fuerte: cada resultado queda asociado a metadatos, no es una salida suelta del chat."}
+{"kind":"slide","id":"sl/s1azhc","slide":6,"title":"ARQUITECTURA","textShapes":18}
+{"kind":"shape","id":"sh/wfyxobm5","slide":6,"bbox":[72,58,180,34]}
+{"kind":"textbox","id":"sh/7u54zido","slide":6,"text":"ARQUITECTURA","textPreview":"ARQUITECTURA","textChars":12,"textLines":1,"bbox":[86,65,152,20]}
+{"kind":"textbox","id":"sh/ed8bat47","slide":6,"text":"Separación clara: interfaz, servicios, DAO y proveedores","textPreview":"Separación clara: interfaz, servicios, DAO y proveedores","textChars":56,"textLines":1,"bbox":[72,112,800,96]}
+{"kind":"textbox","id":"sh/lc7u54zi","slide":6,"text":"La estructura evita mezclar pantalla, reglas de negocio, persistencia e integración LLM.","textPreview":"La estructura evita mezclar pantalla, reglas de negocio, persistencia e integración LLM.","textChars":88,"textLines":1,"bbox":[72,200,760,48]}
+{"kind":"textbox","id":"sh/wra5gbq1","slide":6,"text":"PRISMA Copy Lab - defensa final","textPreview":"PRISMA Copy Lab - defensa final","textChars":31,"textLines":1,"bbox":[72,680,420,18]}
+{"kind":"textbox","id":"sh/36hcrmhk","slide":6,"text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1158,676,50,22]}
+{"kind":"shape","id":"sh/eloj2t83","slide":6,"bbox":[138,246,360,54]}
+{"kind":"textbox","id":"sh/pg3ex0nu","slide":6,"text":"Vista / acciones","textPreview":"Vista / acciones","textChars":16,"textLines":1,"bbox":[160,260,150,24]}
+{"kind":"textbox","id":"sh/wval87ed","slide":6,"text":"Next.js App Router + Server Actions","textPreview":"Next.js App Router + Server Actions","textChars":35,"textLines":1,"bbox":[330,260,420,24]}
+{"kind":"textbox","id":"sh/6hcrmhk3","slide":6,"text":"↓","textPreview":"↓","textChars":1,"textLines":1,"bbox":[312,300,34,28]}
+{"kind":"shape","id":"sh/z25kb6xk","slide":6,"bbox":[138,328,360,54]}
+{"kind":"textbox","id":"sh/onyd0z61","slide":6,"text":"Servicios","textPreview":"Servicios","textChars":9,"textLines":1,"bbox":[160,342,150,24]}
+{"kind":"textbox","id":"sh/d8v6psfi","slide":6,"text":"reglas de negocio y orquestación","textPreview":"reglas de negocio y orquestación","textChars":32,"textLines":1,"bbox":[330,342,420,24]}
+{"kind":"textbox","id":"sh/6tovahoz","slide":6,"text":"↓","textPreview":"↓","textChars":1,"textLines":1,"bbox":[312,382,34,28]}
+{"kind":"shape","id":"sh/vahoza1g","slide":6,"bbox":[138,410,360,54]}
+{"kind":"textbox","id":"sh/ovahoza1","slide":6,"text":"DAO","textPreview":"DAO","textChars":3,"textLines":1,"bbox":[160,424,150,24]}
+{"kind":"textbox","id":"sh/dg7adsji","slide":6,"text":"persistencia aislada con Prisma","textPreview":"persistencia aislada con Prisma","textChars":31,"textLines":1,"bbox":[330,424,420,24]}
+{"kind":"textbox","id":"sh/61032lsz","slide":6,"text":"↓","textPreview":"↓","textChars":1,"textLines":1,"bbox":[312,464,34,28]}
+{"kind":"shape","id":"sh/vmtwra5g","slide":6,"bbox":[138,492,360,54]}
+{"kind":"textbox","id":"sh/nqxs72x4","slide":6,"text":"Adapters LLM","textPreview":"Adapters LLM","textChars":12,"textLines":1,"bbox":[160,506,150,24]}
+{"kind":"textbox","id":"sh/u54zidon","slide":6,"text":"cliente real y mock bajo contrato común","textPreview":"cliente real y mock bajo contrato común","textChars":39,"textLines":1,"bbox":[330,506,420,24]}
+{"kind":"shape","id":"sh/5sneloj2","slide":6,"bbox":[792,260,310,210]}
+{"kind":"textbox","id":"sh/cbulwval","slide":6,"text":"Defensa técnica","textPreview":"Defensa técnica","textChars":15,"textLines":1,"bbox":[824,292,220,28]}
+{"kind":"textbox","id":"sh/neloj2t8","slide":6,"text":"MVC para separar responsabilidades. DAO para aislar acceso a datos. Adapter para alternar LLM real/mock sin tocar la lógica de negocio.","textPreview":"MVC para separar responsabilidades. DAO para aislar acceso a datos. Adapter para alternar LLM real/mock sin tocar la lógica de negocio.","textChars":135,"textLines":1,"bbox":[824,346,230,96]}
+{"kind":"notes","id":"nt/s1azhc","slide":6,"text":"Esta slide responde a dominio técnico sin entrar en código línea a línea.\nPatrones aplicados: MVC, DAO, Service Layer y Adapter. Beneficio: mantenibilidad, test y menor acoplamiento."}
+{"kind":"slide","id":"sl/7xsvky","slide":7,"title":"VALIDADOR","textShapes":13}
+{"kind":"shape","id":"sh/4zidonyd","slide":7,"bbox":[72,58,180,34]}
+{"kind":"textbox","id":"sh/fepkzupw","slide":7,"text":"VALIDADOR","textPreview":"VALIDADOR","textChars":9,"textLines":1,"bbox":[86,65,152,20]}
+{"kind":"textbox","id":"sh/mtwra5gb","slide":7,"text":"El valor diferencial: siete criterios y veredicto calculado","textPreview":"El valor diferencial: siete criterios y veredicto calculado","textChars":59,"textLines":1,"bbox":[72,112,800,96]}
+{"kind":"textbox","id":"sh/xc3ylc7u","slide":7,"text":"El modelo comenta cada bloque; el código calcula el veredicto global para reducir subjetividad.","textPreview":"El modelo comenta cada bloque; el código calcula el veredicto global para reducir subjetividad.","textChars":95,"textLines":1,"bbox":[72,200,760,48]}
+{"kind":"textbox","id":"sh/4r65wjud","slide":7,"text":"PRISMA Copy Lab - defensa final","textPreview":"PRISMA Copy Lab - defensa final","textChars":31,"textLines":1,"bbox":[72,680,420,18]}
+{"kind":"textbox","id":"sh/f6dcbulw","slide":7,"text":"07","textPreview":"07","textChars":2,"textLines":1,"bbox":[1158,676,50,22]}
+{"kind":"shape","id":"sh/mlkjm1cf","slide":7,"bbox":[92,236,440,46]}
+{"kind":"textbox","id":"sh/x0nuxc3y","slide":7,"text":"Alineación estratégica","textPreview":"Alineación estratégica","textChars":22,"textLines":1,"bbox":[110,249,360,20]}
+{"kind":"shape","id":"sh/4fu18jqh","slide":7,"bbox":[612,236,440,46]}
+{"kind":"textbox","id":"sh/6dcbulwv","slide":7,"text":"Claridad y estructura","textPreview":"Claridad y estructura","textChars":21,"textLines":1,"bbox":[630,249,360,20]}
+{"kind":"shape","id":"sh/vy90je9c","slide":7,"bbox":[92,306,440,46]}
+{"kind":"textbox","id":"sh/oj2t83it","slide":7,"text":"Tono y marca","textPreview":"Tono y marca","textChars":12,"textLines":1,"bbox":[110,319,360,20]}
+{"kind":"shape","id":"sh/d4vmtwra","slide":7,"bbox":[612,306,440,46]}
+{"kind":"textbox","id":"sh/61032lsz","slide":7,"text":"Calidad argumental","textPreview":"Calidad argumental","textChars":18,"textLines":1,"bbox":[630,319,360,20]}
+{"kind":"shape","id":"sh/vmtwra5g","slide":7,"bbox":[92,376,440,46]}
+{"kind":"textbox","id":"sh/o7qpg3ex","slide":7,"text":"Adaptación al canal","textPreview":"Adaptación al canal","textChars":19,"textLines":1,"bbox":[110,389,360,20]}
+{"kind":"shape","id":"sh/dsji5sne","slide":7,"bbox":[612,376,440,46]}
+{"kind":"textbox","id":"sh/6tovahoz","slide":7,"text":"Precisión y fiabilidad","textPreview":"Precisión y fiabilidad","textChars":22,"textLines":1,"bbox":[630,389,360,20]}
+{"kind":"shape","id":"sh/vahoza1g","slide":7,"bbox":[92,446,440,46]}
+{"kind":"textbox","id":"sh/r65wjudg","slide":7,"text":"Calidad final","textPreview":"Calidad final","textChars":13,"textLines":1,"bbox":[110,459,360,20]}
+{"kind":"shape","id":"sh/ylc7u54z","slide":7,"bbox":[666,506,430,74]}
+{"kind":"textbox","id":"sh/9cvixcze","slide":7,"text":"Matriz: crítico = no aprobada; 2+ mejorables = aprobada con ajustes; resto = aprobada","textPreview":"Matriz: crítico = no aprobada; 2+ mejorables = aprobada con ajustes; resto = aprobada","textChars":85,"textLines":1,"bbox":[690,526,380,34]}
+{"kind":"notes","id":"nt/7xsvky","slide":7,"text":"Aquí conviene recalcar fiabilidad útil, no infalibilidad absoluta.\nEl LLM no decide solo el resultado global: devuelve estructura y comentarios; el servicio calcula el veredicto con reglas documentadas."}
+{"kind":"slide","id":"sl/f6etfl","slide":8,"title":"RESULTADOS","textShapes":12}
+{"kind":"shape","id":"sh/vmtwra5g","slide":8,"bbox":[72,58,180,34]}
+{"kind":"textbox","id":"sh/o7qpg3ex","slide":8,"text":"RESULTADOS","textPreview":"RESULTADOS","textChars":10,"textLines":1,"bbox":[86,65,152,20]}
+{"kind":"textbox","id":"sh/dsji5sne","slide":8,"text":"Qué recibe el usuario y cómo debe interpretarlo","textPreview":"Qué recibe el usuario y cómo debe interpretarlo","textChars":47,"textLines":1,"bbox":[72,112,800,96]}
+{"kind":"textbox","id":"sh/6dcbulwv","slide":8,"text":"La salida es accionable: mensaje generado, evaluación por bloque, veredicto y recomendaciones.","textPreview":"La salida es accionable: mensaje generado, evaluación por bloque, veredicto y recomendaciones.","textChars":94,"textLines":1,"bbox":[72,200,760,48]}
+{"kind":"textbox","id":"sh/vy90je9c","slide":8,"text":"PRISMA Copy Lab - defensa final","textPreview":"PRISMA Copy Lab - defensa final","textChars":31,"textLines":1,"bbox":[72,680,420,18]}
+{"kind":"textbox","id":"sh/oj2t83it","slide":8,"text":"08","textPreview":"08","textChars":2,"textLines":1,"bbox":[1158,676,50,22]}
+{"kind":"shape","id":"sh/d4vmtwra","slide":8,"bbox":[118,292,292,164]}
+{"kind":"textbox","id":"sh/6hcrmhk3","slide":8,"text":"aprobada","textPreview":"aprobada","textChars":8,"textLines":1,"bbox":[144,322,230,30]}
+{"kind":"textbox","id":"sh/z25kb6xk","slide":8,"text":"Puede avanzar sin cambios relevantes","textPreview":"Puede avanzar sin cambios relevantes","textChars":36,"textLines":1,"bbox":[144,374,218,52]}
+{"kind":"shape","id":"sh/vy90je9c","slide":8,"bbox":[468,292,292,164]}
+{"kind":"textbox","id":"sh/6dcbulwv","slide":8,"text":"aprobada con ajustes","textPreview":"aprobada con ajustes","textChars":20,"textLines":1,"bbox":[494,322,230,30]}
+{"kind":"textbox","id":"sh/d4vmtwra","slide":8,"text":"La base sirve, pero conviene corregir puntos menores","textPreview":"La base sirve, pero conviene corregir puntos menores","textChars":52,"textLines":1,"bbox":[494,374,218,52]}
+{"kind":"shape","id":"sh/oj2t83it","slide":8,"bbox":[818,292,292,164]}
+{"kind":"textbox","id":"sh/vmtwra5g","slide":8,"text":"no aprobada","textPreview":"no aprobada","textChars":11,"textLines":1,"bbox":[844,322,230,30]}
+{"kind":"textbox","id":"sh/61032lsz","slide":8,"text":"Debe rehacerse total o parcialmente","textPreview":"Debe rehacerse total o parcialmente","textChars":35,"textLines":1,"bbox":[844,374,218,52]}
+{"kind":"textbox","id":"sh/dsji5sne","slide":8,"text":"Interpretación defendible: no es una “nota” opaca; es una decisión de revisión con evidencias por criterio.","textPreview":"Interpretación defendible: no es una “nota” opaca; es una decisión de revisión con evidencias por criterio.","textChars":107,"textLines":1,"bbox":[142,516,960,42]}
+{"kind":"notes","id":"nt/f6etfl","slide":8,"text":"Explicar la salida con vocabulario de usuario: seguir, ajustar o rehacer.\nSi preguntan por fiabilidad: se combina validación estructurada, parser estricto, reglas deterministas y revisión humana final."}
+{"kind":"slide","id":"sl/82y787","slide":9,"title":"LÍMITES","textShapes":13}
+{"kind":"shape","id":"sh/jqh0fepk","slide":9,"bbox":[72,58,180,34]}
+{"kind":"textbox","id":"sh/8bat47y1","slide":9,"text":"LÍMITES","textPreview":"LÍMITES","textChars":7,"textLines":1,"bbox":[86,65,152,20]}
+{"kind":"textbox","id":"sh/1w7mp0bi","slide":9,"text":"Qué no resuelve todavía y por qué está acotado así","textPreview":"Qué no resuelve todavía y por qué está acotado así","textChars":50,"textLines":1,"bbox":[72,112,800,96]}
+{"kind":"textbox","id":"sh/qh0fepkz","slide":9,"text":"La guía pide demostrar criterio también en las limitaciones: alcance explícito antes que promesas infladas.","textPreview":"La guía pide demostrar criterio también en las limitaciones: alcance explícito antes que promesas infladas.","textChars":107,"textLines":1,"bbox":[72,200,760,48]}
+{"kind":"textbox","id":"sh/j2t83itg","slide":9,"text":"PRISMA Copy Lab - defensa final","textPreview":"PRISMA Copy Lab - defensa final","textChars":31,"textLines":1,"bbox":[72,680,420,18]}
+{"kind":"textbox","id":"sh/8nqxs72x","slide":9,"text":"09","textPreview":"09","textChars":2,"textLines":1,"bbox":[1158,676,50,22]}
+{"kind":"shape","id":"sh/18jqh0fe","slide":9,"bbox":[110,250,420,88]}
+{"kind":"textbox","id":"sh/ulwval87","slide":9,"text":"No es CRM","textPreview":"No es CRM","textChars":9,"textLines":1,"bbox":[134,268,340,26]}
+{"kind":"textbox","id":"sh/j6tovaho","slide":9,"text":"No gestiona contactos ni campañas reales.","textPreview":"No gestiona contactos ni campañas reales.","textChars":41,"textLines":1,"bbox":[134,300,340,22]}
+{"kind":"shape","id":"sh/j2t83itg","slide":9,"bbox":[625,250,420,88]}
+{"kind":"textbox","id":"sh/qh0fepkz","slide":9,"text":"No sustituye revisión humana","textPreview":"No sustituye revisión humana","textChars":28,"textLines":1,"bbox":[649,268,340,26]}
+{"kind":"textbox","id":"sh/18jqh0fe","slide":9,"text":"Asiste al equipo y organiza criterios.","textPreview":"Asiste al equipo y organiza criterios.","textChars":38,"textLines":1,"bbox":[649,300,340,22]}
+{"kind":"shape","id":"sh/8nqxs72x","slide":9,"bbox":[110,374,420,88]}
+{"kind":"textbox","id":"sh/jqh0fepk","slide":9,"text":"No garantiza verdad externa","textPreview":"No garantiza verdad externa","textChars":27,"textLines":1,"bbox":[134,392,340,26]}
+{"kind":"textbox","id":"sh/q5o7qpg3","slide":9,"text":"La precisión depende del briefing y fuentes verificadas.","textPreview":"La precisión depende del briefing y fuentes verificadas.","textChars":56,"textLines":1,"bbox":[134,424,340,22]}
+{"kind":"shape","id":"sh/1w7mp0bi","slide":9,"bbox":[625,374,420,88]}
+{"kind":"textbox","id":"sh/8bat47y1","slide":9,"text":"No despliega producción","textPreview":"No despliega producción","textChars":23,"textLines":1,"bbox":[649,392,340,26]}
+{"kind":"textbox","id":"sh/ji5snelo","slide":9,"text":"Es MVP académico local con SQLite.","textPreview":"Es MVP académico local con SQLite.","textChars":34,"textLines":1,"bbox":[649,424,340,22]}
+{"kind":"notes","id":"nt/82y787","slide":9,"text":"Esta slide ayuda a contestar “qué limitación debe conocer un usuario”.\nEvitar sonar defensivo: los límites muestran alcance responsable."}
+{"kind":"slide","id":"sl/0mreg6","slide":10,"title":"SIGUIENTES PASOS","textShapes":17}
+{"kind":"shape","id":"sh/jm1cfa9w","slide":10,"bbox":[72,58,180,34]}
+{"kind":"textbox","id":"sh/c7u54zid","slide":10,"text":"SIGUIENTES PASOS","textPreview":"SIGUIENTES PASOS","textChars":16,"textLines":1,"bbox":[86,65,152,20]}
+{"kind":"textbox","id":"sh/1orytsvu","slide":10,"text":"Qué mejoraría con un mes más","textPreview":"Qué mejoraría con un mes más","textChars":28,"textLines":1,"bbox":[72,112,800,96]}
+{"kind":"textbox","id":"sh/u9knih4b","slide":10,"text":"Prioridad: robustecer uso real, medición y gobierno sin romper el foco del MVP.","textPreview":"Prioridad: robustecer uso real, medición y gobierno sin romper el foco del MVP.","textChars":79,"textLines":1,"bbox":[72,200,760,48]}
+{"kind":"textbox","id":"sh/judg7ads","slide":10,"text":"PRISMA Copy Lab - defensa final","textPreview":"PRISMA Copy Lab - defensa final","textChars":31,"textLines":1,"bbox":[72,680,420,18]}
+{"kind":"textbox","id":"sh/cfa9w3m9","slide":10,"text":"10","textPreview":"10","textChars":2,"textLines":1,"bbox":[1158,676,50,22]}
+{"kind":"textbox","id":"sh/1032lszq","slide":10,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[98,258,60,58]}
+{"kind":"textbox","id":"sh/udg7adsj","slide":10,"text":"Filtros y búsqueda avanzados","textPreview":"Filtros y búsqueda avanzados","textChars":28,"textLines":1,"bbox":[98,330,220,34]}
+{"kind":"textbox","id":"sh/nyd0z610","slide":10,"text":"en histórico por canal, fecha y veredicto","textPreview":"en histórico por canal, fecha y veredicto","textChars":41,"textLines":1,"bbox":[98,382,204,58]}
+{"kind":"textbox","id":"sh/v6psfil0","slide":10,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[378,258,60,58]}
+{"kind":"textbox","id":"sh/2lszqtcj","slide":10,"text":"Iteración guiada","textPreview":"Iteración guiada","textChars":16,"textLines":1,"bbox":[378,330,220,34]}
+{"kind":"textbox","id":"sh/d8bat47y","slide":10,"text":"comparar versiones y justificar mejoras","textPreview":"comparar versiones y justificar mejoras","textChars":39,"textLines":1,"bbox":[378,382,204,58]}
+{"kind":"textbox","id":"sh/knih4byh","slide":10,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[658,258,60,58]}
+{"kind":"textbox","id":"sh/vu9knih4","slide":10,"text":"Exportación y CRM","textPreview":"Exportación y CRM","textChars":17,"textLines":1,"bbox":[658,330,220,34]}
+{"kind":"textbox","id":"sh/29gr2p8n","slide":10,"text":"flujo interno más completo para email","textPreview":"flujo interno más completo para email","textChars":37,"textLines":1,"bbox":[658,382,204,58]}
+{"kind":"textbox","id":"sh/d0z61032","slide":10,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[938,258,60,58]}
+{"kind":"textbox","id":"sh/kf6dcbul","slide":10,"text":"Evaluación","textPreview":"Evaluación","textChars":10,"textLines":1,"bbox":[938,330,220,34]}
+{"kind":"textbox","id":"sh/vixczed8","slide":10,"text":"casos de prueba con revisores humanos","textPreview":"casos de prueba con revisores humanos","textChars":37,"textLines":1,"bbox":[938,382,204,58]}
+{"kind":"notes","id":"nt/0mreg6","slide":10,"text":"Responder a la pregunta de “un mes más” con prioridades realistas.\nNo prometer grandes integraciones primero: la siguiente mejora más valiosa es medir y comparar calidad del proceso."}
+{"kind":"slide","id":"sl/2dj7go","slide":11,"title":"PREGUNTAS PROBABLES","textShapes":13}
+{"kind":"shape","id":"sh/j6tovaho","slide":11,"bbox":[72,58,180,34]}
+{"kind":"textbox","id":"sh/crmhk3q5","slide":11,"text":"PREGUNTAS PROBABLES","textPreview":"PREGUNTAS PROBABLES","textChars":19,"textLines":1,"bbox":[86,65,152,20]}
+{"kind":"textbox","id":"sh/1cfa9w3m","slide":11,"text":"Respuestas preparadas para defender con criterio","textPreview":"Respuestas preparadas para defender con criterio","textChars":48,"textLines":1,"bbox":[72,112,800,96]}
+{"kind":"textbox","id":"sh/uxc3ylc7","slide":11,"text":"Cerrar la defensa anticipando dudas sobre problema, datos, fiabilidad y evolución.","textPreview":"Cerrar la defensa anticipando dudas sobre problema, datos, fiabilidad y evolución.","textChars":82,"textLines":1,"bbox":[72,200,760,48]}
+{"kind":"textbox","id":"sh/ji5snelo","slide":11,"text":"PRISMA Copy Lab - defensa final","textPreview":"PRISMA Copy Lab - defensa final","textChars":31,"textLines":1,"bbox":[72,680,420,18]}
+{"kind":"textbox","id":"sh/c3ylc7u5","slide":11,"text":"11","textPreview":"11","textChars":2,"textLines":1,"bbox":[1158,676,50,22]}
+{"kind":"shape","id":"sh/1kre1w7m","slide":11,"bbox":[96,218,1040,62]}
+{"kind":"textbox","id":"sh/q5o7qpg3","slide":11,"text":"¿Qué problema exacto resuelve?","textPreview":"¿Qué problema exacto resuelve?","textChars":30,"textLines":1,"bbox":[122,231,330,24]}
+{"kind":"textbox","id":"sh/jqh0fepk","slide":11,"text":"Reduce fricción y falta de trazabilidad al crear y validar copy comercial.","textPreview":"Reduce fricción y falta de trazabilidad al crear y validar copy comercial.","textChars":74,"textLines":1,"bbox":[480,231,610,24]}
+{"kind":"shape","id":"sh/fmlkjm1c","slide":11,"bbox":[96,304,1040,62]}
+{"kind":"textbox","id":"sh/q1orytsv","slide":11,"text":"¿Cómo sé que es útil?","textPreview":"¿Cómo sé que es útil?","textChars":21,"textLines":1,"bbox":[122,317,330,24]}
+{"kind":"textbox","id":"sh/xs72x4na","slide":11,"text":"La salida conecta criterio por bloque con una decisión accionable.","textPreview":"La salida conecta criterio por bloque con una decisión accionable.","textChars":66,"textLines":1,"bbox":[480,317,610,24]}
+{"kind":"shape","id":"sh/87ed8bat","slide":11,"bbox":[96,390,1040,62]}
+{"kind":"textbox","id":"sh/je9cvixc","slide":11,"text":"¿Qué pasa si cambia la fuente de datos?","textPreview":"¿Qué pasa si cambia la fuente de datos?","textChars":39,"textLines":1,"bbox":[122,403,330,24]}
+{"kind":"textbox","id":"sh/qtcj6tov","slide":11,"text":"DAO y servicios aíslan persistencia; criterios y prompts se versionan.","textPreview":"DAO y servicios aíslan persistencia; criterios y prompts se versionan.","textChars":70,"textLines":1,"bbox":[480,403,610,24]}
+{"kind":"shape","id":"sh/1gvy90je","slide":11,"bbox":[96,476,1040,62]}
+{"kind":"textbox","id":"sh/8z25kb6x","slide":11,"text":"¿Cuál es el mayor riesgo?","textPreview":"¿Cuál es el mayor riesgo?","textChars":25,"textLines":1,"bbox":[122,489,330,24]}
+{"kind":"textbox","id":"sh/fa9w3m94","slide":11,"text":"Confiar en una generación sin revisión humana o con briefing pobre.","textPreview":"Confiar en una generación sin revisión humana o con briefing pobre.","textChars":67,"textLines":1,"bbox":[480,489,610,24]}
+{"kind":"notes","id":"nt/2dj7go","slide":11,"text":"Usar esta slide para el turno de preguntas o como cierre si no hay preguntas.\nMensaje final: el proyecto demuestra producto funcional, criterio de datos y límites responsables."}

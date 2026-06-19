@@ -69,7 +69,7 @@ export function MessageVersionView({ version, channel, verdictStatus, briefTitle
 
         {version.userInstruction && (
           <div className="mt-3 text-xs rounded px-3 py-2 bg-surface-container-high border border-outline-variant">
-            <span className="font-medium text-brand-lime">Instrucción aplicada:</span>{' '}
+            <span className="font-medium text-on-surface">Instrucción aplicada:</span>{' '}
             <span className="text-on-surface-variant">&ldquo;{version.userInstruction}&rdquo;</span>
           </div>
         )}
