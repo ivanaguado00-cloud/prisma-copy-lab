@@ -5,7 +5,6 @@ import { auth } from '../../../auth'
 import { listBriefs } from '../../../dao/briefDao'
 import { BriefsFilterBar } from '../../../components/briefs/BriefsFilterBar'
 import { canCreateBriefs, canSeeAllBriefs } from '../../../types/domain'
-import { getBriefListStatusMeta } from '../../../lib/briefStatusDisplay'
 
 export const metadata = {
   title: 'Briefings — PRISMA Copy Lab',
@@ -155,9 +154,13 @@ export default async function BriefsListPage({ searchParams }: Props) {
 
           <ul>
             {displayedBriefs.map((brief, idx) => {
-              // «Equipo CRM» solo cuando el envío al CRM se ha confirmado.
-              // Un brief aprobado pero sin enviar muestra «En espera de CRM».
-              const sm = getBriefListStatusMeta(brief.reviewStatus ?? 'pending', brief.crmStatus)
+              const statusMeta: Record<string, { label: string; cls: string; responsable: string }> = {
+                pending:   { label: 'Borrador',       cls: 'bg-surface-container-high text-on-surface-variant border-outline-variant',          responsable: 'Redactor' },
+                submitted: { label: 'En revisión',    cls: 'bg-[#e9e8e7] text-[#1b1c1c] border-[#cfc4c5]',                                     responsable: 'Product Manager' },
+                approved:  { label: 'Aprobado',       cls: 'bg-success-container text-on-success-container border-success-container',            responsable: 'Equipo CRM' },
+                rejected:  { label: 'Rechazado',      cls: 'bg-error-container/30 text-on-error-container border-error-container/50',            responsable: 'Redactor' },
+              }
+              const sm = statusMeta[brief.reviewStatus ?? 'pending'] ?? statusMeta['pending']!!
 
               return (
                 <li

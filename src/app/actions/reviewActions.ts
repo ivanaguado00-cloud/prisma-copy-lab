@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { auth } from '../../auth'
-import { setReviewStatus, submitBriefForReview, notifyBriefApproval } from '../../services/reviewService'
+import { setReviewStatus, submitBriefForReview } from '../../services/reviewService'
 import { getBriefById } from '../../dao/briefDao'
 import { listVersionsByBrief } from '../../dao/messageVersionDao'
 import { listValidationRunsByMessage } from '../../dao/validationRunDao'
@@ -14,39 +14,6 @@ export interface ReviewActionResult {
   error?: string
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-type MessageVersion = {
-  id: string
-  content: string
-  emailSubject: string | null
-  emailPreheader: string | null
-}
-
-/**
- * Recorre las versiones del brief de más nueva a más antigua y devuelve
- * la primera que tenga una validación con veredicto aprobable.
- * Devuelve null si ninguna versión cumple la condición.
- */
-async function findVersionWithValidVerdict(
-  versions: MessageVersion[],
-): Promise<MessageVersion | null> {
-  for (const version of [...versions].reverse()) {
-    const runs = await listValidationRunsByMessage(version.id)
-    const latestRun = runs[0]
-    if (
-      latestRun &&
-      (latestRun.overallVerdict === OVERALL_VERDICT.aprobada ||
-        latestRun.overallVerdict === OVERALL_VERDICT.aprobada_con_ajustes)
-    ) {
-      return version
-    }
-  }
-  return null
-}
-
-// ── Actions ───────────────────────────────────────────────────────────────────
-
 export async function approveBriefAction(
   briefId: string,
   note?: string,
@@ -54,24 +21,6 @@ export async function approveBriefAction(
   const session = await auth()
   if (!session?.user?.id) return { success: false, error: 'No autenticado.' }
 
-  // 1. Cargar brief para pre-validaciones y envío a CRM.
-  const brief = await getBriefById(briefId)
-  if (!brief) return { success: false, error: 'Brief no encontrado.' }
-
-  // 2. Verificar que existe una versión con veredicto válido antes de aprobar.
-  //    Sin esta condición el brief no debería poder enviarse a CRM.
-  const versions = await listVersionsByBrief(briefId)
-  const approvableVersion = await findVersionWithValidVerdict(versions)
-  if (!approvableVersion) {
-    return {
-      success: false,
-      error:
-        'No se puede aprobar: ninguna versión tiene un veredicto aprobado. ' +
-        'El brief debe tener al menos una versión con veredicto "aprobada" o "aprobada_con_ajustes".',
-    }
-  }
-
-  // 3. Aprobar en base de datos. El servicio también bloquea aprobaciones duplicadas.
   const result = await setReviewStatus(
     briefId,
     session.user.id,
@@ -79,27 +28,36 @@ export async function approveBriefAction(
     REVIEW_STATUS.approved,
     note,
   )
-  if (!result.success) return result
 
-  // 4. Envío automático a CRM (solo si aún no fue enviado con éxito anteriormente).
-  let crmSent = brief.crmStatus === 'sent_to_crm'
-  if (!crmSent) {
-    const crmResult = await sendToCrm({
-      brief,
-      messageContent: approvableVersion.content,
-      emailSubject: approvableVersion.emailSubject ?? null,
-      emailPreheader: approvableVersion.emailPreheader ?? null,
-      crmNotes: note,
-      sentByUserId: session.user.id,
-    })
-    crmSent = crmResult.success
+  if (result.success) {
+    // Envío automático a CRM al aprobar, tanto para email como para WhatsApp.
+    const brief = await getBriefById(briefId)
+    if (brief && brief.crmStatus !== 'sent_to_crm') {
+      const versions = await listVersionsByBrief(briefId)
+      for (const version of [...versions].reverse()) {
+        const runs = await listValidationRunsByMessage(version.id)
+        const latestRun = runs[0]
+        if (
+          latestRun &&
+          (latestRun.overallVerdict === OVERALL_VERDICT.aprobada ||
+            latestRun.overallVerdict === OVERALL_VERDICT.aprobada_con_ajustes)
+        ) {
+          await sendToCrm({
+            brief,
+            messageContent: version.content,
+            emailSubject: version.emailSubject ?? null,
+            emailPreheader: version.emailPreheader ?? null,
+            crmNotes: note,
+            sentByUserId: session.user.id,
+          })
+          break
+        }
+      }
+    }
+
+    revalidatePath(`/briefs/${briefId}`)
   }
 
-  // 5. Notificar al autor con el resultado real del envío al CRM.
-  //    La notificación es veraz: solo afirma "enviado al CRM" si crmSent es true.
-  await notifyBriefApproval(brief.userId, brief.title, briefId, crmSent, note)
-
-  revalidatePath(`/briefs/${briefId}`)
   return result
 }
 

@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análisis y Rendimiento Comercial · Prisma</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f8f7f4;
+    --surface: #ffffff;
+    --surface-2: #f1efe8;
+    --border: rgba(0,0,0,0.10);
+    --border-strong: rgba(0,0,0,0.18);
+    --text: #1a1a18;
+    --text-2: #5f5e5a;
+    --text-3: #888780;
+    --purple-50: #EEEDFE; --purple-600: #534AB7; --purple-800: #3C3489;
+    --teal-50: #E1F5EE; --teal-600: #0F6E56; --teal-800: #085041;
+    --amber-50: #FAEEDA; --amber-600: #854F0B; --amber-800: #633806;
+    --coral-50: #FAECE7; --coral-600: #993C1D; --coral-800: #712B13;
+    --blue-50: #E6F1FB; --blue-600: #185FA5; --blue-800: #0C447C;
+    --green-50: #EAF3DE; --green-600: #3B6D11; --green-800: #27500A;
+    --red-50: #FCEBEB; --red-600: #A32D2D;
+    --radius: 8px; --radius-lg: 12px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.07);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a18; --surface: #26261f; --surface-2: #2c2c24;
+      --border: rgba(255,255,255,0.10); --border-strong: rgba(255,255,255,0.18);
+      --text: #f0ede6; --text-2: #b4b2a9; --text-3: #888780;
+      --purple-50: #26215C; --purple-600: #AFA9EC; --purple-800: #CECBF6;
+      --teal-50: #04342C; --teal-600: #5DCAA5; --teal-800: #9FE1CB;
+      --amber-50: #412402; --amber-600: #EF9F27; --amber-800: #FAC775;
+      --coral-50: #4A1B0C; --coral-600: #F0997B; --coral-800: #F5C4B3;
+      --blue-50: #042C53; --blue-600: #85B7EB; --blue-800: #B5D4F4;
+      --green-50: #173404; --green-600: #97C459; --green-800: #C0DD97;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 0.5px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--purple-600);
+  }
+  .topbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .nav-btn {
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    border: none;
+    background: none;
+    color: var(--text-2);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .nav-btn:hover { background: var(--surface-2); }
+  .nav-btn.active {
+    background: var(--purple-50);
+    color: var(--purple-800);
+    font-weight: 500;
+  }
+  .topbar-actions { display: flex; gap: 8px; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: var(--radius);
+    border: 0.5px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px; cursor: pointer;
+    transition: background 0.15s;
+    text-decoration: none;
+  }
+  .btn:hover { background: var(--surface-2); }
+  .btn-primary {
+    background: var(--purple-600); color: #fff;
+    border-color: var(--purple-600);
+  }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-success {
+    background: var(--teal-50); color: var(--teal-800);
+    border-color: var(--teal-600);
+  }
+
+  /* LAYOUT */
+  .layout { display: flex; }
+  .sidebar {
+    width: 260px; min-width: 260px;
+    background: var(--surface);
+    border-right: 0.5px solid var(--border);
+    padding: 20px 16px;
+    min-height: calc(100vh - 56px);
+    position: sticky; top: 56px;
+    align-self: flex-start;
+    max-height: calc(100vh - 56px);
+    overflow-y: auto;
+  }
+  .main { flex: 1; padding: 24px; min-width: 0; }
+
+  /* SIDEBAR FILTERS */
+  .filter-section { margin-bottom: 24px; }
+  .filter-label {
+    font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--text-3);
+    font-weight: 500; margin-bottom: 8px;
+    display: block;
+  }
+  .filter-group {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .filter-opt {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px; border-radius: var(--radius);
+    cursor: pointer; transition: background 0.12s;
+    font-size: 13px; color: var(--text-2);
+    border: none; background: none; text-align: left;
+    width: 100%;
+  }
+  .filter-opt:hover { background: var(--surface-2); color: var(--text); }
+  .filter-opt.active {
+    background: var(--purple-50); color: var(--purple-800); font-weight: 500;
+  }
+  .filter-opt .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor; flex-shrink: 0;
+  }
+  select.filter-select {
+    width: 100%; padding: 7px 10px;
+    border-radius: var(--radius); border: 0.5px solid var(--border-strong);
+    background: var(--surface); color: var(--text);
+    font-size: 13px; cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23888' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 8px center;
+    padding-right: 28px;
+  }
+  .comm-item {
+    padding: 8px 10px; border-radius: var(--radius);
+    border: 0.5px solid var(--border);
+    background: var(--surface); margin-bottom: 6px;
+    cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .comm-item:hover { border-color: var(--border-strong); }
+  .comm-item.active {
+    border-color: var(--purple-600);
+    background: var(--purple-50);
+  }
+  .comm-item .ch-badge {
+    font-size: 10px; font-weight: 500;
+    padding: 2px 6px; border-radius: 4px;
+    display: inline-block; margin-bottom: 3px;
+  }
+  .ch-wa { background: #dcfce7; color: #166534; }
+  .ch-email { background: var(--blue-50); color: var(--blue-800); }
+  .comm-item .comm-name {
+    font-size: 12px; font-weight: 500; color: var(--text);
+    display: block;
+  }
+  .comm-item .comm-date {
+    font-size: 11px; color: var(--text-3);
+  }
+
+  /* UTM pills */
+  .utm-grid { display: flex; flex-direction: column; gap: 4px; }
+  .utm-row {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px;
+  }
+  .utm-key {
+    color: var(--text-3); min-width: 80px; font-size: 11px;
+  }
+  .utm-val {
+    flex: 1; padding: 4px 8px; border-radius: var(--radius);
+    border: 0.5px solid var(--border); background: var(--surface);
+    color: var(--text); font-size: 12px;
+  }
+
+  /* KPI STRIP */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px; margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg); padding: 14px 16px;
+  }
+  .kpi-label {
+    font-size: 11px; color: var(--text-3); text-transform: uppercase;
+    letter-spacing: 0.05em; margin-bottom: 4px; display: flex;
+    align-items: center; gap: 4px;
+  }
+  .kpi-num { font-size: 24px; font-weight: 500; color: var(--text); }
+  .kpi-sub { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+  .kpi-delta {
+    font-size: 11px; margin-top: 4px;
+    display: inline-flex; align-items: center; gap: 2px;
+  }
+  .delta-up { color: var(--teal-600); }
+  .delta-down { color: var(--red-600); }
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+  /* PANEL */
+  .panel {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg); padding: 20px 20px 16px;
+    margin-bottom: 16px;
+  }
+  .panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .panel-title {
+    font-size: 14px; font-weight: 500; color: var(--text);
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  /* FUNNEL */
+  .funnel { display: flex; flex-direction: column; gap: 0; }
+  .funnel-step {
+    display: grid; grid-template-columns: 200px 1fr 80px 80px;
+    align-items: center; gap: 12px;
+    padding: 10px 0; border-bottom: 0.5px solid var(--border);
+  }
+  .funnel-step:last-child { border-bottom: none; }
+  .funnel-bar-wrap { height: 8px; background: var(--surface-2); border-radius: 4px; }
+  .funnel-bar { height: 8px; border-radius: 4px; transition: width 0.6s ease; }
+  .funnel-label { font-size: 13px; color: var(--text-2); display: flex; align-items: center; gap: 6px; }
+  .funnel-num { font-size: 15px; font-weight: 500; text-align: right; }
+  .funnel-pct { font-size: 12px; color: var(--text-3); text-align: right; }
+  .f-icon { width: 20px; height: 20px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+
+  /* REVENUE */
+  .revenue-block {
+    background: var(--teal-50); border: 0.5px solid var(--teal-600);
+    border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px;
+  }
+  .revenue-main { font-size: 36px; font-weight: 500; color: var(--teal-800); margin: 4px 0; }
+  .revenue-sub { font-size: 13px; color: var(--teal-600); }
+  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .price-pill {
+    background: var(--surface); border-radius: var(--radius);
+    border: 0.5px solid var(--border); padding: 8px 10px;
+  }
+  .price-pill .prog-name { font-size: 11px; color: var(--text-3); }
+  .price-pill .prog-price { font-size: 14px; font-weight: 500; color: var(--text); }
+  .price-pill .prog-disc { font-size: 11px; color: var(--teal-600); }
+
+  /* AB COMPARATOR */
+  .ab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .ab-card {
+    border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px;
+    background: var(--surface);
+  }
+  .ab-card.winner { border-color: var(--teal-600); background: var(--teal-50); }
+  .ab-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 500;
+    padding: 3px 8px; border-radius: 4px; margin-bottom: 10px;
+  }
+  .ab-a { background: var(--blue-50); color: var(--blue-800); }
+  .ab-b { background: var(--purple-50); color: var(--purple-800); }
+  .ab-winner-badge { background: var(--teal-50); color: var(--teal-800); }
+  .ab-metric { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 0.5px solid var(--border); font-size: 13px; }
+  .ab-metric:last-child { border-bottom: none; }
+  .ab-metric-label { color: var(--text-2); }
+  .ab-metric-val { font-weight: 500; }
+  .ab-metric-val.better { color: var(--teal-600); }
+
+  /* MESSAGE VIEW */
+  .msg-preview {
+    background: var(--surface-2); border-radius: var(--radius);
+    padding: 14px 16px; font-size: 13px; line-height: 1.7;
+    color: var(--text); border-left: 3px solid var(--purple-600);
+    white-space: pre-wrap; font-family: inherit;
+    max-height: 220px; overflow-y: auto;
+  }
+
+  /* SUCCESS BUTTON */
+  .success-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: var(--radius);
+    background: var(--amber-50); color: var(--amber-800);
+    border: 0.5px solid var(--amber-600);
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .success-btn:hover { opacity: 0.85; }
+  .success-btn.saved {
+    background: var(--teal-50); color: var(--teal-800);
+    border-color: var(--teal-600);
+  }
+
+  /* CHART WRAPPER */
+  .chart-wrap { position: relative; width: 100%; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 2px; margin-bottom: 16px; border-bottom: 0.5px solid var(--border); }
+  .tab {
+    padding: 8px 14px; font-size: 13px; cursor: pointer;
+    border: none; background: none; color: var(--text-2);
+    border-bottom: 2px solid transparent; margin-bottom: -0.5px;
+    transition: color 0.15s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--purple-600); border-bottom-color: var(--purple-600); font-weight: 500; }
+
+  /* COMM COUNTER */
+  .comm-counter {
+    background: var(--purple-50); border-radius: var(--radius);
+    padding: 8px 12px; margin-bottom: 12px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .comm-counter .cc-label { font-size: 11px; color: var(--text-3); }
+  .comm-counter .cc-num { font-size: 18px; font-weight: 500; color: var(--purple-800); }
+
+  /* LEGEND */
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--text-2); margin-bottom: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+
+  .section-sep { height: 0.5px; background: var(--border); margin: 20px 0; }
+  .muted { color: var(--text-3); }
+  .tag {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 11px; padding: 2px 7px; border-radius: 4px;
+    background: var(--surface-2); color: var(--text-2);
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="logo">
+    <div class="logo-dot"></div>
+    Prisma CRM
+  </div>
+  <nav class="topbar-nav">
+    <button class="nav-btn">Generador</button>
+    <button class="nav-btn">Audiencias</button>
+    <button class="nav-btn active"><i class="ti ti-chart-bar" aria-hidden="true"></i> Análisis</button>
+    <button class="nav-btn">Biblioteca</button>
+  </nav>
+  <div class="topbar-actions">
+    <button class="btn" onclick="exportAnalysis()"><i class="ti ti-file-export" aria-hidden="true"></i> Exportar análisis</button>
+    <button class="btn btn-primary"><i class="ti ti-plus" aria-hidden="true"></i> Nueva comunicación</button>
+  </div>
+</header>
+
+<div class="layout">
+
+<!-- SIDEBAR FILTERS -->
+<aside class="sidebar">
+
+  <div class="filter-section">
+    <span class="filter-label">Periodo</span>
+    <div class="filter-group">
+      <button class="filter-opt" onclick="setDate(this,'today')"><span class="dot"></span>Hoy</button>
+      <button class="filter-opt" onclick="setDate(this,'7d')"><span class="dot"></span>Últimos 7 días</button>
+      <button class="filter-opt active" onclick="setDate(this,'30d')"><span class="dot"></span>Últimos 30 días</button>
+      <button class="filter-opt" onclick="setDate(this,'90d')"><span class="dot"></span>Últimos 90 días</button>
+      <button class="filter-opt" onclick="setDate(this,'month')"><span class="dot"></span>Este mes</button>
+      <button class="filter-opt" onclick="setDate(this,'prev')"><span class="dot"></span>Mes anterior</button>
+    </div>
+    <div style="margin-top:8px; display:grid; grid-template-columns:1fr 1fr; gap:4px;">
+      <input type="date" style="padding:5px 7px; border-radius:var(--radius); border:0.5px solid var(--border-strong); background:var(--surface); color:var(--text); font-size:12px;" value="2026-05-15">
+      <input type="date" style="padding:5px 7px; border-radius:var(--radius); border:0.5px solid var(--border-strong); background:var(--surface); color:var(--text); font-size:12px;" value="2026-06-15">
+    </div>
+  </div>
+
+  <div class="filter-section">
+    <span class="filter-label">Canal</span>
+    <div class="filter-group">
+      <button class="filter-opt active" onclick="setChannel(this,'all')"><span class="dot"></span>Todos</button>
+      <button class="filter-opt" onclick="setChannel(this,'email')"><i class="ti ti-mail" aria-hidden="true"></i> Email</button>
+      <button class="filter-opt" onclick="setChannel(this,'wa')"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp</button>
+    </div>
+  </div>
+
+  <div class="filter-section">
+    <span class="filter-label">Comunicaciones enviadas</span>
+    <div class="comm-counter">
+      <span class="cc-label">Total enviadas</span>
+      <span class="cc-num">127</span>
+    </div>
+    <div id="commList">
+      <div class="comm-item active" onclick="selectComm(this,'wa','IA Aplicada','2026-06-12')">
+        <span class="ch-badge ch-wa">WhatsApp</span>
+        <span class="comm-name">IA Aplicada</span>
+        <span class="comm-date">12/06/2026</span>
+      </div>
+      <div class="comm-item" onclick="selectComm(this,'email','Industria 4.0','2026-06-10')">
+        <span class="ch-badge ch-email">Email</span>
+        <span class="comm-name">Industria 4.0</span>
+        <span class="comm-date">10/06/2026</span>
+      </div>
+      <div class="comm-item" onclick="selectComm(this,'email','Logística','2026-06-08')">
+        <span class="ch-badge ch-email">Email</span>
+        <span class="comm-name">Logística y SC</span>
+        <span class="comm-date">08/06/2026</span>
+      </div>
+      <div class="comm-item" onclick="selectComm(this,'wa','MBA Executive','2026-06-05')">
+        <span class="ch-badge ch-wa">WhatsApp</span>
+        <span class="comm-name">MBA Executive</span>
+        <span class="comm-date">05/06/2026</span>
+      </div>
+      <div class="comm-item" onclick="selectComm(this,'email','Ciberseguridad','2026-06-02')">
+        <span class="ch-badge ch-email">Email</span>
+        <span class="comm-name">Ciberseguridad</span>
+        <span class="comm-date">02/06/2026</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="filter-section">
+    <span class="filter-label">UTM</span>
+    <div class="utm-grid">
+      <div class="utm-row"><span class="utm-key">utm_campaign</span><input class="utm-val" type="text" value="ia-junio-26"></div>
+      <div class="utm-row"><span class="utm-key">utm_source</span><input class="utm-val" type="text" value="whatsapp"></div>
+      <div class="utm-row"><span class="utm-key">utm_medium</span><input class="utm-val" type="text" value="crm"></div>
+      <div class="utm-row"><span class="utm-key">utm_content</span><input class="utm-val" type="text" value="variante-b"></div>
+    </div>
+  </div>
+
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- KPI STRIP -->
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-label"><i class="ti ti-send" aria-hidden="true"></i> Enviados</div>
+      <div class="kpi-num" id="kpi-sent">10.000</div>
+      <div class="kpi-delta delta-up"><i class="ti ti-trending-up" aria-hidden="true"></i> +8% vs periodo anterior</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label"><i class="ti ti-check" aria-hidden="true"></i> Entregados</div>
+      <div class="kpi-num" id="kpi-delivered">9.850</div>
+      <div class="kpi-sub">98,5% tasa de entrega</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label"><i class="ti ti-eye" aria-hidden="true"></i> Aperturas</div>
+      <div class="kpi-num" id="kpi-opens">4.200</div>
+      <div class="kpi-sub">42% sobre entregados</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label"><i class="ti ti-cursor-text" aria-hidden="true"></i> Clics</div>
+      <div class="kpi-num" id="kpi-clicks">840</div>
+      <div class="kpi-sub">20% CTR</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label"><i class="ti ti-user-check" aria-hidden="true"></i> Leads react.</div>
+      <div class="kpi-num" id="kpi-leads">110</div>
+      <div class="kpi-sub">13,1% sobre clics</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label"><i class="ti ti-school" aria-hidden="true"></i> Matrículas</div>
+      <div class="kpi-num" id="kpi-enroll">18</div>
+      <div class="kpi-delta delta-up"><i class="ti ti-trending-up" aria-hidden="true"></i> 16,4% conversión</div>
+    </div>
+  </div>
+
+  <!-- REVENUE -->
+  <div class="revenue-block">
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+      <div>
+        <div style="font-size:12px; color:var(--teal-600); text-transform:uppercase; letter-spacing:0.06em; font-weight:500;">Ingresos generados</div>
+        <div class="revenue-main" id="total-revenue">96.200€</div>
+        <div class="revenue-sub">Calculado con precios promocionales vigentes en la conversión</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:12px; color:var(--teal-600);">Sin descuentos sería</div>
+        <div style="font-size:20px; font-weight:500; color:var(--teal-800); text-decoration: line-through; opacity:0.55;">118.000€</div>
+        <div style="font-size:11px; color:var(--teal-600);">Descuento medio aplicado: 18,4%</div>
+      </div>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-pill">
+        <div class="prog-name">Máster IA Aplicada</div>
+        <div class="prog-price">7.000€ <span style="font-weight:400; font-size:12px; color:var(--text-3);">→ 5.600€</span></div>
+        <div class="prog-disc">Dto. 20% activo · 8 matrículas</div>
+      </div>
+      <div class="price-pill">
+        <div class="prog-name">Máster Industria 4.0</div>
+        <div class="prog-price">6.500€ <span style="font-weight:400; font-size:12px; color:var(--text-3);">→ 5.850€</span></div>
+        <div class="prog-disc">Dto. 10% · 5 matrículas</div>
+      </div>
+      <div class="price-pill">
+        <div class="prog-name">MBA Executive</div>
+        <div class="prog-price">9.500€ <span style="font-weight:400; font-size:12px; color:var(--text-3);">= 9.500€</span></div>
+        <div class="prog-disc">Sin dto. · 3 matrículas</div>
+      </div>
+      <div class="price-pill">
+        <div class="prog-name">Logística y SC</div>
+        <div class="prog-price">5.200€ <span style="font-weight:400; font-size:12px; color:var(--text-3);">→ 4.160€</span></div>
+        <div class="prog-disc">Dto. 20% · 2 matrículas</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FUNNEL -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><i class="ti ti-filter" aria-hidden="true"></i> Funnel de conversión</div>
+    </div>
+    <div class="funnel">
+      <div class="funnel-step">
+        <div class="funnel-label"><div class="f-icon" style="background:var(--purple-50); color:var(--purple-600)"><i class="ti ti-send" aria-hidden="true"></i></div> Enviados</div>
+        <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:100%; background:var(--purple-600)"></div></div>
+        <div class="funnel-num">10.000</div>
+        <div class="funnel-pct">100%</div>
+      </div>
+      <div class="funnel-step">
+        <div class="funnel-label"><div class="f-icon" style="background:var(--blue-50); color:var(--blue-600)"><i class="ti ti-circle-check" aria-hidden="true"></i></div> Entregados</div>
+        <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:98.5%; background:var(--blue-600)"></div></div>
+        <div class="funnel-num">9.850</div>
+        <div class="funnel-pct">98,5%</div>
+      </div>
+      <div class="funnel-step">
+        <div class="funnel-label"><div class="f-icon" style="background:var(--teal-50); color:var(--teal-600)"><i class="ti ti-eye" aria-hidden="true"></i></div> Abiertos</div>
+        <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:42%; background:var(--teal-600)"></div></div>
+        <div class="funnel-num">4.200</div>
+        <div class="funnel-pct">42%</div>
+      </div>
+      <div class="funnel-step">
+        <div class="funnel-label"><div class="f-icon" style="background:var(--amber-50); color:var(--amber-600)"><i class="ti ti-cursor-text" aria-hidden="true"></i></div> Clics</div>
+        <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:20%; background:var(--amber-600)"></div></div>
+        <div class="funnel-num">840</div>
+        <div class="funnel-pct">20%</div>
+      </div>
+      <div class="funnel-step">
+        <div class="funnel-label"><div class="f-icon" style="background:var(--coral-50); color:var(--coral-600)"><i class="ti ti-user-check" aria-hidden="true"></i></div> Leads react.</div>
+        <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:13.1%; background:var(--coral-600)"></div></div>
+        <div class="funnel-num">110</div>
+        <div class="funnel-pct">13,1%</div>
+      </div>
+      <div class="funnel-step">
+        <div class="funnel-label"><div class="f-icon" style="background:var(--green-50); color:var(--green-600)"><i class="ti ti-school" aria-hidden="true"></i></div> Matrículas</div>
+        <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:16.4%; background:var(--green-600)"></div></div>
+        <div class="funnel-num">18</div>
+        <div class="funnel-pct">16,4%</div>
+      </div>
+    </div>
+    <!-- Rebotes -->
+    <div style="margin-top:12px; padding-top:12px; border-top:0.5px solid var(--border); display:flex; gap:20px;">
+      <div style="font-size:12px; color:var(--text-2);">
+        <span style="color:var(--red-600); font-weight:500;">150</span> rebotes &nbsp;·&nbsp; 1,5%
+      </div>
+      <div style="font-size:12px; color:var(--text-2);">
+        <span style="color:var(--text-3); font-weight:500;">0</span> spam complaints
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><i class="ti ti-chart-line" aria-hidden="true"></i> Evolución temporal</div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#534AB7"></div> Aperturas</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#EF9F27"></div> Clics</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#1D9E75"></div> Matrículas</div>
+    </div>
+    <div class="chart-wrap" style="height:220px;">
+      <canvas id="timelineChart" role="img" aria-label="Evolución de aperturas, clics y matrículas en las últimas 6 semanas">Aperturas, clics y matrículas a lo largo del periodo seleccionado.</canvas>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="panel" style="margin-bottom:0">
+      <div class="panel-header">
+        <div class="panel-title"><i class="ti ti-chart-bar" aria-hidden="true"></i> Conversión por canal</div>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#534AB7"></div> Email</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#1D9E75"></div> WhatsApp</div>
+      </div>
+      <div class="chart-wrap" style="height:180px;">
+        <canvas id="channelChart" role="img" aria-label="Comparativa de métricas entre email y WhatsApp">Comparativa apertura, CTR y matrículas por canal.</canvas>
+      </div>
+    </div>
+    <div class="panel" style="margin-bottom:0">
+      <div class="panel-header">
+        <div class="panel-title"><i class="ti ti-chart-area" aria-hidden="true"></i> Ingresos acumulados</div>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#1D9E75"></div> Real (c/dto.)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#B4B2A9; border: 1px dashed #888"></div> Tarifa oficial</div>
+      </div>
+      <div class="chart-wrap" style="height:180px;">
+        <canvas id="revenueChart" role="img" aria-label="Ingresos acumulados reales vs tarifa oficial por semana">Ingresos acumulados por semana, comparativa real vs oficial.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:16px;"></div>
+
+  <!-- CONVERSION BY PROGRAM -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><i class="ti ti-building-community" aria-hidden="true"></i> Conversión por programa</div>
+    </div>
+    <div class="chart-wrap" style="height:200px;">
+      <canvas id="programChart" role="img" aria-label="Matrículas e ingresos por programa académico">Matrículas e ingresos por programa académico.</canvas>
+    </div>
+  </div>
+
+  <!-- MESSAGE VIEW -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><i class="ti ti-message" aria-hidden="true"></i> Mensaje enviado</div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <span class="tag"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> WhatsApp</span>
+        <span class="tag"><i class="ti ti-calendar" aria-hidden="true"></i> 12/06/2026</span>
+        <span class="tag">IA Aplicada</span>
+        <span class="tag muted">Leads reactivados · Potencial</span>
+      </div>
+    </div>
+    <div class="msg-preview" id="msgPreview">Hola [Nombre],
+
+La IA ya no es el futuro: es el presente de quienes toman decisiones en empresa.
+
+Profesionales que saben aplicar inteligencia artificial están liderando procesos de transformación en logística, marketing, operaciones y finanzas... y las organizaciones los buscan activamente.
+
+En el Máster en IA Aplicada a los Negocios de Prisma aprenderás a:
+→ Identificar oportunidades de automatización e impacto en tu sector
+→ Trabajar con herramientas reales: GPT-4, Copilot, LangChain, n8n
+→ Liderar proyectos de IA desde el minuto uno
+
+🎓 Próxima convocatoria: octubre 2026
+⏱ Modalidad online + sesiones en directo
+📉 Precio especial hasta el 30 de junio (20% de descuento)
+
+¿Tienes 15 minutos esta semana para hablar con un asesor?
+
+👇 Reserva aquí tu consulta gratuita</div>
+    <div style="margin-top:12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+      <div style="font-size:12px; color:var(--text-3);">Audiencia: 10.000 contactos · Leads reactivados sin respuesta +90 días</div>
+      <button class="success-btn" id="successBtn" onclick="toggleSuccess()">
+        <i class="ti ti-star" aria-hidden="true"></i>
+        <span id="successLabel">Guardar como caso de éxito</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- A/B COMPARATOR -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><i class="ti ti-stack-2" aria-hidden="true"></i> Comparador A/B</div>
+      <button class="btn" onclick="toggleAB()"><i class="ti ti-arrows-diff" aria-hidden="true"></i> <span id="abBtnLabel">Comparar comunicaciones</span></button>
+    </div>
+    <div id="abSection" style="display:none;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px;">
+        <select class="filter-select" onchange="updateAB()">
+          <option selected>WhatsApp · IA Aplicada · 12/06</option>
+          <option>Email · Industria 4.0 · 10/06</option>
+          <option>Email · Logística · 08/06</option>
+          <option>WhatsApp · MBA Executive · 05/06</option>
+        </select>
+        <select class="filter-select" onchange="updateAB()">
+          <option>WhatsApp · IA Aplicada · 12/06</option>
+          <option selected>Email · Industria 4.0 · 10/06</option>
+          <option>Email · Logística · 08/06</option>
+          <option>WhatsApp · MBA Executive · 05/06</option>
+        </select>
+      </div>
+      <div class="ab-grid">
+        <div class="ab-card">
+          <span class="ab-badge ab-a">Variante A</span>
+          <div style="font-size:13px; font-weight:500; color:var(--text); margin-bottom:12px;">WhatsApp · IA Aplicada</div>
+          <div class="ab-metric"><span class="ab-metric-label">Apertura</span><span class="ab-metric-val">42%</span></div>
+          <div class="ab-metric"><span class="ab-metric-label">CTR</span><span class="ab-metric-val">8%</span></div>
+          <div class="ab-metric"><span class="ab-metric-label">Leads</span><span class="ab-metric-val">22</span></div>
+          <div class="ab-metric"><span class="ab-metric-label">Matrículas</span><span class="ab-metric-val">3</span></div>
+          <div class="ab-metric"><span class="ab-metric-label">Ingresos</span><span class="ab-metric-val">16.800€</span></div>
+        </div>
+        <div class="ab-card winner">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <span class="ab-badge ab-b">Variante B</span>
+            <span class="ab-badge ab-winner-badge"><i class="ti ti-trophy" aria-hidden="true"></i> Ganador</span>
+          </div>
+          <div style="font-size:13px; font-weight:500; color:var(--text); margin-bottom:12px;">Email · Industria 4.0</div>
+          <div class="ab-metric"><span class="ab-metric-label">Apertura</span><span class="ab-metric-val better">51% <i class="ti ti-arrow-up" style="font-size:11px" aria-hidden="true"></i></span></div>
+          <div class="ab-metric"><span class="ab-metric-label">CTR</span><span class="ab-metric-val better">13% <i class="ti ti-arrow-up" style="font-size:11px" aria-hidden="true"></i></span></div>
+          <div class="ab-metric"><span class="ab-metric-label">Leads</span><span class="ab-metric-val better">35 <i class="ti ti-arrow-up" style="font-size:11px" aria-hidden="true"></i></span></div>
+          <div class="ab-metric"><span class="ab-metric-label">Matrículas</span><span class="ab-metric-val better">7 <i class="ti ti-arrow-up" style="font-size:11px" aria-hidden="true"></i></span></div>
+          <div class="ab-metric"><span class="ab-metric-label">Ingresos</span><span class="ab-metric-val better">39.200€ <i class="ti ti-arrow-up" style="font-size:11px" aria-hidden="true"></i></span></div>
+        </div>
+      </div>
+      <div style="margin-top:14px; padding:12px 16px; border-radius:var(--radius); background:var(--teal-50); border:0.5px solid var(--teal-600);">
+        <div style="font-size:12px; font-weight:500; color:var(--teal-800); margin-bottom:4px;"><i class="ti ti-sparkles" aria-hidden="true"></i> Conclusión automática</div>
+        <div style="font-size:13px; color:var(--teal-800); line-height:1.6;">La variante B obtuvo una tasa de apertura un <strong>21% superior</strong> y generó <strong>2,3× más matrículas</strong>. El CTR un 62,5% más alto sugiere que la CTA orientada a empleabilidad resonó mejor con este segmento. Recomendación: usar el enfoque de la variante B como base para las próximas campañas de reactivación de leads fríos.</div>
+      </div>
+    </div>
+    <div id="abPlaceholder" style="text-align:center; padding:24px; color:var(--text-3); font-size:13px;">
+      <i class="ti ti-arrows-diff" style="font-size:32px; display:block; margin-bottom:8px" aria-hidden="true"></i>
+      Selecciona dos comunicaciones para comparar su rendimiento
+    </div>
+  </div>
+
+  <!-- LEARNING MEMORY -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><i class="ti ti-brain" aria-hidden="true"></i> Memoria de aprendizaje</div>
+      <span style="font-size:12px; color:var(--text-3);">3 casos de éxito guardados</span>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <div style="padding:10px 14px; border-radius:var(--radius); background:var(--surface-2); border-left:3px solid var(--purple-600);">
+        <div style="font-size:12px; font-weight:500; color:var(--text); margin-bottom:2px;">IA Aplicada · WhatsApp · mayo 2026</div>
+        <div style="font-size:12px; color:var(--text-2);">Los mensajes con CTA "Habla con un asesor" generaron un <strong>18% más de conversiones</strong> que "Solicita información" en el segmento de leads reactivados.</div>
+      </div>
+      <div style="padding:10px 14px; border-radius:var(--radius); background:var(--surface-2); border-left:3px solid var(--amber-600);">
+        <div style="font-size:12px; font-weight:500; color:var(--text); margin-bottom:2px;">Industria 4.0 · Email · abril 2026</div>
+        <div style="font-size:12px; color:var(--text-2);">Los mensajes centrados en <strong>empleabilidad y salida laboral</strong> obtuvieron un 32% más de clics que los centrados en flexibilidad horaria.</div>
+      </div>
+      <div style="padding:10px 14px; border-radius:var(--radius); background:var(--surface-2); border-left:3px solid var(--teal-600);">
+        <div style="font-size:12px; font-weight:500; color:var(--text); margin-bottom:2px;">MBA Executive · WhatsApp · marzo 2026</div>
+        <div style="font-size:12px; color:var(--text-2);">En leads con +180 días de inactividad, los mensajes con descuento explícito y urgencia temporal multiplicaron ×2,4 la tasa de respuesta.</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+function setDate(el, range) {
+  document.querySelectorAll('.filter-group .filter-opt').forEach(b => {
+    if (b.closest('.filter-section') === el.closest('.filter-section')) b.classList.remove('active');
+  });
+  el.classList.add('active');
+}
+function setChannel(el, ch) {
+  el.closest('.filter-group').querySelectorAll('.filter-opt').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+function selectComm(el, ch, name, date) {
+  document.querySelectorAll('.comm-item').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+function toggleSuccess() {
+  const btn = document.getElementById('successBtn');
+  const lbl = document.getElementById('successLabel');
+  if (btn.classList.contains('saved')) {
+    btn.classList.remove('saved');
+    lbl.textContent = 'Guardar como caso de éxito';
+    btn.querySelector('i').className = 'ti ti-star';
+  } else {
+    btn.classList.add('saved');
+    lbl.textContent = 'Guardado como caso de éxito';
+    btn.querySelector('i').className = 'ti ti-star-filled';
+  }
+}
+function toggleAB() {
+  const sec = document.getElementById('abSection');
+  const ph = document.getElementById('abPlaceholder');
+  const lbl = document.getElementById('abBtnLabel');
+  if (sec.style.display === 'none') {
+    sec.style.display = 'block';
+    ph.style.display = 'none';
+    lbl.textContent = 'Cerrar comparador';
+  } else {
+    sec.style.display = 'none';
+    ph.style.display = 'block';
+    lbl.textContent = 'Comparar comunicaciones';
+  }
+}
+function exportAnalysis() {
+  alert('Generando presentación ejecutiva con identidad Prisma...\n\nDiapositivas: Portada · Resumen ejecutivo · Funnel · Rendimiento temporal · Comparativa por canal · Conclusiones automáticas');
+}
+
+const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+const tickColor = isDark ? '#888780' : '#888780';
+const baseFont = { family: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', size: 12 };
+
+Chart.defaults.font = baseFont;
+Chart.defaults.color = tickColor;
+
+new Chart(document.getElementById('timelineChart'), {
+  type: 'line',
+  data: {
+    labels: ['S1','S2','S3','S4','S5','S6'],
+    datasets: [
+      { label: 'Aperturas', data: [680,820,940,1100,720,850], borderColor: '#534AB7', backgroundColor: 'rgba(83,74,183,0.08)', tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2 },
+      { label: 'Clics', data: [120,155,180,210,140,170], borderColor: '#EF9F27', backgroundColor: 'rgba(239,159,39,0.08)', tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2 },
+      { label: 'Matrículas', data: [2,3,4,5,2,4], borderColor: '#1D9E75', backgroundColor: 'rgba(29,158,117,0.08)', tension: 0.4, fill: true, pointRadius: 3, borderWidth: 2, yAxisID: 'y2' },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: gridColor }, ticks: { color: tickColor } },
+      y: { grid: { color: gridColor }, ticks: { color: tickColor } },
+      y2: { position: 'right', grid: { display: false }, ticks: { color: tickColor, stepSize: 1 } }
+    }
+  }
+});
+
+new Chart(document.getElementById('channelChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Apertura %', 'CTR %', 'Matrículas'],
+    datasets: [
+      { label: 'Email', data: [38, 7, 10], backgroundColor: 'rgba(83,74,183,0.75)', borderRadius: 4 },
+      { label: 'WhatsApp', data: [51, 14, 8], backgroundColor: 'rgba(29,158,117,0.75)', borderRadius: 4 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: tickColor } },
+      y: { grid: { color: gridColor }, ticks: { color: tickColor } }
+    }
+  }
+});
+
+new Chart(document.getElementById('revenueChart'), {
+  type: 'line',
+  data: {
+    labels: ['S1','S2','S3','S4','S5','S6'],
+    datasets: [
+      { label: 'Real', data: [9200, 25800, 44600, 67400, 80200, 96200], borderColor: '#1D9E75', backgroundColor: 'rgba(29,158,117,0.08)', tension: 0.4, fill: true, borderWidth: 2, pointRadius: 3 },
+      { label: 'Tarifa oficial', data: [11000, 30500, 53000, 80000, 98000, 118000], borderColor: '#B4B2A9', borderDash: [4,4], tension: 0.4, fill: false, borderWidth: 1.5, pointRadius: 0 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: tickColor } },
+      y: {
+        grid: { color: gridColor }, ticks: {
+          color: tickColor,
+          callback: v => (v >= 1000 ? (v/1000).toFixed(0) + 'k€' : v + '€')
+        }
+      }
+    }
+  }
+});
+
+new Chart(document.getElementById('programChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Máster IA Aplicada', 'Industria 4.0', 'MBA Executive', 'Logística y SC', 'Ciberseguridad'],
+    datasets: [
+      { label: 'Matrículas', data: [8, 5, 3, 2, 0], backgroundColor: 'rgba(83,74,183,0.75)', borderRadius: 4, yAxisID: 'y' },
+      { label: 'Ingresos (k€)', data: [44.8, 29.25, 28.5, 8.32, 0], backgroundColor: 'rgba(29,158,117,0.65)', borderRadius: 4, yAxisID: 'y2' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: tickColor } },
+      y: { grid: { color: gridColor }, ticks: { color: tickColor, stepSize: 2 } },
+      y2: { position: 'right', grid: { display: false }, ticks: { color: tickColor, callback: v => v + 'k€' } }
+    }
+  }
+});
+</script>
+</body>
+</html>
