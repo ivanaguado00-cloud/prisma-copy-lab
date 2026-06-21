@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { approveBriefAction, rejectBriefAction } from '../../app/actions/reviewActions'
 
 interface Props {
@@ -13,27 +14,36 @@ export function ReviewPanel({ briefId, currentStatus, currentNote }: Props) {
   const [note, setNote] = useState(currentNote ?? '')
   const [isPending, setIsPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   async function handleApprove() {
     setIsPending(true)
     setError(null)
     const result = await approveBriefAction(briefId, note || undefined)
-    setIsPending(false)
-    if (!result.success) setError(result.error ?? 'Error desconocido.')
+    if (result.success) {
+      router.push('/briefs')
+    } else {
+      setIsPending(false)
+      setError(result.error ?? 'Error desconocido.')
+    }
   }
 
   async function handleReject() {
     setIsPending(true)
     setError(null)
     const result = await rejectBriefAction(briefId, note || undefined)
-    setIsPending(false)
-    if (!result.success) setError(result.error ?? 'Error desconocido.')
+    if (result.success) {
+      router.push('/briefs')
+    } else {
+      setIsPending(false)
+      setError(result.error ?? 'Error desconocido.')
+    }
   }
 
   return (
     <div className="bg-surface-container-lowest border border-outline-variant p-5 rounded-lg">
       <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface mb-4 flex items-center gap-2">
-        <span className="w-2 h-2 rounded-full bg-brand-lime inline-block" />
+        <span className="w-2 h-2 rounded-full bg-[#1b1c1c] inline-block" />
         Revisión humana
       </h3>
 
@@ -49,7 +59,7 @@ export function ReviewPanel({ briefId, currentStatus, currentNote }: Props) {
             placeholder="Observaciones, motivo de rechazo o indicaciones para el redactor…"
             rows={3}
             disabled={isPending}
-            className="w-full text-xs rounded border border-outline-variant bg-surface-bright px-3 py-2 text-on-surface resize-none focus:outline-none focus:ring-2 focus:ring-brand-lime/30 focus:border-brand-lime placeholder:text-on-surface-variant/40 transition-all disabled:opacity-50"
+            className="w-full text-xs rounded border border-outline-variant bg-surface-bright px-3 py-2 text-on-surface resize-none focus:outline-none focus:ring-0 focus:border-[#1b1c1c] placeholder:text-on-surface-variant/40 transition-all disabled:opacity-50"
           />
         </div>
 

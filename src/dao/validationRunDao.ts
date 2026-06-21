@@ -46,10 +46,19 @@ export async function listValidationRunsByMessage(messageVersionId: string) {
 
 // ── Stats ─────────────────────────────────────────────────────────────────────
 
-export async function getValidationStats(userId?: string): Promise<ValidationStats> {
-  const briefFilter = userId ? { userId } : {}
-  const versionFilter = userId ? { brief: { userId } } : {}
-  const runFilter = userId ? { messageVersion: { brief: { userId } } } : {}
+export async function getValidationStats(userId?: string, channel?: string): Promise<ValidationStats> {
+  const briefFilter = {
+    ...(userId ? { userId } : {}),
+    ...(channel ? { channel } : {}),
+  }
+  const versionFilter = {
+    ...(userId ? { brief: { userId } } : {}),
+    ...(channel ? { brief: { channel } } : {}),
+  }
+  const runFilter = {
+    ...(userId ? { messageVersion: { brief: { userId } } } : {}),
+    ...(channel ? { messageVersion: { brief: { channel } } } : {}),
+  }
 
   const [
     totalValidations,
@@ -92,9 +101,13 @@ export async function getValidationStats(userId?: string): Promise<ValidationSta
 
 // ── First-attempt approval rate ───────────────────────────────────────────────
 
-export async function getFirstAttemptApprovalRate(userId?: string): Promise<number> {
-  const versionWhere = userId
-    ? { versionNumber: 1, brief: { userId } }
+export async function getFirstAttemptApprovalRate(userId?: string, channel?: string): Promise<number> {
+  const briefConditions = {
+    ...(userId ? { userId } : {}),
+    ...(channel ? { channel } : {}),
+  }
+  const versionWhere = Object.keys(briefConditions).length > 0
+    ? { versionNumber: 1, brief: briefConditions }
     : { versionNumber: 1 }
 
   const [totalWithValidation, approvedFirstAttempt] = await Promise.all([
@@ -112,11 +125,15 @@ export async function getFirstAttemptApprovalRate(userId?: string): Promise<numb
 // ── Recent briefs with latest verdict ────────────────────────────────────────
 
 export async function getRecentBriefsSummary(
-  userId: string,
+  userId: string | undefined,
   limit = 5,
+  channel?: string,
 ): Promise<RecentBriefSummary[]> {
   const briefs = await prisma.brief.findMany({
-    where: { userId },
+    where: {
+      ...(userId ? { userId } : {}),
+      ...(channel ? { channel } : {}),
+    },
     orderBy: { createdAt: 'desc' },
     take: limit,
     include: {
@@ -143,5 +160,37 @@ export async function getRecentBriefsSummary(
       createdAt: brief.createdAt,
       latestVerdict: latestRun?.overallVerdict ?? null,
     }
+  })
+}
+
+export async function listRecentValidationActivity(
+  userId: string | undefined,
+  verdict: string,
+  limit = 5,
+) {
+  return prisma.validationRun.findMany({
+    where: {
+      overallVerdict: verdict,
+      ...(userId ? { messageVersion: { brief: { userId } } } : {}),
+    },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    select: {
+      id: true,
+      overallVerdict: true,
+      createdAt: true,
+      messageVersion: {
+        select: {
+          versionNumber: true,
+          brief: {
+            select: {
+              id: true,
+              title: true,
+              channel: true,
+            },
+          },
+        },
+      },
+    },
   })
 }

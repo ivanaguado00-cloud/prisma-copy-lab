@@ -6,3 +6,10 @@ export async function getUserById(id: string) {
     select: { id: true, email: true, name: true, role: true },
   })
 }
+
+export async function getUsersByRole(role: string) {
+  return prisma.user.findMany({
+    where: { role },
+    select: { id: true, email: true, name: true },
+  })
+}

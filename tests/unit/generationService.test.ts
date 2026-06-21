@@ -40,6 +40,7 @@ const baseBrief: Brief = {
   briefNumber: 1,
   title: 'Campaña MBA',
   programOrTitulation: 'Máster MBA',
+  programId: null,
   objective: 'Captar leads',
   audience: 'Profesionales 30-45',
   channel: 'email',
@@ -53,6 +54,7 @@ const baseBrief: Brief = {
   reviewNote: null,
   crmStatus: null,
   emailTemplate: null,
+  generationMode: 'standard',
   crmSentAt: null,
   crmSentBy: null,
   crmEmailHtml: null,
@@ -235,7 +237,7 @@ describe('generateMessage — metadatos persistidos', () => {
         briefId: 'brief-1',
         llmProvider: 'openai',
         llmModel: 'gpt-4o-mini',
-        generationPromptVersion: 'v1.1',
+        generationPromptVersion: 'v1.2',
       }),
     )
   })

@@ -202,12 +202,12 @@ Diferenciación visual por canal, migración de tema oscuro heredado a Corporate
 Lo que está en marcha:
 
 **Bloque 1 — Tokens y schema:**
-- `src/app/globals.css`: 7 nuevos tokens en `@theme inline`: `brand-lime` (#c3f400), `brand-lime-dim` (#abd600), `on-brand-lime` (#283500), `success-container` (#e3f5ec), `on-success-container` (#1a6639), `warning-container` (#fef3cd), `on-warning-container` (#7c5c0a). Utility `prisma-gradient-bg` definida con `@utility`.
+- `src/app/globals.css`: tokens semánticos en `@theme inline`: `success-container` (#e3f5ec), `on-success-container` (#1a6639), `warning-container` (#fef3cd), `on-warning-container` (#7c5c0a). Utility `prisma-gradient-bg` definida con `@utility`.
 - `prisma/schema.prisma`: `channel String @default("whatsapp")`. Migración `add_channel_default` aplicada.
 - `src/lib/channelUtils.ts`: helpers `isWhatsApp(channel)` e `isEmail(channel)` para eliminar comparaciones string dispersas.
 
 **Bloque 2 — CRM components (dark → Corporate Precision light):**
-- `PrepareCrmButton.tsx`, `CrmFlow.tsx`, `CrmTemplateSelector.tsx`, `CrmEmailPreview.tsx`: todos los hex del tema oscuro heredado (`#0d0e10`, `#1b1c1e`, `#1f2022`, `#444933`, `#e3e2e5`, `#c4c9ac` y colores brand lime inline) sustituidos por tokens CP. JS `onMouseEnter/onMouseLeave` en `CrmTemplateSelector` eliminado a favor de clases CSS puras. El `background: '#fff'` del iframe de previsualización de email se preserva como requisito funcional del renderizado HTML.
+- `PrepareCrmButton.tsx`, `CrmFlow.tsx`, `CrmTemplateSelector.tsx`, `CrmEmailPreview.tsx`: todos los hex del tema oscuro heredado (`#0d0e10`, `#1b1c1e`, `#1f2022`, `#444933`, `#e3e2e5`, `#c4c9ac`) sustituidos por tokens CP. JS `onMouseEnter/onMouseLeave` en `CrmTemplateSelector` eliminado a favor de clases CSS puras. El `background: '#fff'` del iframe de previsualización de email se preserva como requisito funcional del renderizado HTML.
 
 **Bloque 3 — MessageVersionView + WhatsAppPreview:**
 - `src/components/messaging/WhatsAppPreview.tsx` (nuevo, Server Component): burbuja de chat con topbar, área de chat y burbuja de mensaje. Colores externos de WhatsApp (`#075E54`, `#dcf8c6`, `#111b21`, `#667781`) preservados como literales (no son tokens CP; son marca externa). Contenedor usa tokens CP.
@@ -258,6 +258,7 @@ Refactorización de previsualizaciones y generación estructurada de email.
 - `emailSubject` y `emailPreheader` eliminados del modelo `Brief` (migración `20260613120000_move_email_fields_to_message_version`).
 - Añadidos a `MessageVersion` como columnas propias (`emailSubject String?`, `emailPreheader String?`).
 - `GenerationClient.generate()` retorna `Promise<GeneratedMessage>` en vez de `Promise<string>`.
+- El cliente mock reconoce la generación de email mediante la opción estructurada `jsonOutput`, por lo que las demos con `LLM_MOCK=true` conservan cuerpo, asunto y preheader sin depender del texto del prompt.
 - Para email: `response_format: json_object`, prompt específico con hint de plantilla, parser de JSON en el cliente.
 - Para whatsapp: retorno envuelto como `{ body: content }`, sin cambio en el prompt.
 - `BriefingForm` ya no muestra inputs de Asunto ni Preheader para email; solo el selector de Plantilla.
@@ -278,6 +279,38 @@ Refactorización de previsualizaciones y generación estructurada de email.
 - `briefs/[id]/page.tsx`: `MessagePreviewCard` actualizado para renderizar `WhatsAppPreviewTabs` en canal whatsapp; recibe `briefTitle={brief.title}` como nombre de contacto en la notificación push.
 
 La rama `feature/email-preview-refactor` contiene los tres cambios completados. Pendiente: apertura de PR hacia `main`.
+
+### Fase completada: `feature/titulos-module`
+
+Nuevo módulo Títulos: base de conocimiento comercial, académico y de IA de cada programa de Universidad Prisma.
+
+Lo que está en marcha:
+
+- `prisma/schema.prisma`: nuevo modelo `Program` con 32 campos agrupados en tres bloques (información comercial, académica y para IA). `Brief` tiene `programId String?` como FK opcional hacia `Program`. Migración `20260616120000_add_program_model` aplicada.
+- `src/types/domain.ts`: interfaz `Program`, `CreateProgramInput`, `UpdateProgramInput`. Helpers `canViewPrograms` (todos los roles) y `canManagePrograms` (coordinador + admin).
+- `src/dao/programDao.ts`: `createProgram`, `getProgramById`, `listPrograms`, `listProgramsBySchool`, `updateProgram`, `deleteProgramById`, `getProgramByName`.
+- `src/services/programService.ts`: `createProgramRecord` y `updateProgramRecord` con validación de campos obligatorios (name, school) y normalización de entradas. Helpers de parseo para Float, Int y Date.
+- `src/app/actions/programActions.ts`: Server Actions `createProgramAction`, `updateProgramAction` (recibe id via `.bind`), `deleteProgramAction`. Verifican sesión y rol antes de ejecutar.
+- `src/components/titulos/ProgramForm.tsx`: Client Component con `useActionState`. Formulario completo dividido en tres secciones (comercial, académica, IA). Reutilizable para creación y edición.
+- `src/components/titulos/ProgramDetail.tsx`: Server Component de solo lectura. Muestra las tres secciones con badge de descuento activo calculado por fecha. Incluye enlace de edición para coordinadores/admin.
+- Rutas: `/titulos` (listado agrupado por escuela con tarjetas de KPIs), `/titulos/new` (formulario de creación), `/titulos/[id]` (detalle), `/titulos/[id]/editar` (formulario de edición con datos precargados).
+- Navegación: enlace "Títulos" añadido a `NavLinks.tsx` (visible para todos los roles autenticados).
+
+Lógica de descuento activo: un descuento se considera activo cuando `activeDiscount` tiene valor y la fecha actual está dentro de `[discountValidFrom, discountValidTo]` (cualquier extremo ausente se trata como abierto). Esto permite calcular el precio real en el momento de una conversión cruzando `SendMetrics.programPrice × (1 - activeDiscount/100)` con las fechas del envío.
+
+Relación con Análisis: `Program` proporciona el contexto de precios y descuentos por período. `SendMetrics` sigue registrando `programPrice` y `programDiscount` como snapshot histórico en el momento de la conversión, que es la fuente de verdad para el cálculo de ingresos reales.
+
+### Fase completada: interfaz pública comercial Universidad Prisma V1
+
+Nueva interfaz pública orientada a conversión. Convive en el mismo proyecto con Prisma Copy Lab, pero queda separada visual y funcionalmente bajo el espacio `/universidad-prisma`.
+
+- `/`: entrada de Prisma Copy Lab.
+- `/universidad-prisma`: Home pública de Universidad Prisma con hero comercial, propuesta de valor, accesos por facultad, CTA principal, catálogo filtrable y footer básico.
+- `src/services/publicCatalogService.ts`: servicio de catálogo público que consume la capa DAO y transforma los programas internos en fichas comerciales. Si SQLite no tiene títulos, usa un fallback público de 70 titulaciones organizado por verticales: Tecnología (23), Diseño (18), Software (12), Ambientales (9) e Industria (8).
+- `src/components/public/PublicProgramExplorer.tsx`: Client Component con buscador, filtros por facultad, tipo de titulación y mercado, cards de programa y CTAs.
+- `/universidad-prisma/programas/[id]`: detalle público de titulación con resumen, ficha rápida, metodología online, perfil, salidas profesionales y CTA de admisión.
+- `/universidad-prisma/solicita-informacion`: formulario visual V1 de captación preparado para conectarse a CRM en una fase posterior.
+- `src/dao/programDao.ts`: lecturas públicas compatibles con el campo `isActive` cuando está disponible; el acceso a persistencia sigue encapsulado en DAO.
 
 ## 5. Restricciones funcionales
 

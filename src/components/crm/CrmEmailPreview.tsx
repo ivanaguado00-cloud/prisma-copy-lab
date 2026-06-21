@@ -13,6 +13,7 @@ interface Props {
   recipientEmail: string
   onApprove: (crmNotes: string) => Promise<void>
   onCancel: () => void
+  canSend?: boolean
 }
 
 function BriefInfoRow({ label, value }: { label: string; value: string | null | undefined }) {
@@ -34,6 +35,7 @@ export function CrmEmailPreview({
   recipientEmail,
   onApprove,
   onCancel,
+  canSend = true,
 }: Props) {
   const [crmNotes, setCrmNotes] = useState('')
   const [isSending, setIsSending] = useState(false)
@@ -88,14 +90,14 @@ export function CrmEmailPreview({
           <div className="flex gap-3 mt-3">
             <button
               onClick={handleCopyHtml}
-              className="text-xs text-on-surface-variant hover:text-brand-lime transition-colors"
+              className="text-xs text-on-surface-variant hover:text-on-surface transition-colors"
             >
               Copiar HTML
             </button>
             <span className="text-outline-variant">·</span>
             <button
               onClick={handleCopyText}
-              className="text-xs text-on-surface-variant hover:text-brand-lime transition-colors"
+              className="text-xs text-on-surface-variant hover:text-on-surface transition-colors"
             >
               Copiar texto plano
             </button>
@@ -119,34 +121,42 @@ export function CrmEmailPreview({
         </div>
 
         <div className="px-5 py-4 space-y-3 border-t border-outline-variant">
-          <div className="space-y-1.5">
-            <label htmlFor="crm-notes" className="text-xs font-medium text-on-surface">
-              Notas para CRM
-            </label>
-            <textarea
-              id="crm-notes"
-              value={crmNotes}
-              onChange={(e) => setCrmNotes(e.target.value)}
-              placeholder="Instrucciones adicionales para el equipo de CRM (opcional)"
-              rows={3}
-              className="w-full text-xs rounded border border-outline-variant bg-surface-bright px-3 py-2 text-on-surface resize-none focus:outline-none focus:ring-2 focus:ring-brand-lime/30 focus:border-brand-lime placeholder:text-on-surface-variant/40 transition-all"
-            />
-          </div>
+          {canSend ? (
+            <>
+              <div className="space-y-1.5">
+                <label htmlFor="crm-notes" className="text-xs font-medium text-on-surface">
+                  Notas para CRM
+                </label>
+                <textarea
+                  id="crm-notes"
+                  value={crmNotes}
+                  onChange={(e) => setCrmNotes(e.target.value)}
+                  placeholder="Instrucciones adicionales para el equipo de CRM (opcional)"
+                  rows={3}
+                  className="w-full text-xs rounded border border-outline-variant bg-surface-container-lowest px-3 py-2 text-on-surface resize-none focus:outline-none focus:ring-0 focus:border-[#1b1c1c] placeholder:text-on-surface-variant/40 transition-all"
+                />
+              </div>
 
-          <button
-            onClick={handleApprove}
-            disabled={isSending}
-            className="w-full rounded px-4 py-2.5 text-sm font-semibold text-on-brand-lime prisma-gradient-bg hover:opacity-90 active:opacity-80 transition-all shadow-md shadow-brand-lime-dim/20 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSending ? 'Enviando a CRM…' : 'Aprobar y enviar a CRM'}
-          </button>
+              <button
+                onClick={handleApprove}
+                disabled={isSending}
+                className="w-full rounded px-4 py-2.5 text-sm font-semibold text-white bg-[#1b1c1c] hover:bg-[#4c4546] active:bg-[#4c4546] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSending ? 'Enviando a CRM…' : 'Aprobar y enviar a CRM'}
+              </button>
+            </>
+          ) : (
+            <p className="text-xs text-on-surface-variant/60 text-center py-1">
+              Sólo previsualización — el envío lo gestiona el PM.
+            </p>
+          )}
 
           <button
             onClick={onCancel}
             disabled={isSending}
             className="w-full text-xs text-on-surface-variant hover:text-on-surface transition-colors py-1"
           >
-            Cancelar
+            Cerrar
           </button>
         </div>
       </aside>

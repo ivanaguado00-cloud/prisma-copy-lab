@@ -15,3 +15,33 @@ export async function listVersionsByBrief(briefId: string) {
     orderBy: { versionNumber: 'asc' },
   })
 }
+
+export async function countMessageVersions(userId?: string) {
+  return prisma.messageVersion.count({
+    where: {
+      ...(userId ? { brief: { userId } } : {}),
+    },
+  })
+}
+
+export async function listRecentMessageVersions(userId: string | undefined, limit = 30) {
+  return prisma.messageVersion.findMany({
+    where: {
+      ...(userId ? { brief: { userId } } : {}),
+    },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    select: {
+      id: true,
+      versionNumber: true,
+      createdAt: true,
+      brief: {
+        select: {
+          id: true,
+          title: true,
+          channel: true,
+        },
+      },
+    },
+  })
+}

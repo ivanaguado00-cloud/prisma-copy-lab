@@ -56,6 +56,7 @@ const baseBrief: Brief = {
   briefNumber: 1,
   title: 'Campaña MBA',
   programOrTitulation: 'Máster MBA',
+  programId: null,
   objective: 'Captar leads',
   audience: 'Profesionales 30-45',
   channel: 'email',
@@ -69,6 +70,7 @@ const baseBrief: Brief = {
   reviewNote: null,
   crmStatus: null,
   emailTemplate: 'standard',
+  generationMode: 'standard',
   crmSentAt: null,
   crmSentBy: null,
   crmEmailHtml: null,
@@ -169,22 +171,22 @@ describe('buildCrmPreview — contenido generado', () => {
 // ── sendToCrm — validaciones de entrada ──────────────────────────────────────
 
 describe('sendToCrm — validaciones de entrada', () => {
-  it('rechaza briefs de canal distinto a email', async () => {
+  it('rechaza briefs de canal no compatible', async () => {
     const brief = { ...baseBrief, channel: 'linkedin' }
     const result = await sendToCrm({
       brief: brief as Brief,
-      emailContent: 'Cuerpo.',
+      messageContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
     expect(result.success).toBe(false)
-    expect(result.error).toMatch(/canal email/i)
+    expect(result.error).toMatch(/canal/i)
     expect(mockSendEmail).not.toHaveBeenCalled()
   })
 
-  it('rechaza emailContent vacío', async () => {
+  it('rechaza messageContent vacío', async () => {
     const result = await sendToCrm({
       brief: baseBrief,
-      emailContent: '   ',
+      messageContent: '   ',
       sentByUserId: 'user-1',
     })
     expect(result.success).toBe(false)
@@ -199,7 +201,7 @@ describe('sendToCrm — envío', () => {
   it('llama a sendEmail una vez con el destinatario CRM configurado', async () => {
     await sendToCrm({
       brief: baseBrief,
-      emailContent: 'Cuerpo.',
+      messageContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
     expect(mockSendEmail).toHaveBeenCalledOnce()
@@ -210,7 +212,7 @@ describe('sendToCrm — envío', () => {
   it('el asunto del email enviado incluye el prefijo de solicitud CRM', async () => {
     await sendToCrm({
       brief: baseBrief,
-      emailContent: 'Cuerpo.',
+      messageContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
     const [payload] = mockSendEmail.mock.calls[0]!
@@ -220,12 +222,41 @@ describe('sendToCrm — envío', () => {
   it('el email enviado incluye html y texto plano', async () => {
     await sendToCrm({
       brief: baseBrief,
-      emailContent: 'Cuerpo.',
+      messageContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
     const [payload] = mockSendEmail.mock.calls[0]!
     expect(payload.html).toBeTruthy()
     expect(payload.text).toBeTruthy()
+  })
+
+  it('envía una propuesta de WhatsApp al destinatario CRM', async () => {
+    const whatsappBrief = { ...baseBrief, channel: 'whatsapp', emailTemplate: null }
+
+    await sendToCrm({
+      brief: whatsappBrief,
+      messageContent: 'Hola Marta 👋\n¿Te ayudamos con tu matrícula?',
+      sentByUserId: 'user-1',
+    })
+
+    const [payload] = mockSendEmail.mock.calls[0]!
+    expect(payload.to).toBe('ivan.aguado00@gmail.com')
+    expect(payload.subject).toContain('WhatsApp aprobado')
+    expect(payload.text).toContain('Hola Marta 👋')
+    expect(payload.text).toContain('Canal:      WhatsApp')
+  })
+
+  it('no aplica una plantilla de email a las propuestas de WhatsApp', async () => {
+    const whatsappBrief = { ...baseBrief, channel: 'whatsapp', emailTemplate: null }
+
+    await sendToCrm({
+      brief: whatsappBrief,
+      messageContent: 'Mensaje aprobado',
+      sentByUserId: 'user-1',
+    })
+
+    expect(mockRenderHtml).not.toHaveBeenCalled()
+    expect(mockRenderPlain).not.toHaveBeenCalled()
   })
 })
 
@@ -236,7 +267,7 @@ describe('sendToCrm — persistencia', () => {
     mockSendEmail.mockResolvedValueOnce({ success: false, error: 'SMTP timeout' })
     const result = await sendToCrm({
       brief: baseBrief,
-      emailContent: 'Cuerpo.',
+      messageContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
     expect(result.success).toBe(false)
@@ -247,7 +278,7 @@ describe('sendToCrm — persistencia', () => {
   it('llama a updateBriefCrm con crmStatus sent_to_crm tras envío exitoso', async () => {
     await sendToCrm({
       brief: baseBrief,
-      emailContent: 'Cuerpo.',
+      messageContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
     expect(mockUpdateBriefCrm).toHaveBeenCalledOnce()
@@ -259,7 +290,7 @@ describe('sendToCrm — persistencia', () => {
   it('persiste el userId del remitente', async () => {
     await sendToCrm({
       brief: baseBrief,
-      emailContent: 'Cuerpo.',
+      messageContent: 'Cuerpo.',
       sentByUserId: 'user-42',
     })
     const [, data] = mockUpdateBriefCrm.mock.calls[0]!
@@ -269,7 +300,7 @@ describe('sendToCrm — persistencia', () => {
   it('persiste las notas CRM cuando se pasan', async () => {
     await sendToCrm({
       brief: baseBrief,
-      emailContent: 'Cuerpo.',
+      messageContent: 'Cuerpo.',
       crmNotes: 'Prioridad alta.',
       sentByUserId: 'user-1',
     })
@@ -280,7 +311,7 @@ describe('sendToCrm — persistencia', () => {
   it('persiste null en crmNotes cuando no se pasan notas', async () => {
     await sendToCrm({
       brief: baseBrief,
-      emailContent: 'Cuerpo.',
+      messageContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
     const [, data] = mockUpdateBriefCrm.mock.calls[0]!
@@ -290,11 +321,26 @@ describe('sendToCrm — persistencia', () => {
   it('persiste crmSentAt como fecha válida', async () => {
     await sendToCrm({
       brief: baseBrief,
-      emailContent: 'Cuerpo.',
+      messageContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
     const [, data] = mockUpdateBriefCrm.mock.calls[0]!
     expect(data.crmSentAt).toBeInstanceOf(Date)
+  })
+
+  it('persiste la representación del WhatsApp enviado a CRM', async () => {
+    const whatsappBrief = { ...baseBrief, channel: 'whatsapp', emailTemplate: null }
+
+    await sendToCrm({
+      brief: whatsappBrief,
+      messageContent: 'Mensaje <aprobado>',
+      sentByUserId: 'user-1',
+    })
+
+    const [, data] = mockUpdateBriefCrm.mock.calls[0]!
+    expect(data.crmEmailPlainText).toBe('Mensaje <aprobado>')
+    expect(data.crmEmailHtml).toContain('Mensaje &lt;aprobado&gt;')
+    expect(data.crmInternalSubject).toContain('WhatsApp aprobado')
   })
 })
 
@@ -305,7 +351,7 @@ describe('sendToCrm — resultado', () => {
     mockSendEmail.mockResolvedValueOnce({ success: true, mock: true })
     const result = await sendToCrm({
       brief: baseBrief,
-      emailContent: 'Cuerpo.',
+      messageContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
     expect(result.success).toBe(true)
@@ -316,7 +362,7 @@ describe('sendToCrm — resultado', () => {
     mockSendEmail.mockResolvedValueOnce({ success: true, messageId: 'real-abc' })
     const result = await sendToCrm({
       brief: baseBrief,
-      emailContent: 'Cuerpo.',
+      messageContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
     expect(result.success).toBe(true)
@@ -327,7 +373,7 @@ describe('sendToCrm — resultado', () => {
     mockSendEmail.mockResolvedValueOnce({ success: false, error: 'Credenciales inválidas' })
     const result = await sendToCrm({
       brief: baseBrief,
-      emailContent: 'Cuerpo.',
+      messageContent: 'Cuerpo.',
       sentByUserId: 'user-1',
     })
     expect(result.success).toBe(false)

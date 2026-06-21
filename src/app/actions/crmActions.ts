@@ -25,7 +25,13 @@ export interface CrmPreviewResult {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-async function getApprovedEmailContent(briefId: string): Promise<string | null> {
+interface ApprovedEmailData {
+  content: string
+  emailSubject: string | null
+  emailPreheader: string | null
+}
+
+async function getApprovedEmailContent(briefId: string): Promise<ApprovedEmailData | null> {
   const versions = await listVersionsByBrief(briefId)
   if (versions.length === 0) return null
 
@@ -38,7 +44,11 @@ async function getApprovedEmailContent(briefId: string): Promise<string | null> 
       (latestRun.overallVerdict === OVERALL_VERDICT.aprobada ||
         latestRun.overallVerdict === OVERALL_VERDICT.aprobada_con_ajustes)
     ) {
-      return version.content
+      return {
+        content: version.content,
+        emailSubject: version.emailSubject ?? null,
+        emailPreheader: version.emailPreheader ?? null,
+      }
     }
   }
 
@@ -61,16 +71,22 @@ export async function previewCrmEmailAction(briefId: string): Promise<CrmPreview
     return { success: false, error: 'Solo se puede preparar para CRM un brief de canal email.' }
   }
 
-  const emailContent = await getApprovedEmailContent(briefId)
-  if (!emailContent) {
+  const approved = await getApprovedEmailContent(briefId)
+  if (!approved) {
     return {
       success: false,
-      error: 'No hay mensaje aprobado. El email debe estar validado y aprobado antes de prepararlo para CRM.',
+      error:
+        'No hay mensaje aprobado. El email debe estar validado y aprobado antes de prepararlo para CRM.',
     }
   }
 
   try {
-    const preview = buildCrmPreview(brief, emailContent)
+    const preview = buildCrmPreview(
+      brief,
+      approved.content,
+      approved.emailSubject,
+      approved.emailPreheader,
+    )
     return {
       success: true,
       html: preview.html,
@@ -88,7 +104,10 @@ export async function previewCrmEmailAction(briefId: string): Promise<CrmPreview
  * Envía la propuesta maquetada al equipo de CRM y actualiza el estado del brief.
  * Solo debe llamarse tras confirmación explícita del usuario.
  */
-export async function sendToCrmAction(briefId: string, crmNotes?: string): Promise<CrmActionResult> {
+export async function sendToCrmAction(
+  briefId: string,
+  crmNotes?: string,
+): Promise<CrmActionResult> {
   const session = await auth()
   if (!session?.user?.id) return { success: false, error: 'No autenticado' }
 
@@ -101,17 +120,20 @@ export async function sendToCrmAction(briefId: string, crmNotes?: string): Promi
     return { success: false, error: 'Este brief ya fue enviado a CRM.' }
   }
 
-  const emailContent = await getApprovedEmailContent(briefId)
-  if (!emailContent) {
+  const approved = await getApprovedEmailContent(briefId)
+  if (!approved) {
     return {
       success: false,
-      error: 'No hay mensaje aprobado. El email debe estar validado y aprobado antes de enviarlo a CRM.',
+      error:
+        'No hay mensaje aprobado. El email debe estar validado y aprobado antes de enviarlo a CRM.',
     }
   }
 
   const result = await sendToCrm({
     brief,
-    emailContent,
+    messageContent: approved.content,
+    emailSubject: approved.emailSubject,
+    emailPreheader: approved.emailPreheader,
     crmNotes,
     sentByUserId: session.user.id,
   })

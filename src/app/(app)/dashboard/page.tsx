@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { auth } from '../../../auth'
@@ -6,6 +7,9 @@ import {
   getFirstAttemptApprovalRate,
   getRecentBriefsSummary,
 } from '../../../dao/validationRunDao'
+import { getBriefStatusStats, getRoleWorkloadStats, getGenerationModeStats } from '../../../dao/briefDao'
+import { canAccessDashboard } from '../../../types/domain'
+import { DashboardChannelBar } from '../../../components/dashboard/DashboardChannelBar'
 
 export const metadata = {
   title: 'Dashboard — PRISMA Copy Lab',
@@ -40,48 +44,67 @@ function formatBriefNumber(briefNumber: number): string {
   return `BR-${briefNumber.toString().padStart(3, '0')}`
 }
 
-export default async function DashboardPage() {
+type Props = { searchParams: Promise<{ channel?: string }> }
+
+export default async function DashboardPage({ searchParams }: Props) {
   const session = await auth()
   if (!session?.user?.id) redirect('/login')
+  if (!canAccessDashboard(session.user.role)) redirect('/briefs')
 
-  const [stats, firstAttemptRate, recentBriefs] = await Promise.all([
-    getValidationStats(session.user.id),
-    getFirstAttemptApprovalRate(session.user.id),
-    getRecentBriefsSummary(session.user.id, 5),
+  const { channel } = await searchParams
+  const activeChannel = channel ?? undefined   // undefined = todos los canales
+
+  // Coordinador y admin ven datos globales (sin filtro de userId)
+  const [stats, firstAttemptRate, recentBriefs, briefStatusStats, roleWorkload, generationModeStats] = await Promise.all([
+    getValidationStats(undefined, activeChannel),
+    getFirstAttemptApprovalRate(undefined, activeChannel),
+    getRecentBriefsSummary(undefined, 5, activeChannel),
+    getBriefStatusStats(undefined, activeChannel),
+    getRoleWorkloadStats(undefined, activeChannel),
+    getGenerationModeStats(undefined, activeChannel),
   ])
 
+  const briefsAprobados = briefStatusStats.aprobado + briefStatusStats.aprobado_con_ajustes
+
   const metricCards = [
-    { label: 'Briefings creados',         value: stats.totalBriefs },
-    { label: 'Mensajes generados',         value: stats.totalVersions },
-    { label: 'Validaciones realizadas',    value: stats.totalValidations },
-    { label: 'Promedio versiones/brief',   value: stats.avgVersionsPerBrief.toFixed(1) },
+    { label: 'Briefings creados',              value: stats.totalBriefs },
+    { label: 'Briefings aprobados',            value: briefsAprobados },
+    { label: 'Mensajes generados',             value: stats.totalVersions },
+    { label: 'Promedio versiones/briefing',    value: stats.avgVersionsPerBrief.toFixed(1) },
   ]
 
-  const verdictEntries = Object.entries(stats.verdicts) as Array<
-    [keyof typeof stats.verdicts, number]
-  >
+  const briefStatusEntries: Array<{ key: string; label: string; count: number; bar: string }> = [
+    { key: 'borrador',           label: 'Borrador',             count: briefStatusStats.borrador,           bar: '#cfc4c5' },
+    { key: 'en_revision',        label: 'En revisión',          count: briefStatusStats.en_revision,        bar: '#4c4546' },
+    { key: 'aprobado',           label: 'Aprobado',             count: briefStatusStats.aprobado,           bar: '#1b1c1c' },
+    { key: 'aprobado_con_ajustes', label: 'Aprobado con ajustes', count: briefStatusStats.aprobado_con_ajustes, bar: '#b08c30' },
+    { key: 'rechazado',          label: 'Rechazado',            count: briefStatusStats.rechazado,          bar: '#93000a' },
+  ]
 
   return (
     <div className="px-6 md:px-10 py-8 max-w-5xl mx-auto space-y-6">
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1
-            className="text-2xl font-bold text-[#1b1c1c]"
-            style={{ fontFamily: 'var(--font-heading)' }}
-          >
-            Dashboard
-          </h1>
-          <p className="text-sm text-[#4c4546] mt-0.5">Resumen de actividad del equipo</p>
-        </div>
-        <Link
-          href="/briefs"
-          className="text-sm font-medium text-[#4c4546] hover:text-[#1b1c1c] border border-[#cfc4c5] hover:border-[#1b1c1c] rounded px-4 py-2 transition-all"
+      <div>
+        <h1
+          className="text-2xl font-bold text-[#1b1c1c]"
+          style={{ fontFamily: 'var(--font-heading)' }}
         >
-          ← Briefings
-        </Link>
+          Dashboard
+        </h1>
+        <p className="text-sm text-[#4c4546] mt-0.5">
+          {activeChannel === 'email'
+            ? 'Métricas de Email'
+            : activeChannel === 'whatsapp'
+            ? 'Métricas de WhatsApp'
+            : 'Resumen de actividad del equipo'}
+        </p>
       </div>
+
+      {/* Channel filter */}
+      <Suspense fallback={<div className="h-9" />}>
+        <DashboardChannelBar />
+      </Suspense>
 
       {/* Metric cards */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -93,8 +116,8 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* First-attempt rate + most-used channel */}
-      <div className="grid gap-3 sm:grid-cols-2">
+      {/* First-attempt rate + most-used channel + A/B mode */}
+      <div className={`grid gap-3 ${!activeChannel ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
 
         <div className="bg-[#ffffff] border border-[#cfc4c5] rounded-lg px-5 py-5">
           <p className="text-xs text-[#4c4546] mb-3">Tasa de aprobación en 1.ª versión</p>
@@ -110,50 +133,74 @@ export default async function DashboardPage() {
           </div>
         </div>
 
+        {!activeChannel && (
+          <div className="bg-[#ffffff] border border-[#cfc4c5] rounded-lg px-5 py-5">
+            <p className="text-xs text-[#4c4546] mb-3">Canal más usado</p>
+            {stats.mostUsedChannel ? (
+              <div className="flex items-center gap-3">
+                <span className="inline-flex items-center text-sm font-semibold px-3 py-1 rounded border bg-[#e9e8e7] text-[#1b1c1c] border-[#cfc4c5]">
+                  {stats.mostUsedChannel === 'whatsapp' ? '💬 ' : '✉️ '}
+                  {CHANNEL_LABELS[stats.mostUsedChannel] ?? stats.mostUsedChannel}
+                </span>
+                <p className="text-xs text-[#7e7576]">de {stats.totalBriefs} briefings</p>
+              </div>
+            ) : (
+              <p className="text-sm text-[#7e7576] mt-1">Sin datos todavía</p>
+            )}
+          </div>
+        )}
+
         <div className="bg-[#ffffff] border border-[#cfc4c5] rounded-lg px-5 py-5">
-          <p className="text-xs text-[#4c4546] mb-3">Canal más usado</p>
-          {stats.mostUsedChannel ? (
-            <div className="flex items-center gap-3">
-              <span className="inline-flex items-center text-sm font-semibold px-3 py-1 rounded border bg-[#e9e8e7] text-[#1b1c1c] border-[#cfc4c5]">
-                {stats.mostUsedChannel === 'whatsapp' ? '💬 ' : '✉️ '}
-                {CHANNEL_LABELS[stats.mostUsedChannel] ?? stats.mostUsedChannel}
-              </span>
-              <p className="text-xs text-[#7e7576]">de {stats.totalBriefs} briefings</p>
-            </div>
-          ) : (
+          <p className="text-xs text-[#4c4546] mb-3">Briefings con test A/B</p>
+          {generationModeStats.total === 0 ? (
             <p className="text-sm text-[#7e7576] mt-1">Sin datos todavía</p>
+          ) : (
+            <>
+              <div className="flex items-end gap-2 mb-3">
+                <p className="text-3xl font-bold text-[#1b1c1c] tracking-tight">{generationModeStats.ab_test}</p>
+                <p className="text-xs text-[#7e7576] mb-1">A/B · {generationModeStats.standard} estándar</p>
+              </div>
+              <div className="h-2 w-full rounded-full bg-[#e9e8e7] overflow-hidden">
+                <div
+                  className="h-2 rounded-full transition-all"
+                  style={{
+                    width: `${Math.round((generationModeStats.ab_test / generationModeStats.total) * 100)}%`,
+                    background: '#1b1c1c',
+                  }}
+                />
+              </div>
+            </>
           )}
         </div>
       </div>
 
-      {/* Verdict distribution */}
+      {/* Brief status distribution */}
       <div className="bg-[#ffffff] border border-[#cfc4c5] rounded-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-[#e9e8e7]">
-          <h2 className="text-sm font-semibold text-[#1b1c1c]">Distribución de veredictos</h2>
+          <h2 className="text-sm font-semibold text-[#1b1c1c]">Estado de los briefings creados</h2>
           <p className="text-xs text-[#7e7576] mt-0.5">
-            Basado en {stats.totalValidations} validación{stats.totalValidations !== 1 ? 'es' : ''}
+            {briefStatusStats.total} briefing{briefStatusStats.total !== 1 ? 's' : ''} en total — cada uno contabilizado según su fase actual
           </p>
         </div>
         <div className="px-6 py-5">
-          {stats.totalValidations === 0 ? (
+          {briefStatusStats.total === 0 ? (
             <div className="text-center py-8">
-              <p className="text-sm text-[#7e7576]">No hay validaciones todavía.</p>
+              <p className="text-sm text-[#7e7576]">No hay briefings todavía.</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {verdictEntries.map(([verdict, count]) => {
-                const pct = Math.round((count / stats.totalValidations) * 100)
-                const colors = VERDICT_COLORS[verdict] ?? { bar: '#7e7576', text: '#1b1c1c', bg: '#e9e8e7', border: '#cfc4c5' }
+              {briefStatusEntries.map(({ key, label, count, bar }) => {
+                const pct = Math.round((count / briefStatusStats.total) * 100)
                 return (
-                  <div key={verdict} className="space-y-1.5">
+                  <div key={key} className="space-y-1.5">
                     <div className="flex justify-between text-sm">
-                      <span className="font-medium text-[#1b1c1c]">{VERDICT_LABELS[verdict]}</span>
+                      <span className="font-medium text-[#1b1c1c]">{label}</span>
                       <span className="font-semibold tabular-nums text-[#4c4546]">{count} ({pct}%)</span>
                     </div>
                     <div className="h-2 w-full rounded-full bg-[#e9e8e7] overflow-hidden">
                       <div
                         className="h-2 rounded-full transition-all"
-                        style={{ width: `${pct}%`, background: colors.bar }}
+                        style={{ width: `${pct}%`, background: bar }}
                       />
                     </div>
                   </div>
@@ -162,6 +209,53 @@ export default async function DashboardPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Role workload */}
+      <div className="grid gap-3 sm:grid-cols-2">
+
+        {/* Redactor */}
+        <div className="bg-[#ffffff] border border-[#cfc4c5] rounded-lg overflow-hidden">
+          <div className="px-5 py-4 border-b border-[#e9e8e7]">
+            <h2 className="text-sm font-semibold text-[#1b1c1c]">Redactor</h2>
+            <p className="text-xs text-[#7e7576] mt-0.5">Tareas de creación y generación</p>
+          </div>
+          <ul className="divide-y divide-[#f5f3f3]">
+            {([
+              { label: 'Briefings creados',           value: roleWorkload.redactor.briefingsCreados },
+              { label: 'Mensajes generados',           value: roleWorkload.redactor.mensajesGenerados },
+              { label: 'Nuevas versiones (v2+)',       value: roleWorkload.redactor.refinamientos },
+              { label: 'Pendientes de corrección',     value: roleWorkload.redactor.pendientesCorreccion },
+            ] as const).map(({ label, value }) => (
+              <li key={label} className="flex items-center justify-between px-5 py-3">
+                <span className="text-sm text-[#4c4546]">{label}</span>
+                <span className="text-sm font-semibold tabular-nums text-[#1b1c1c]">{value}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Product Manager */}
+        <div className="bg-[#ffffff] border border-[#cfc4c5] rounded-lg overflow-hidden">
+          <div className="px-5 py-4 border-b border-[#e9e8e7]">
+            <h2 className="text-sm font-semibold text-[#1b1c1c]">Product Manager</h2>
+            <p className="text-xs text-[#7e7576] mt-0.5">Tareas de revisión y validación</p>
+          </div>
+          <ul className="divide-y divide-[#f5f3f3]">
+            {([
+              { label: 'Briefings revisados',          value: roleWorkload.pm.briefingsRevisados },
+              { label: 'Aprobados',                    value: roleWorkload.pm.aprobados },
+              { label: 'Aprobados con ajustes',        value: roleWorkload.pm.aprobadosConAjustes },
+              { label: 'Rechazados',                   value: roleWorkload.pm.rechazados },
+            ] as const).map(({ label, value }) => (
+              <li key={label} className="flex items-center justify-between px-5 py-3">
+                <span className="text-sm text-[#4c4546]">{label}</span>
+                <span className="text-sm font-semibold tabular-nums text-[#1b1c1c]">{value}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
       </div>
 
       {/* Recent activity */}

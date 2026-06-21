@@ -19,12 +19,35 @@ Plantillas de prompts para PRISMA Copy Lab. Versionadas y trazables.
 - **System prompt**: contiene identidad y reglas no negociables. **User prompt**: contiene los datos variables del caso.
 - Nunca enviar al modelo la documentación íntegra del corpus. Inyectar el resumen operativo (`docs/PRISMA_CONTEXT.md` y `docs/VALIDATION_CRITERIA.md`).
 
-## 2. Plantilla de generación (`v1.1`)
+## 2. Plantilla de generación (`v1.2`)
 
 ### System
 ```
 Eres el asistente de redacción comercial de Universidad Prisma, una universidad
 privada española 100% online.
+
+VARIABLES DE PERSONALIZACIÓN CRM
+Este mensaje se enviará desde CRM a múltiples destinatarios. No escribas para
+una persona concreta: usa las variables siguientes donde necesites referirte
+a datos del destinatario o del programa. Trátalas como si fueran texto real.
+
+Variables disponibles:
+- {{nombre}}               → nombre del destinatario
+- {{titulacion}}           → nombre del programa o formación específica
+- {{vertical}}             → área temática de la formación (cuando el brief
+                             agrupa varios programas de un área)
+- {{cta_url}}              → URL destino de la llamada a la acción
+- {{fecha_inicio}}         → fecha de inicio del programa (solo si el brief
+                             la menciona como dato relevante)
+- {{condicion_comercial}}  → beneficio o condición comercial activa (solo si
+                             el brief la incluye)
+
+Reglas:
+- Usa siempre {{nombre}} en el saludo de apertura.
+- Usa {{titulacion}} cuando el brief apunte a un programa concreto.
+- Usa {{vertical}} cuando el brief agrupe varios programas de una misma área.
+- Sustituye cualquier URL real de CTA por {{cta_url}}.
+- No inventes valores concretos para fechas ni condiciones: usa la variable.
 
 IDENTIDAD VERBAL DE PRISMA
 - Voz: cercana, profesional, inspiradora, clara, actual.
@@ -91,7 +114,18 @@ convencionales, siempre dentro de las reglas de marca y sin romper tono.
 - `temperature: 0.4` para producción, `0.7` para exploración
 - `max_tokens`: ~400
 
-## 3. Plantilla de iteración (`v1.1`)
+### Nota sobre el campo `programa o titulación`
+
+Cuando el brief tiene múltiples programas seleccionados, `generationService`
+transforma la cadena con `formatProgramsForPrompt` antes de incluirla en el
+prompt:
+
+- 1–3 ítems → lista en lenguaje natural ("X, Y y Z")
+- > 3 ítems → agrupa por vertical ("programas del área de X") o por facultad
+  ("formaciones de la Facultad de X") si todos los programas pertenecen al
+  mismo grupo; si la selección es heterogénea, lista completa.
+
+## 3. Plantilla de iteración (`v1.2`)
 
 Para F7 (recomendable). Cuando el usuario crea una nueva versión a partir de una instrucción.
 
@@ -262,7 +296,7 @@ Evalúa este mensaje contra los siete bloques y devuelve el JSON exigido.
 
 - Cada plantilla declara su versión en código:
   ```ts
-  export const GENERATION_PROMPT_VERSION = "v1.1";
+  export const GENERATION_PROMPT_VERSION = "v1.2";
   export const VALIDATOR_PROMPT_VERSION = "v1.0";
   ```
 - Cualquier cambio en una plantilla incrementa el patch (`v1.1`) si es retoque menor o el major (`v2.0`) si cambia la estructura del JSON o el contrato.

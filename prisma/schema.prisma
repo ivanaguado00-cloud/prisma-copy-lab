@@ -65,12 +65,60 @@ model VerificationToken {
 
 // ── Domain ────────────────────────────────────────────────────────────────────
 
+model Program {
+  id String @id @default(cuid())
+
+  // ── Información comercial ─────────────────────────────────────────────
+  name                String
+  school              String
+  officialPrice       Float?
+  currentPromoPrice   Float?
+  activeDiscount      Float?     // Porcentaje 0–100
+  discountValidFrom   DateTime?
+  discountValidTo     DateTime?
+  enrollmentsTotal    Int        @default(0)
+  revenueTotal        Float      @default(0)
+  associatedCampaigns String?
+  conversionRate      Float?
+  bestChannel         String?
+  lastCampaign        String?
+
+  // ── Información académica ─────────────────────────────────────────────
+  duration            String?
+  credits             Int?
+  modality            String?
+  convocationStart    String?
+  subjectsOrModules   String?
+  mainFocuses         String?
+  careerOutcomes      String?
+  targetProfile       String?
+  valueProposition    String?
+  mainCommercialArgs  String?
+  validatedClaims     String?
+  restrictions        String?
+
+  // ── Información para IA ───────────────────────────────────────────────
+  bestMessages          String?
+  bestCtas              String?
+  winningApproaches     String?
+  successCasesAi        String?
+  futureRecommendations String?
+  teamObservations      String?
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  briefs Brief[]
+}
+
 model Brief {
   id                  String           @id @default(cuid())
   userId              String
   briefNumber         Int
   title               String
   programOrTitulation String?
+  programId           String?
   objective           String
   audience            String
   channel             String   @default("whatsapp")
@@ -79,6 +127,8 @@ model Brief {
   cta                 String
   constraints         String?
   emailTemplate       String?
+  // Generation mode
+  generationMode      String   @default("standard")
   // Review flow
   reviewStatus        String    @default("pending")
   reviewedBy          String?
@@ -95,10 +145,42 @@ model Brief {
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
 
-  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  versions MessageVersion[]
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  program     Program?         @relation(fields: [programId], references: [id])
+  versions    MessageVersion[]
+  sendMetrics SendMetrics?
 
   @@unique([userId, briefNumber])
+}
+
+model SendMetrics {
+  id               String    @id @default(cuid())
+  briefId          String    @unique
+  // UTM tracking
+  utmCampaign      String?
+  utmSource        String?
+  utmMedium        String?
+  utmContent       String?
+  // Delivery metrics
+  sentCount        Int       @default(0)
+  deliveredCount   Int       @default(0)
+  bouncedCount     Int       @default(0)
+  opensCount       Int       @default(0)
+  clicksCount      Int       @default(0)
+  leadsReactivated Int       @default(0)
+  enrollments      Int       @default(0)
+  // Revenue (precio y descuento vigentes en el momento de la conversión)
+  programPrice     Float?
+  programDiscount  Float?
+  // Success case learning memory
+  isSuccessCase    Boolean   @default(false)
+  successNote      String?
+  // Actual send timestamp (when pushed to audience, not DB creation)
+  sentAt           DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  brief Brief @relation(fields: [briefId], references: [id], onDelete: Cascade)
 }
 
 model MessageVersion {

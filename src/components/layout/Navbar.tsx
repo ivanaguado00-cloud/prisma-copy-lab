@@ -24,7 +24,7 @@ export async function Navbar() {
             </span>
           </Link>
 
-          <NavLinks />
+          <NavLinks role={session.user.role} />
         </div>
 
         {/* User */}

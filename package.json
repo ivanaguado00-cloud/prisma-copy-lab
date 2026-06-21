@@ -3,7 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "WATCHPACK_POLLING=true WATCHPACK_POLLING_INTERVAL=1000 node --max-old-space-size=2048 ./node_modules/next/dist/bin/next dev --webpack",
+    "dev:turbopack": "WATCHPACK_POLLING=true WATCHPACK_POLLING_INTERVAL=1000 node --max-old-space-size=2048 ./node_modules/next/dist/bin/next dev --turbopack",
+    "app:on": "npm run dev",
+    "app:off": "pkill -f 'next dev' || true",
+    "app:reset": "npm run app:off && node -e \"require('fs').rmSync('.next', { recursive: true, force: true })\" && npm run dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
