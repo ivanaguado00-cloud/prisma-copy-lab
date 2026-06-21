@@ -104,5 +104,6 @@ desktop.ini
 # ----- Misc -----
 *.local
 .history/
+tmp/
 
 /src/generated/prisma
