@@ -9,6 +9,7 @@
     "app:off": "pkill -f 'next dev' || true",
     "app:reset": "npm run app:off && node -e \"require('fs').rmSync('.next', { recursive: true, force: true })\" && npm run dev",
     "build": "next build",
+    "vercel-build": "prisma generate && prisma db push && next build",
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
